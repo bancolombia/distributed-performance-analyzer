@@ -1,6 +1,6 @@
 use Mix.Config
 
 config :perf_analizer,
-       host: {:http, "httpbin.org", 80},
-       request: %{method: "GET", path: "/", headers: [], body: ""},
-       execution: %{steps: 1, increment: 10, duration: 1000}
+       host: {:https, "test.api.upet.co", 443},
+       request: %{method: "GET", path: "/rest/appInfo/version", headers: [], body: ""},
+       execution: %{steps: 15, increment: 10, duration: 500}

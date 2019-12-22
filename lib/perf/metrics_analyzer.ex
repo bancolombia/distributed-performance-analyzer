@@ -24,16 +24,20 @@ defmodule Perf.MetricsAnalyzer do
     steps_count =  Enum.count(steps)
 
     curve = Enum.map(steps, fn step ->
-      responses = Map.get(metrics, step) |> Enum.flat_map(fn x -> x end)
-      success_responses = Enum.filter(responses, fn resp -> is_success(resp) end)
-      throughput = Enum.count(success_responses) / duration_segs
-      {step, throughput}
+      concurrency = Enum.count(Map.get(metrics, step))
+      success_responses = Map.get(metrics, step)
+                  |> Enum.flat_map(fn x -> x end)
+                  |> Enum.filter(& is_success(&1))
+                  |> Enum.count()
+      throughput = success_responses / duration_segs
+      {step, throughput, concurrency}
     end)
+    sorted_curve = Enum.sort(curve, &(elem(&1, 2) <=  elem(&2, 2)))
 
     IO.puts("Total steps: #{steps_count}")
     IO.puts("Total duration: #{steps_count * duration_segs} seconds")
-    Enum.each(curve, fn {step, throughput} ->
-      IO.puts("#{step}: #{throughput} req/seg")
+    Enum.each(sorted_curve, fn {step, throughput, concurrency} ->
+      IO.puts("#{concurrency}, #{throughput}")
     end)
 
     {:noreply, nil}
