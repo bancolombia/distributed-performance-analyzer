@@ -9,6 +9,8 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/castore" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mint" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/castore" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/mint" />
       <excludeFolder url="file://$MODULE_DIR$/assets/node_modules/phoenix" />
       <excludeFolder url="file://$MODULE_DIR$/assets/node_modules/phoenix_html" />
       <excludeFolder url="file://$MODULE_DIR$/cover" />

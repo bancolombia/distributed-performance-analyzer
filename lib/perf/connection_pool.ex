@@ -2,6 +2,10 @@ defmodule Perf.ConnectionPool do
   use GenServer
 
   def start(scheme, host, port) do
+    GenServer.start_link(__MODULE__, {scheme, host, port})
+  end
+
+  def start_link({scheme, host, port}) do
     GenServer.start_link(__MODULE__, {scheme, host, port}, name: __MODULE__)
   end
 
@@ -43,9 +47,13 @@ defmodule Perf.ConnectionPool do
   end
 
   @impl true
-  def handle_call(:get_connection, from, {scheme, host, port, pool}) do
-    [head | tail] = pool
+  def handle_call(:get_connection, from, {scheme, host, port, [head | tail]}) do
     {:reply, head, {scheme, host, port, tail}}
+  end
+
+  @impl true
+  def handle_call(:get_connection, from, {scheme, host, port, []}) do
+    {:reply, nil, {scheme, host, port, []}}
   end
 
   @impl true

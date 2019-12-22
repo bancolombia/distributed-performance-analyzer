@@ -12,14 +12,14 @@ defmodule Perf.ConnectionProcess do
   end
 
   def request(pid, method, path, headers, body) do
-    GenServer.call(pid, {:request, method, path, headers, body})
+    init_time = :erlang.monotonic_time(:milli_seconds)
+    result = GenServer.call(pid, {:request, method, path, headers, body})
+    total_time = :erlang.monotonic_time(:milli_seconds) - init_time
+    {total_time, result}
   end
 
   def invoke(pid) do
-    init_time = :erlang.monotonic_time(:milli_seconds)
-    result = request(pid, "GET", "/rest/appInfo/version", [], "")
-    total_time = :erlang.monotonic_time(:milli_seconds) - init_time
-    {total_time, result}
+    request(pid, "GET", "/rest/appInfo/version", [], "")
   end
 
   ## Callbacks
