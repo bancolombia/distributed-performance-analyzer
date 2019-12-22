@@ -25,6 +25,15 @@ defmodule Perf.MetricsCollector do
 
   @impl true
   def handle_cast({:results, results, step}, state) do
+
+    results = Enum.map(results, fn item ->
+      case item do
+        {latency, {:ok, %{data: _, headers: _, status: status}}} -> {:ok, latency, status}
+        {latency, _} -> {:fail, latency}
+        {latency, _} -> :fail
+      end
+    end)
+
     state = Map.update(state, step, [], fn xs -> [results | xs] end)
     {:noreply, state}
   end

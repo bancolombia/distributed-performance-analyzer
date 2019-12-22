@@ -45,7 +45,7 @@ defmodule Perf.MetricsAnalyzer do
 
   defp is_success(response) do
     case response do
-      {lat, {:ok, _}} -> true
+      {:ok, latency, status} -> true
       _ -> false
     end
 
