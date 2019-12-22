@@ -33,6 +33,8 @@ defmodule Perf.MetricsCollector do
         {latency, _} -> :fail
       end
     end)
+      |> Enum.filter(& is_success(&1))
+      |> Enum.count()
 
     state = Map.update(state, step, [], fn xs -> [results | xs] end)
     {:noreply, state}
@@ -47,6 +49,13 @@ defmodule Perf.MetricsCollector do
   def handle_cast({:results, results, step}, state) do
     state = Map.update(state, step, [], fn xs -> [results | xs] end)
     {:noreply, state}
+  end
+
+  defp is_success(response) do
+    case response do
+      {:ok, latency, status} -> true
+      _ -> false
+    end
   end
 
 end

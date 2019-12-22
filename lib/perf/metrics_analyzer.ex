@@ -26,9 +26,7 @@ defmodule Perf.MetricsAnalyzer do
     curve = Enum.map(steps, fn step ->
       concurrency = Enum.count(Map.get(metrics, step))
       success_responses = Map.get(metrics, step)
-                  |> Enum.flat_map(fn x -> x end)
-                  |> Enum.filter(& is_success(&1))
-                  |> Enum.count()
+                  |> Enum.reduce(0, fn x, acc -> x + acc end)
       throughput = success_responses / duration_segs
       {step, throughput, concurrency}
     end)
@@ -48,7 +46,6 @@ defmodule Perf.MetricsAnalyzer do
       {:ok, latency, status} -> true
       _ -> false
     end
-
   end
 
 end
