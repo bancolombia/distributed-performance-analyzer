@@ -24,21 +24,28 @@ defmodule Perf.MetricsAnalyzer do
     steps_count =  Enum.count(steps)
 
     curve = Enum.map(steps, fn step ->
-      concurrency = Enum.count(Map.get(metrics, step))
-      success_responses = Map.get(metrics, step)
-                  |> Enum.reduce(0, fn x, acc -> x + acc end)
+      results_list = Map.get(metrics, step)
+      concurrency = Enum.count(results_list)
+      {success_responses, latency} = results_list
+                  |> Enum.reduce({0, 0}, fn {success_count, mean_latency, _}, {succ_acc, lat_acc} -> {success_count + succ_acc, mean_latency + lat_acc } end)
       throughput = success_responses / duration_segs
-      {step, throughput, concurrency}
+      lat_total = latency / concurrency
+
+      max_latency = results_list
+        |> Enum.reduce(0, fn {_, _, latency},
+           acc -> if latency > acc do latency else acc end end)
+
+      {step, throughput, concurrency, lat_total, max_latency}
     end)
     sorted_curve = Enum.sort(curve, &(elem(&1, 2) <=  elem(&2, 2)))
 
     IO.puts("Total steps: #{steps_count}")
     IO.puts("Total duration: #{steps_count * duration_segs} seconds")
-    Enum.each(sorted_curve, fn {step, throughput, concurrency} ->
-      IO.puts("#{concurrency}, #{throughput}")
+    Enum.each(sorted_curve, fn {step, throughput, concurrency, lat_total, max_latency} ->
+      IO.puts("#{concurrency}, #{throughput} -- #{lat_total}ms -- #{max_latency}ms")
     end)
 
-    {:noreply, nil}
+    {:stop, :normal, nil}
   end
 
   defp is_success(response) do

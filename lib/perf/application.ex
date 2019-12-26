@@ -16,16 +16,20 @@ defmodule Perf.Application do
     execution_conf = struct(Execution, Application.fetch_env!(:perf_analizer, :execution))
     execution_conf = put_in(execution_conf.request, request)
     execution_conf = put_in(execution_conf.collector, Perf.MetricsCollector)
+    execution_deps = %{analyzer: Perf.MetricsAnalyzer, pool: Perf.ConnectionPool, load_step: Perf.LoadStep}
 
     children = [
       {Perf.ConnectionPool, connection_conf},
+      {Perf.MetricsAnalyzer, execution_conf},
       Perf.MetricsCollector,
-      {Execution, execution_conf},
-      {Perf.MetricsAnalyzer, execution_conf}
+      {Execution, execution_deps}
     ]
 
-    Supervisor.start_link(children, strategy: :rest_for_one)
-
+    pid = Supervisor.start_link(children, strategy: :rest_for_one)
+    if execution_conf.steps > 0 do
+      Execution.launch_execution(execution_conf)
+    end
+    pid
   end
 
 end

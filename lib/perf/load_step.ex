@@ -6,6 +6,8 @@ defmodule Perf.LoadStep do
     loads = 1..concurrency |>
       Enum.map(fn _ -> start_load(launch_config) end) |>
       Enum.map(fn ref -> wait_for(ref, duration + 30000) end)
+
+    IO.puts("#{Enum.count(loads)} processes started for step: #{step}")
   end
 
   defp start_load(launch_config) do
@@ -17,7 +19,9 @@ defmodule Perf.LoadStep do
     receive do
       {:DOWN, ^ref, _, _, _} -> :load_end
     after
-      timeout -> :load_timeout
+      timeout ->
+        IO.puts("Process timeout #{inspect(ref)}")
+        :load_timeout
     end
   end
 

@@ -6,15 +6,16 @@ defmodule Perf.LoadGeneratorTest do
 
   test "should generate load" do
     Perf.ConnectionPool.ensure_capacity(1)
-
-    conf = Perf.LoadGenerator.Conf.new("GET", "/")
-    time = :erlang.monotonic_time(:milli_seconds) + 4000
+    Process.sleep(600)
+    conf = Perf.LoadGenerator.Conf.new("GET", "/api/admin/apps/10000")
+    time = :erlang.monotonic_time(:milli_seconds) + 1000
     {:ok, _} = Perf.LoadGenerator.start_link({conf, "Step1", time, Perf.LoadGeneratorTest.CollectorMock})
 
     Process.register(self(), :collector_test)
 
     receive do
-      {c, d} -> IO.puts("#{c}: #{Enum.count(d)}")
+      {c, results} ->
+        IO.puts("#{c}: #{Enum.count(results)}")
     end
 
   end

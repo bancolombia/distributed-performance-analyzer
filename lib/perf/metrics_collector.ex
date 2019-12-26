@@ -25,18 +25,23 @@ defmodule Perf.MetricsCollector do
 
   @impl true
   def handle_cast({:results, results, step}, state) do
-
-    results = Enum.map(results, fn item ->
-      case item do
-        {latency, {:ok, %{data: _, headers: _, status: status}}} -> {:ok, latency, status}
-        {latency, _} -> {:fail, latency}
-        {latency, _} -> :fail
-      end
-    end)
+    results = results
       |> Enum.filter(& is_success(&1))
-      |> Enum.count()
 
-    state = Map.update(state, step, [], fn xs -> [results | xs] end)
+    success_count = Enum.count(results)
+    mean_latency = ((results
+      |> Enum.reduce(0, fn {latency, _}, acc -> latency + acc end)) / success_count) / 1000
+    #IO.puts("metrics for step: #{step}, #{results}")
+
+    max_latency = (results
+    |> Enum.reduce(0, fn {latency, _}, acc -> if latency > acc do
+                                                latency
+                                              else
+                                                acc
+                                              end end)) / 1000
+
+    state = Map.update(state, step, [{success_count, mean_latency, max_latency}], fn xs -> [{success_count, mean_latency, max_latency} | xs] end)
+    #IO.puts(inspect(state))
     {:noreply, state}
   end
 
@@ -45,15 +50,9 @@ defmodule Perf.MetricsCollector do
     {:reply, state, state}
   end
 
-  @impl true
-  def handle_cast({:results, results, step}, state) do
-    state = Map.update(state, step, [], fn xs -> [results | xs] end)
-    {:noreply, state}
-  end
-
   defp is_success(response) do
     case response do
-      {:ok, latency, status} -> true
+      {latency, {:ok, status}} -> true
       _ -> false
     end
   end

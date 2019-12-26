@@ -16,6 +16,7 @@ defmodule Perf.LoadGenerator do
 
   defp generate_load(conf = %Perf.LoadGenerator.Conf{}, results, end_time, conn) do
     result = request(conf, conn)
+    #IO.puts(inspect(result))
     if actual_time() < end_time do
       results = [result | results]
       generate_load(conf, results, end_time, conn)
@@ -28,7 +29,7 @@ defmodule Perf.LoadGenerator do
     {total_time, result} = try do
       Perf.ConnectionProcess.request(conn, method, path, headers, body)
     catch
-      _, _ -> {0, :error}
+      _, error -> {0, :error}
     end
   end
 
