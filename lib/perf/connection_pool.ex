@@ -1,6 +1,8 @@
 defmodule Perf.ConnectionPool do
   use GenServer
 
+  @connection Perf.ConnectionProcess
+
   def start(scheme, host, port) do
     GenServer.start_link(__MODULE__, {scheme, host, port})
   end
@@ -10,7 +12,17 @@ defmodule Perf.ConnectionPool do
   end
 
   def ensure_capacity(capacity) do
-    GenServer.call(__MODULE__, {:ensure_capacity, capacity})
+    :pg2.get_members(__MODULE__)
+      |> Enum.map(fn pid -> Task.async(fn -> ensure_capacity(pid, capacity) end) end)
+      |> Enum.map(&Task.await/1)
+  end
+
+  defp ensure_capacity(pid, capacity) do
+    GenServer.call(pid, {:ensure_capacity, capacity})
+  end
+
+  def request(pid, method, path, headers, body) do
+    @connection.request(pid, method, path, headers, body)
   end
 
   def get_connection() do
@@ -21,17 +33,15 @@ defmodule Perf.ConnectionPool do
     GenServer.call(__MODULE__, {:return_connection, connection})
   end
 
-  def capacity() do
-    GenServer.call(__MODULE__, :capacity)
-  end
-
   @impl true
   def init({scheme, host, port}) do
+    :ok = :pg2.create(__MODULE__)
+    :ok = :pg2.join(__MODULE__, self())
     {:ok, {scheme, host, port, []}}
   end
 
   @impl true
-  def handle_call({:ensure_capacity, capacity}, from, {scheme, host, port, pool}) do
+  def handle_call({:ensure_capacity, capacity}, _from, {scheme, host, port, pool}) do
     to_create = capacity - Enum.count(pool)
     if to_create > 0 do
       created = Enum.map(1..to_create, fn _ -> create_connection(scheme, host, port) end)
@@ -42,33 +52,34 @@ defmodule Perf.ConnectionPool do
   end
 
   @impl true
-  def handle_call(:capacity, from, {scheme, host, port, pool}) do
-    {:reply, {:ok, Enum.count(pool)}, {scheme, host, port, pool}}
+  def handle_info(msg, state) do
+    IO.puts("Message In Pool: #{inspect(msg)}")
+    {:noreply, state}
   end
 
   @impl true
-  def handle_call(:get_connection, from, {scheme, host, port, [head | tail]}) do
+  def handle_call(:get_connection, _from, {scheme, host, port, [head | tail]}) do
     {:reply, head, {scheme, host, port, tail}}
   end
 
   @impl true
-  def handle_call(:get_connection, from, {scheme, host, port, []}) do
+  def handle_call(:get_connection, _from, {scheme, host, port, []}) do
     {:reply, nil, {scheme, host, port, []}}
   end
 
   @impl true
-  def handle_call({:return_connection, :fail_connection}, from, {scheme, host, port, pool}) do
+  def handle_call({:return_connection, :fail_connection}, _from, {scheme, host, port, pool}) do
     connection = create_connection(scheme, host, port)
     {:reply, :ok, {scheme, host, port, [connection | pool]}}
   end
 
   @impl true
-  def handle_call({:return_connection, connection}, from, {scheme, host, port, pool}) do
+  def handle_call({:return_connection, connection}, _from, {scheme, host, port, pool}) do
     {:reply, :ok, {scheme, host, port, [connection | pool]}}
   end
 
   defp create_connection(scheme, host, port) do
-    {:ok, conn} = Perf.ConnectionProcess.start_link({scheme, host, port})
+    {:ok, conn} = @connection.start_link({scheme, host, port})
     conn
   end
 

@@ -1,13 +1,18 @@
 defmodule Perf.LoadStep do
   @moduledoc false
 
-  def start_step({conf = %Perf.LoadGenerator.Conf{}, step, duration, concurrency, collector}) do
+  def start_step(conf) do
+    #TODO: Agregar timeout y manejar errores remotos
+    :rpc.multicall(__MODULE__, :start_step_local, [conf])
+  end
+
+  def start_step_local({conf = %Perf.LoadGenerator.Conf{}, step, duration, concurrency, collector}) do
     launch_config = create_conf(conf, duration, step, collector)
     loads = 1..concurrency |>
       Enum.map(fn _ -> start_load(launch_config) end) |>
-      Enum.map(fn ref -> wait_for(ref, duration + 30000) end)
+      Enum.map(fn ref -> wait_for(ref, duration + 1000) end)
 
-    IO.puts("#{Enum.count(loads)} processes started for step: #{step}")
+    IO.puts("#{Enum.count(loads)} Processes started for step: #{step}")
   end
 
   defp start_load(launch_config) do
@@ -26,7 +31,7 @@ defmodule Perf.LoadStep do
   end
 
   defp create_conf(conf, duration, step, collector) do
-    end_time = :erlang.monotonic_time(:milli_seconds) + duration
+    end_time = :erlang.system_time(:milli_seconds) + duration
     {conf, step, end_time, collector}
   end
 

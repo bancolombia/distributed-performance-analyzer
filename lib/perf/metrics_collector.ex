@@ -3,19 +3,15 @@ defmodule Perf.MetricsCollector do
   use GenServer
 
   def send_metrics(results, step) do
-    GenServer.cast(__MODULE__, {:results, results, step})
-  end
-
-  def compute_metrics() do
-    GenServer.cast(__MODULE__, :compute)
+    GenServer.cast({:global, __MODULE__}, {:results, results, step})
   end
 
   def get_metrics do
-    GenServer.call(__MODULE__, :get_metrics)
+    GenServer.call({:global, __MODULE__}, :get_metrics)
   end
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+    GenServer.start_link(__MODULE__, nil, name: {:global, __MODULE__})
   end
 
   @impl true
@@ -25,6 +21,7 @@ defmodule Perf.MetricsCollector do
 
   @impl true
   def handle_cast({:results, results, step}, state) do
+    #IO.puts(inspect(results))
     results = results
       |> Enum.filter(& is_success(&1))
 

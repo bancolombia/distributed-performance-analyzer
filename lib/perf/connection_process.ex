@@ -46,10 +46,11 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_call({:request, method, path, headers, body}, from, state) do
+    init_time = :erlang.monotonic_time(:micro_seconds)
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
       {:ok, conn, request_ref} ->
         state = put_in(state.conn, conn)
-        state = put_in(state.request, %{from: from, response: %{}, ref: request_ref})
+        state = put_in(state.request, %{from: from, response: %{}, ref: request_ref, init: init_time})
         {:noreply, state}
 
       {:error, conn, reason} ->
@@ -98,8 +99,8 @@ defmodule Perf.ConnectionProcess do
   end
   
   defp process_response({:done, request_ref}, state) do
-    %{response: response, from: from, ref: request_ref} = state.request
-    GenServer.reply(from, {:ok, response.status})
+    %{response: response, from: from, ref: request_ref, init: init} = state.request
+    GenServer.reply(from, {:ok, :erlang.monotonic_time(:micro_seconds) - init})
     put_in(state.request, nil)
   end
 
