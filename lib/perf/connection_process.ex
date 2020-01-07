@@ -89,12 +89,10 @@ defmodule Perf.ConnectionProcess do
   end
 
   defp process_response({:headers, request_ref, headers}, state) do
-    #put_in(state.request.response[:headers], headers)
     state
   end
 
   defp process_response({:data, request_ref, new_data}, state) do
-    #update_in(state.request.response[:data], fn data -> (data || "") <> new_data end)
     state
   end
   

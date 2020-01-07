@@ -1,6 +1,6 @@
 defmodule Perf.ConnectionPool do
   use GenServer
-
+  require Logger
   @connection Perf.ConnectionProcess
 
   def start(scheme, host, port) do
@@ -11,14 +11,14 @@ defmodule Perf.ConnectionPool do
     GenServer.start_link(__MODULE__, {scheme, host, port}, name: __MODULE__)
   end
 
-  def ensure_capacity(capacity) do
-    :pg2.get_members(__MODULE__)
-      |> Enum.map(fn pid -> Task.async(fn -> ensure_capacity(pid, capacity) end) end)
-      |> Enum.map(&Task.await/1)
-  end
+  #def ensure_capacity(capacity) do
+  #  :pg2.get_members(__MODULE__)
+  #    |> Enum.map(fn pid -> Task.async(fn -> ensure_capacity(pid, capacity) end) end)
+  #    |> Enum.map(&Task.await/1)
+  #end
 
-  defp ensure_capacity(pid, capacity) do
-    GenServer.call(pid, {:ensure_capacity, capacity})
+  def ensure_capacity(capacity) do
+    GenServer.call(__MODULE__, {:ensure_capacity, capacity})
   end
 
   def request(pid, method, path, headers, body) do

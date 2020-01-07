@@ -36,7 +36,7 @@ defmodule Perf.Application do
         children
       end
 
-    pid = Supervisor.start_link(children, strategy: :rest_for_one)
+    pid = Supervisor.start_link(children, strategy: :one_for_all)
     if execution_conf.steps > 0 && distributed == :none do
       Perf.Execution.launch_execution()
     end
