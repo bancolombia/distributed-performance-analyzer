@@ -18,6 +18,7 @@
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mimerl" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mint" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/parse_trans" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/poison" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ssl_verify_fun" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/unicode_util_compat" />
       <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/castore" />
@@ -45,5 +46,15 @@
     <orderEntry type="library" name="exjsx" level="project" />
     <orderEntry type="library" name="httparrot" level="project" />
     <orderEntry type="library" name="earmark" level="project" />
+    <orderEntry type="library" name="poison" level="project" />
+    <orderEntry type="library" name="excoveralls" level="project" />
+    <orderEntry type="library" name="benchee" level="project" />
+    <orderEntry type="library" name="benchee_json" level="project" />
+    <orderEntry type="library" name="benchee_html" level="project" />
+    <orderEntry type="library" name="jason" level="project" />
+    <orderEntry type="library" name="tiny" level="project" />
+    <orderEntry type="library" name="jsone" level="project" />
+    <orderEntry type="library" name="jiffy" level="project" />
+    <orderEntry type="library" name="json" level="project" />
   </component>
 </module>

@@ -2,7 +2,7 @@ defmodule Perf.Application do
   @moduledoc false
   use Application
 
-  alias Perf.LoadGenerator.Conf, as: Request
+  alias Perf.Model.Request
   alias Perf.Execution
 
   def start(_type, _args) do
@@ -22,6 +22,8 @@ defmodule Perf.Application do
     children = [
       {Perf.ExecutionConf, execution_conf},
       {Perf.ConnectionPool, connection_conf},
+      {DynamicSupervisor, name: Perf.ConnectionSupervisor, strategy: :one_for_one},
+      Perf.AppRegistry
     ]
 
     master_children = [

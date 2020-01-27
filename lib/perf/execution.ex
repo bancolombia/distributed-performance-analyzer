@@ -28,7 +28,6 @@ defmodule Perf.Execution do
     |> Enum.map(fn {x, concurrency} -> {req, "Step-#{x}", duration, concurrency, collector} end)
     |> Enum.each(fn step_conf ->
       IO.puts("Initiating #{elem(step_conf, 1)}, with #{elem(step_conf, 3)} actors")
-      #IO.inspect(pool.ensure_capacity(elem(step_conf, 3)))
       load_step.start_step(step_conf, pool)
     end)
     analyzer.compute_metrics()

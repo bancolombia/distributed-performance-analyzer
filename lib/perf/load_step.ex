@@ -1,7 +1,7 @@
 defmodule Perf.LoadStep do
   @moduledoc false
 
-
+  alias Perf.Model.Request
 
   def start_step({conf, step, duration, concurrency, collector}, pool) do
     #TODO: Agregar timeout y manejar errores remotos
@@ -34,8 +34,8 @@ defmodule Perf.LoadStep do
     end
   end
 
-  def start_step_local({conf = %Perf.LoadGenerator.Conf{}, step, duration, concurrency, collector}, pool) do
-    IO.inspect(pool.ensure_capacity(concurrency))
+  def start_step_local(data = {conf = %Request{}, step, duration, concurrency, collector}, pool) do
+    pool.ensure_capacity(concurrency)
     launch_config = create_conf(conf, duration, step, collector)
     loads = 1..concurrency |>
       Enum.map(fn _ -> start_load(launch_config) end) |>

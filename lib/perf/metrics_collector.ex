@@ -21,25 +21,28 @@ defmodule Perf.MetricsCollector do
 
   @impl true
   def handle_cast({:results, results, step}, state) do
-    #IO.puts(inspect(results))
-    results = results
-      |> Enum.filter(& is_success(&1))
-
+    results = Enum.filter(results, & is_success(&1))
     success_count = Enum.count(results)
-    mean_latency = ((results
-      |> Enum.reduce(0, fn {latency, _}, acc -> latency + acc end)) / success_count) / 1000
-    #IO.puts("metrics for step: #{step}, #{results}")
+    if success_count > 0 do
+      mean_latency = mean_latency(results, success_count)
+      max_latency = max_latency(results)
+      state = Map.update(state, step, [{success_count, mean_latency, max_latency}], fn xs -> [{success_count, mean_latency, max_latency} | xs] end)
+      {:noreply, state}
+    else
+      {:noreply, state}
+    end
+  end
 
-    max_latency = (results
-    |> Enum.reduce(0, fn {latency, _}, acc -> if latency > acc do
-                                                latency
-                                              else
-                                                acc
-                                              end end)) / 1000
+  defp mean_latency(results, success_count) do
+    ((results |> Enum.reduce(0, fn {latency, _}, acc -> latency + acc end)) / success_count) / 1000
+  end
 
-    state = Map.update(state, step, [{success_count, mean_latency, max_latency}], fn xs -> [{success_count, mean_latency, max_latency} | xs] end)
-    #IO.puts(inspect(state))
-    {:noreply, state}
+  defp max_latency(results) do
+    Enum.reduce(results, 0, &decide_max/2) / 1000
+  end
+
+  defp decide_max({latency, _}, acc) do
+    max(latency, acc)
   end
 
   @impl true
@@ -47,11 +50,7 @@ defmodule Perf.MetricsCollector do
     {:reply, state, state}
   end
 
-  defp is_success(response) do
-    case response do
-      {latency, {:ok, status}} -> true
-      _ -> false
-    end
-  end
+  defp is_success({latency, {:ok, status}}), do: true
+  defp is_success(_), do: false
 
 end

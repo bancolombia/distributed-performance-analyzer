@@ -5,9 +5,11 @@ defmodule Perf.ConnectionProcess do
 
   defstruct [:conn, :params, request: %{}]
 
-  def start_link({scheme, host, port}) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, {scheme, host, port})
+  def start_link({scheme, host, port, id}) do
+    #conn_name = via(id)
+    {:ok, pid} = GenServer.start_link(__MODULE__, {scheme, host, port}, name: id)
     send(pid, :late_init)
+    #{:ok, conn_name}
     {:ok, pid}
   end
 
@@ -15,10 +17,6 @@ defmodule Perf.ConnectionProcess do
     :timer.tc(fn  ->
       GenServer.call(pid, {:request, method, path, headers, body})
     end)
-  end
-
-  def invoke(pid) do
-    request(pid, "GET", "/rest/appInfo/version", [], "")
   end
 
   ## Callbacks
