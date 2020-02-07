@@ -1,21 +1,28 @@
 # PerfAnalizer
 
-**TODO: Add description**
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `perf_analizer` to your list of dependencies in `mix.exs`:
-
+## Install
 ```elixir
-def deps do
-  [
-    {:perf_analizer, "~> 0.1.0"}
-  ]
-end
+mix deps.get
+mix compile
+
+
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/perf_analizer](https://hexdocs.pm/perf_analizer).
+## Configure
+Open and edit config/dev.exs File to configure
 
+
+## Run
+In the shell:
+
+```
+iex -S mix 
+or
+iex  --sname node1@localhost -S mix
+```
+
+```
+Perf.Execution.launch_execution()
+```
+To run Execution
