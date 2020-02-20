@@ -1,4 +1,4 @@
-# PerfAnalizer
+# Performance Analyzer
 
 
 ## Install
