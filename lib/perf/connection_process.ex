@@ -78,9 +78,14 @@ defmodule Perf.ConnectionProcess do
           %{response: response, from: from, ref: request_ref} -> GenServer.reply(from, {:fail, response})
           _ -> nil
         end
-        {:ok, new_conn} = Mint.HTTP.connect(scheme, host, port)
-        state = put_in(state.conn, new_conn)
-        {:noreply, state}
+        case Mint.HTTP.connect(scheme, host, port) do
+          {:ok, new_conn} ->
+            state = put_in(state.conn, new_conn)
+            {:noreply, state}
+          _ ->
+            state = put_in(state.conn, nil)
+            {:noreply, state}
+        end
     end
   end
 
