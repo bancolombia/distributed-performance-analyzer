@@ -39,7 +39,9 @@ defmodule Perf.ConnectionProcess do
   @impl true
   def handle_call({:request, _, _, _, _}, _, state = %__MODULE__{conn: nil}) do
     Logger.error(fn -> "Invalid connection state: nil" end)
-    raise("Invalid connection state: nil")
+    send(self(), :late_init)
+    Process.sleep(200)
+    {:reply, {:error_conn, "Invalid connection state: nil"}, state}
   end
 
   @impl true
