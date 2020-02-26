@@ -101,9 +101,12 @@ defmodule Perf.ConnectionProcess do
   end
   
   defp process_response({:done, request_ref}, state) do
-    %{response: response, from: from, ref: request_ref, init: init} = state.request
-    GenServer.reply(from, {:ok, :erlang.monotonic_time(:micro_seconds) - init})
-    put_in(state.request, %{})
+    case state.request do
+      %{response: response, from: from, ref: request_ref, init: init} ->
+        GenServer.reply(from, {:ok, :erlang.monotonic_time(:micro_seconds) - init})
+        put_in(state.request, %{})
+      _ -> put_in(state.request, %{})
+    end
   end
 
 end
