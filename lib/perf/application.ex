@@ -14,22 +14,20 @@ defmodule Perf.Application do
     connection_conf = Application.fetch_env!(:perf_analizer, :host)
     distributed = Application.fetch_env!(:perf_analizer, :distributed)
     request = struct(Request, Application.fetch_env!(:perf_analizer, :request))
-    execution_conf = struct(Execution, Application.fetch_env!(:perf_analizer, :execution))
+    execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analizer, :execution))
     execution_conf = put_in(execution_conf.request, request)
-    execution_conf = put_in(execution_conf.collector, Perf.MetricsCollector)
-    execution_deps = %{analyzer: Perf.MetricsAnalyzer, pool: Perf.ConnectionPool, load_step: Perf.LoadStep}
 
     children = [
       {Perf.ExecutionConf, execution_conf},
       {Perf.ConnectionPool, connection_conf},
-      {DynamicSupervisor, name: Perf.ConnectionSupervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: Perf.ConnectionSupervisor, strategy: :one_for_one, max_restarts: 10000, max_seconds: 1},
       Perf.AppRegistry
     ]
 
     master_children = [
       {Perf.MetricsAnalyzer, execution_conf},
       Perf.MetricsCollector,
-      {Execution, execution_deps}
+      Execution
     ]
 
     children = if distributed == :none || distributed == :master do
@@ -38,7 +36,7 @@ defmodule Perf.Application do
         children
       end
 
-    pid = Supervisor.start_link(children, strategy: :one_for_all)
+    pid = Supervisor.start_link(children, strategy: :one_for_one)
     if execution_conf.steps > 0 && distributed == :none do
       Perf.Execution.launch_execution()
     end

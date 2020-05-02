@@ -2,8 +2,9 @@ defmodule Perf.MetricsCollector do
   @moduledoc false
   use GenServer
 
-  def send_metrics(results, step) do
-    GenServer.cast({:global, __MODULE__}, {:results, results, step})
+  def send_metrics(results, step, concurrency) do
+    partial = PartialResult.calculate(results)
+    GenServer.call({:global, __MODULE__}, {:results, partial, step, concurrency})
   end
 
   def get_metrics do
@@ -20,29 +21,15 @@ defmodule Perf.MetricsCollector do
   end
 
   @impl true
-  def handle_cast({:results, results, step}, state) do
-    results = Enum.filter(results, & is_success(&1))
-    success_count = Enum.count(results)
-    if success_count > 0 do
-      mean_latency = mean_latency(results, success_count)
-      max_latency = max_latency(results)
-      state = Map.update(state, step, [{success_count, mean_latency, max_latency}], fn xs -> [{success_count, mean_latency, max_latency} | xs] end)
-      {:noreply, state}
-    else
-      {:noreply, state}
+  def handle_call({:results, partial = %PartialResult{}, step, concurrency}, _from, state) do
+    state = Map.update(state, step, partial, fn acc_partial -> PartialResult.combine(acc_partial, partial) end)
+    partial = state[step]
+    if partial.concurrency == concurrency do
+      mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
+      #IO.puts("concurrency, success_count -- mean_latency -- fail_http_count, protocol_error_count, error_conn_count, nil_conn_count")
+      IO.puts("#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms -- #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
     end
-  end
-
-  defp mean_latency(results, success_count) do
-    ((results |> Enum.reduce(0, fn {latency, _}, acc -> latency + acc end)) / success_count) / 1000
-  end
-
-  defp max_latency(results) do
-    Enum.reduce(results, 0, &decide_max/2) / 1000
-  end
-
-  defp decide_max({latency, _}, acc) do
-    max(latency, acc)
+    {:reply, :ok, state}
   end
 
   @impl true
@@ -50,7 +37,5 @@ defmodule Perf.MetricsCollector do
     {:reply, state, state}
   end
 
-  defp is_success({latency, {:ok, status}}), do: true
-  defp is_success(_), do: false
 
 end

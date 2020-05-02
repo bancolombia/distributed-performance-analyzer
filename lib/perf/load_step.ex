@@ -3,16 +3,16 @@ defmodule Perf.LoadStep do
 
   alias Perf.Model.Request
 
-  def start_step({conf, step, duration, concurrency, collector}, pool) do
+  def start_step(step_model = %StepModel{}) do
     #TODO: Agregar timeout y manejar errores remotos
     node_list = [Node.self | Node.list]
-    loads = distribute_load(node_list, concurrency)
+    loads = distribute_load(node_list, step_model.concurrency)
     node_count = Enum.count(node_list)
 
     Enum.zip(node_list, loads)
       |> Enum.map(fn {node, load} ->
           IO.puts("Starting with #{inspect(node)} and #{inspect(load)}")
-          :rpc.async_call(node, __MODULE__, :start_step_local, [{conf, step, duration, load, collector}, pool])
+          :rpc.async_call(node, __MODULE__, :start_step_local, [step_model, load])
         end)
       |> Enum.map(&:rpc.yield/1)
 
@@ -34,18 +34,20 @@ defmodule Perf.LoadStep do
     end
   end
 
-  def start_step_local(data = {conf = %Request{}, step, duration, concurrency, collector}, pool) do
-    pool.ensure_capacity(concurrency)
-    launch_config = create_conf(conf, duration, step, collector)
+  def start_step_local(step_model = %StepModel{duration: duration, name: name}, concurrency) do
+    Perf.ConnectionPool.ensure_capacity(concurrency)
+    launch_config = LoadProcessModel.new(step_model)
     loads = 1..concurrency |>
-      Enum.map(fn _ -> start_load(launch_config) end) |>
+      Enum.map(fn _ -> start_load(launch_config, concurrency) end) |>
       Enum.map(fn ref -> wait_for(ref, duration + 1000) end)
 
-    IO.puts("#{Enum.count(loads)} Processes started for step: #{step}")
+    ended_loads = Enum.filter(loads, fn x -> x == :load_end end) |> Enum.count()
+    timeout_loads = Enum.filter(loads, fn x -> x == :load_timeout end) |> Enum.count()
+    IO.puts("#{ended_loads} Processes completed, and #{timeout_loads} Processes timeout for step: #{name}")
   end
 
-  defp start_load(launch_config) do
-    {:ok, pid} = Perf.LoadGenerator.start_link(launch_config)
+  defp start_load(launch_config, concurrency) do
+    {:ok, pid} = Perf.LoadGenerator.start(launch_config, concurrency)
     Process.monitor(pid)
   end
 
@@ -53,15 +55,8 @@ defmodule Perf.LoadStep do
     receive do
       {:DOWN, ^ref, _, _, _} -> :load_end
     after
-      timeout ->
-        IO.puts("Process timeout #{inspect(ref)}")
-        :load_timeout
+      timeout -> :load_timeout
     end
-  end
-
-  defp create_conf(conf, duration, step, collector) do
-    end_time = :erlang.system_time(:milli_seconds) + duration
-    {conf, step, end_time, collector}
   end
 
 end

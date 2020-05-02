@@ -2,10 +2,10 @@ defmodule Perf.Execution do
   @moduledoc false
   use GenServer
 
-  defstruct [:request, :steps, :increment, :duration, :collector]
+  defstruct [:request, :steps, :increment, :duration]
 
-  def start_link(%{analyzer: analyzer, pool: pool, load_step: load_step}) do
-    GenServer.start_link(__MODULE__, %{analyzer: analyzer, pool: pool, load_step: load_step, actual_step: 1, steps: 0}, name: __MODULE__)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, %{actual_step: 1, steps: 0}, name: __MODULE__)
   end
 
   def launch_execution() do
@@ -27,27 +27,21 @@ defmodule Perf.Execution do
 
   @impl true
   def handle_cast(:continue_execution, state = %{actual_step: actual_step, steps: steps}) when actual_step <= steps do
-    Perf.ExecutionConf.get
-      |> create_step_conf(state.actual_step)
-      |> start_step(state.pool, state.load_step)
+    execution_model = Perf.ExecutionConf.get
+    StepModel.new(execution_model, state.actual_step) |> start_step()
     {:noreply, %{state | actual_step: state.actual_step + 1}}
   end
 
   @impl true
   def handle_cast(:continue_execution, state = %{actual_step: actual_step, steps: steps}) when actual_step > steps do
-    state.analyzer.compute_metrics()
+    Perf.MetricsAnalyzer.compute_metrics()
     {:noreply, %{state | actual_step: 1}}
   end
 
-  defp create_step_conf(conf = %Perf.Execution{}, step_num) do
-    concurrency = step_num * conf.increment
-    {conf.request, "Step-#{step_num}", conf.duration, concurrency, conf.collector}
-  end
-
-  defp start_step(step_conf, pool, load_step) do
-    IO.puts("Initiating #{elem(step_conf, 1)}, with #{elem(step_conf, 3)} actors")
+  defp start_step(step_conf) do
+    IO.puts("Initiating #{step_conf.name}, with #{step_conf.concurrency} actors")
     Task.start_link(fn ->
-      load_step.start_step(step_conf, pool)
+      Perf.LoadStep.start_step(step_conf)
       GenServer.cast(__MODULE__, :continue_execution)
     end)
   end
