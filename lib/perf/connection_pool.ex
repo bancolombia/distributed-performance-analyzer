@@ -1,11 +1,6 @@
 defmodule Perf.ConnectionPool do
   use GenServer
   require Logger
-  @connection Perf.ConnectionProcess
-
-  def start(scheme, host, port) do
-    GenServer.start_link(__MODULE__, {scheme, host, port})
-  end
 
   def start_link({scheme, host, port}) do
     GenServer.start_link(__MODULE__, {scheme, host, port}, name: __MODULE__)
@@ -13,10 +8,6 @@ defmodule Perf.ConnectionPool do
 
   def ensure_capacity(capacity) do
     GenServer.call(__MODULE__, {:ensure_capacity, capacity})
-  end
-
-  def request(pid, method, path, headers, body) do
-    @connection.request(pid, method, path, headers, body)
   end
 
   def get_connection() do
@@ -64,12 +55,6 @@ defmodule Perf.ConnectionPool do
     {:reply, nil, {scheme, host, port, []}}
   end
 
-  #@impl true
-  #def handle_call({:return_connection, :fail_connection}, _from, {scheme, host, port, pool}) do
-  #  connection = create_connection(scheme, host, port)
-  #  {:reply, :ok, {scheme, host, port, [connection | pool]}}
-  #end
-
   @impl true
   def handle_call({:return_connection, connection}, _from, {scheme, host, port, pool}) do
     {:reply, :ok, {scheme, host, port, [connection | pool]}}
@@ -77,7 +62,7 @@ defmodule Perf.ConnectionPool do
 
   defp create_connection(scheme, host, port, id) do
     name = Perf.AppRegistry.via_tuple(id)
-    {:ok, pid} = DynamicSupervisor.start_child(Perf.ConnectionSupervisor, {@connection, {scheme, host, port, name}})
+    {:ok, pid} = DynamicSupervisor.start_child(Perf.ConnectionSupervisor, {Perf.ConnectionProcess, {scheme, host, port, name}})
     name
   end
 

@@ -3,12 +3,12 @@ defmodule Perf.LoadGenerator do
   use Task
   alias Perf.Model.Request
 
-  def start_link({conf = %Request{}, step, end_time, collector}) do
-    Task.start_link(fn  ->
+  def start(%LoadProcessModel{request: request, step_name: step_name, end_time: end_time}, concurrency) do
+    Task.start(fn  ->
       conn = Perf.ConnectionPool.get_connection()
       try do
-        results = generate_load(conf, [], end_time, conn)
-        collector.send_metrics(results, step)
+        results = generate_load(request, [], end_time, conn)
+        Perf.MetricsCollector.send_metrics(results, step_name, concurrency)
       after
         Perf.ConnectionPool.return_connection(conn)
       end
@@ -27,11 +27,9 @@ defmodule Perf.LoadGenerator do
 
   defp request(%Request{method: method, path: path, headers: headers, body: body}, conn) do
     {total_time, result} = try do
-      Perf.ConnectionPool.request(conn, method, path, headers, body)
+      Perf.ConnectionProcess.request(conn, method, path, headers, body)
     catch
-      _, error ->
-        IO.puts(inspect(error))
-        {0, :error}
+      _, error -> {0, :invocation_error}
     end
   end
 
