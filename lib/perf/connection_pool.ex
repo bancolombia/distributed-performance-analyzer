@@ -22,20 +22,21 @@ defmodule Perf.ConnectionPool do
   def init({scheme, host, port}) do
     :ok = :pg2.create(__MODULE__)
     :ok = :pg2.join(__MODULE__, self())
-    {:ok, {scheme, host, port, []}}
+    {:ok, {scheme, host, port, [], 0}}
   end
 
   @impl true
-  def handle_call({:ensure_capacity, capacity}, _from, {scheme, host, port, pool}) do
+  def handle_call({:ensure_capacity, capacity}, _from, {scheme, host, port, pool, total_cap}) do
     actual = Enum.count(pool)
     to_create = capacity - actual
 
     if capacity > actual do
-      actual = actual + 1
-      created = Enum.map(actual..capacity, fn id -> create_connection(scheme, host, port, id) end)
-      {:reply, {:ok, to_create}, {scheme, host, port, created ++ pool}}
+      actual_from = total_cap + 1
+      capacity_to = total_cap + 1 + to_create
+      created = Enum.map(actual_from..capacity_to, fn id -> create_connection(scheme, host, port, id) end)
+      {:reply, {:ok, to_create}, {scheme, host, port, created ++ pool, total_cap + to_create + 1}}
     else
-      {:reply, {:ok, 0}, {scheme, host, port, pool}}
+      {:reply, {:ok, 0}, {scheme, host, port, pool, total_cap}}
     end
   end
 
@@ -46,18 +47,18 @@ defmodule Perf.ConnectionPool do
   end
 
   @impl true
-  def handle_call(:get_connection, _from, {scheme, host, port, [head | tail]}) do
-    {:reply, head, {scheme, host, port, tail}}
+  def handle_call(:get_connection, _from, {scheme, host, port, [head | tail], total_cap}) do
+    {:reply, head, {scheme, host, port, tail, total_cap}}
   end
 
   @impl true
-  def handle_call(:get_connection, _from, {scheme, host, port, []}) do
-    {:reply, nil, {scheme, host, port, []}}
+  def handle_call(:get_connection, _from, {scheme, host, port, [], total_cap}) do
+    {:reply, nil, {scheme, host, port, [], total_cap}}
   end
 
   @impl true
-  def handle_call({:return_connection, connection}, _from, {scheme, host, port, pool}) do
-    {:reply, :ok, {scheme, host, port, [connection | pool]}}
+  def handle_call({:return_connection, connection}, _from, {scheme, host, port, pool, total_cap}) do
+    {:reply, :ok, {scheme, host, port, [connection | pool], total_cap}}
   end
 
   defp create_connection(scheme, host, port, id) do
