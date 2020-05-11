@@ -13,13 +13,21 @@ defmodule StepModel do
     duration
     concurrency]a
 
-  def new(%ExecutionModel{request: request, duration: duration, increment: increment}, step_num) when step_num > 0 do
+  def new(model = %ExecutionModel{increment: increment, constant_load: false}, step_num) when step_num > 0 do
+    new(model, step_num, step_num * increment)
+  end
+
+  def new(model = %ExecutionModel{increment: increment, constant_load: true}, step_num) when step_num > 0 do
+    new(model, step_num, increment)
+  end
+
+  defp new(%ExecutionModel{request: request, duration: duration}, step_num, concurrency) do
     %__MODULE__{
       request: request,
       name: "Step-#{step_num}",
       step_number: step_num,
       duration: duration,
-      concurrency: step_num * increment,
+      concurrency: concurrency,
     }
   end
 
