@@ -13,7 +13,7 @@ defmodule Perf.ConnectionProcess do
 
   def request(pid, method, path, headers, body) do
     :timer.tc(fn  ->
-      GenServer.call(pid, {:request, method, path, headers, body})
+      GenServer.call(pid, {:request, method, path, headers, body}, 15_000)
     end)
   end
 
@@ -45,6 +45,7 @@ defmodule Perf.ConnectionProcess do
   @impl true
   def handle_call({:request, method, path, headers, body}, from, state) do
     init_time = :erlang.monotonic_time(:micro_seconds)
+    #IO.puts "Making Request!"
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
       {:ok, conn, request_ref} ->
         state = %{state | conn: conn, request: %{from: from, response: %{}, ref: request_ref, status: nil, init: init_time}}
@@ -58,11 +59,19 @@ defmodule Perf.ConnectionProcess do
   end
 
   @impl true
+  def handle_info(message, state = %__MODULE__{conn: nil}) do
+    Logger.error(fn -> "Received message with null conn: " <> inspect(message) end)
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_info(message, state) do
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
         Logger.error(fn -> "Received unknown message: " <> inspect(message) end)
         {:noreply, state}
+
+      {:ok, conn, []} -> {:noreply, put_in(state.conn, conn)}
 
       {:ok, conn, responses} ->
         state = put_in(state.conn, conn)
@@ -70,6 +79,8 @@ defmodule Perf.ConnectionProcess do
         {:noreply, state}
 
       {:error, conn, reason, responses} ->
+        #IO.puts("########ERROR########")
+        #IO.inspect(reason)
         case state.request do
           %{from: from, ref: request_ref} -> GenServer.reply(from, {:protocol_error, reason})
           _ -> nil
@@ -83,6 +94,7 @@ defmodule Perf.ConnectionProcess do
       case message do
         {:status, ^original_ref, status} -> put_in(state.request.status, status)
         {:done, ^original_ref} -> process_response(message, state)
+        {:error, ^original_ref, reason} -> process_response(message, state)
         _ -> state
       end
     end
@@ -90,7 +102,15 @@ defmodule Perf.ConnectionProcess do
 
 
   defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, init: init, status: status}}) do
+    #IO.puts("Done request!")
     GenServer.reply(from, {status_for(status), :erlang.monotonic_time(:micro_seconds) - init})
+    %{state | request: %{}}
+  end
+
+  defp process_response({:error, _request_ref, reason}, state = %__MODULE__{request: %{from: from, init: init}}) do
+    GenServer.reply(from, {:protocol_error, reason})
+    #IO.puts("Request error")
+    IO.inspect(reason)
     %{state | request: %{}}
   end
 
