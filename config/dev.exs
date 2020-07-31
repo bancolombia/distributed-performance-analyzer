@@ -9,7 +9,7 @@ config :perf_analizer,
 
 
 config :logger,
-       level: :error
+       level: :warn
 
 
 
