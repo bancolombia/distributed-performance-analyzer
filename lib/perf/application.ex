@@ -11,12 +11,27 @@ defmodule Perf.Application do
 
 
   def init() do
-    connection_conf = Application.fetch_env!(:perf_analizer, :host)
+    url = Application.fetch_env!(:perf_analizer, :url)
+    %{
+      host: host,
+      path: path,
+      scheme: scheme,
+      port: port,
+      query: query,
+    } = ConfParser.parse(url)
+
+    #connection_conf = Application.fetch_env!(:perf_analizer, :host)
+    connection_conf = {scheme, host, port}
+
     distributed = Application.fetch_env!(:perf_analizer, :distributed)
-    request = struct(Request, Application.fetch_env!(:perf_analizer, :request))
+
+    #request = struct(Request, Application.fetch_env!(:perf_analizer, :request))
+    %{method: method, headers: headers, body: body} = struct(Request, Application.fetch_env!(:perf_analizer, :request))
+    request = struct(Request, %{method: method, path: ConfParser.path(path, query), headers: headers, body: body, url: url})
+
     execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analizer, :execution))
     execution_conf = put_in(execution_conf.request, request)
-
+    #:erlang.system_flag(:schedulers_online, 10)
     children = [
       {Perf.ExecutionConf, execution_conf},
       {Perf.ConnectionPool, connection_conf},
@@ -43,4 +58,30 @@ defmodule Perf.Application do
     pid
   end
 
+end
+
+
+defmodule ConfParser do
+  def parse(url), do: :uri_string.parse(url) |> compose_url_parts()
+
+  defp compose_url_parts(%{host: host, path: path, scheme: scheme} = parts) do
+    %{
+      host: host,
+      path: path,
+      scheme: String.to_atom(scheme),
+      port: Map.get(parts, :port, default_port(scheme)),
+      query: Map.get(parts, :query, ""),
+    }
+  end
+
+  def path(path,  nil), do: path
+  def path(path,  ""), do: path
+  def path(path, query), do: "#{path}?#{query}"
+
+  defp compose_url_parts(parts) do
+    raise "Malformed url: #{inspect(parts)}"
+  end
+
+  defp default_port("http"), do: 80
+  defp default_port("https"), do: 443
 end

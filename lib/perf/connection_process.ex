@@ -60,7 +60,7 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_info(message, state = %__MODULE__{conn: nil}) do
-    Logger.error(fn -> "Received message with null conn: " <> inspect(message) end)
+    Logger.warn(fn -> "Received message with null conn: " <> inspect(message) end)
     {:noreply, state}
   end
 
@@ -68,7 +68,7 @@ defmodule Perf.ConnectionProcess do
   def handle_info(message, state) do
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
-        Logger.error(fn -> "Received unknown message: " <> inspect(message) end)
+        Logger.warn(fn -> "Received unknown message: " <> inspect(message) end)
         {:noreply, state}
 
       {:ok, conn, []} -> {:noreply, put_in(state.conn, conn)}

@@ -44,6 +44,12 @@ defmodule Perf.MetricsAnalyzer do
       IO.puts("#{concurrency}, #{throughput} -- #{round(lat_total)}ms -- #{round(max_latency)}ms, #{round(mean_latency_http)}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
     end)
 
+    IO.puts("####CSV#######")
+    IO.puts("concurrency, throughput, mean latency, max latency")
+    Enum.each(sorted_curve, fn {step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
+      IO.puts("#{concurrency}, #{round(throughput)}, #{round(lat_total)}, #{round(max_latency)}")
+    end)
+
     {:stop, :normal, nil}
   end
 
