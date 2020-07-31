@@ -27,16 +27,25 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
-    case Mint.HTTP.connect(scheme, host, port) do
+    case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
       {:ok, conn} -> {:noreply, %{state | conn: conn}}
-      {:error, _} -> {:noreply, state}
+      {:error, err} ->
+        Logger.warn("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
+        {:noreply, state}
     end
   end
 
+  @compile {:inline, options: 1}
+  defp options(:https) do
+    [transport_opts: [verify: :verify_none]]
+  end
+
+  defp options(:http) do
+    []
+  end
 
   @impl true
   def handle_call({:request, _, _, _, _}, _, state = %__MODULE__{conn: nil}) do
-    #Logger.error(fn -> "Invalid connection state: nil" end)
     send(self(), :late_init)
     Process.sleep(200)
     {:reply, {:nil_conn, "Invalid connection state: nil"}, state}
