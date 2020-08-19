@@ -4,17 +4,25 @@ defmodule Perf.Application do
 
   alias Perf.Model.Request
   alias Perf.Execution
-
+  alias MyRouter
   def start(_type, _args) do
-    init()
+    service()
+  end
+  def start_link do
+    Agent.start_link(fn -> nil end, name: __MODULE__)
+  end
+  def add_to(input) do
+    Agent.get_and_update(__MODULE__, fn (x) -> {input, input} end)
+  end
+  def get() do
+    Agent.get(__MODULE__, fn x ->  x end)
   end
 
-
-  def init() do
-    connection_conf = Application.fetch_env!(:perf_analizer, :host)
-    distributed = Application.fetch_env!(:perf_analizer, :distributed)
-    request = struct(Request, Application.fetch_env!(:perf_analizer, :request))
-    execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analizer, :execution))
+  def init(param1,param2,param3,param4) do
+    connection_conf = param1
+    distributed = param4
+    request = struct(Request, param2)
+    execution_conf = struct(ExecutionModel, param3)
     execution_conf = put_in(execution_conf.request, request)
 
     children = [
@@ -42,5 +50,14 @@ defmodule Perf.Application do
     end
     pid
   end
+
+  def service() do
+    children = [
+      {Plug.Cowboy, scheme: :http, plug: MyRouter, options: [port: 4001]}
+    ]
+    opts = [strategy: :one_for_one, name: Perf.Application.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
 
 end

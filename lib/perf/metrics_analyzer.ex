@@ -36,14 +36,7 @@ defmodule Perf.MetricsAnalyzer do
     total_success_count = Enum.reduce(steps, 0, fn step, acc -> Map.get(metrics, step).success_count + acc end)
     sorted_curve = Enum.sort(curve, &(elem(&1, 0) <=  elem(&2, 0)))
 
-    IO.puts("Total steps: #{steps_count}")
-    IO.puts("Total success count: #{total_success_count}")
-    IO.puts("Total duration: #{steps_count * duration_segs} seconds")
-    IO.puts("concurrency, throughput -- mean latency -- max latency, mean http latency, http_errors, protocol_error_count, error_conn_count, nil_conn_count")
-    Enum.each(sorted_curve, fn {step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
-      IO.puts("#{concurrency}, #{throughput} -- #{round(lat_total)}ms -- #{round(max_latency)}ms, #{round(mean_latency_http)}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
-    end)
-
+    Perf.Application.add_to(sorted_curve)
     {:stop, :normal, nil}
   end
 
