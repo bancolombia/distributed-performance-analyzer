@@ -1,7 +1,12 @@
 use Mix.Config
 
+
 config :perf_analizer,
-       host: {:http, "127.0.0.1", 3000},
-       request: %{method: "GET", path: "/api/admin/apps", headers: [], body: ""},
-       execution: %{steps: 3, increment: 300, duration: 5000},
-       distributed: :slave
+       url: "http://127.0.0.1:8080/wait/1",
+       request: %{method: "POST", headers: [{"Content-Type", "application/json"}], body: "{\"key\": \"example\"}"},
+       execution: %{steps: 5, increment: 370, duration: 7000, constant_load: true},
+       distributed: :none
+
+
+config :logger,
+       level: :info
