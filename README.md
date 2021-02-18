@@ -33,7 +33,7 @@ config :logger,
 | steps         | The number of executions for the test. Each step adds the concurrency configured in the increment             |
 | increment     | Increment in concurrency after each step                                                                      |
 | duration      | Duration in milliseconds of each step                                                                         |
-| constant_load | Allows you to configure if the load will be constant or if the increment will be used to vary it in each step |
+| constant_load | Allows you to configure if the load will be constant or if the increment will be used to vary the concurrency in each step |
 
 In the example above will be executed a test of 5 steps with an increment of 50:
 
