@@ -34,6 +34,7 @@ config :logger,
 | increment     | Increment in concurrency after each step                                                                      |
 | duration      | Duration in milliseconds of each step                                                                         |
 | constant_load | Allows you to configure if the load will be constant or if the increment will be used to vary the concurrency in each step |
+| distributed   | Indicates if it should be run from a single node or in a distributed way                                      |
 
 In the example above will be executed a test of 5 steps with an increment of 50:
 
