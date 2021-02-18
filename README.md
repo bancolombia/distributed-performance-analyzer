@@ -1,6 +1,6 @@
 # Performance Analyzer
 
-Performance Analyzer is a HTTP benchmarking tool capable of generating significant load from a single node or from a distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different scenaries of concurrency.
+Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different concurrency scenarios.
 
 ## Install
 
@@ -78,6 +78,6 @@ Then, you can compare the attributes that are interesting for you. For example c
 
 ### Examples
 
-![Example 1 - Throughput]()
+![Example 1 - Throughput](https://github.com/bancolombia/distributed-performance-analyzer/blob/documentation-improves/assets/dresults_example1.png)
 
-![Example 2 - Latency]()
+![Example 2 - Latency](https://github.com/bancolombia/distributed-performance-analyzer/blob/documentation-improves/assets/dresults_example2.png)
