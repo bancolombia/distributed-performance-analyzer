@@ -1,0 +1,6 @@
+.git
+_build
+deps
+doc
+deploy_samples
+bench
