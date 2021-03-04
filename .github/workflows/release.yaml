@@ -19,4 +19,4 @@ jobs:
       - name: Config Builder
         run: docker buildx create --name mbuilder && docker buildx use mbuilder
       - name: Docker Build Multiplatform
-        run: docker buildx build --platform linux/arm64,linux/amd64 -t bancolombia/distributed-performance-analyzer:${{ github.run_number }} --push .
+        run: docker buildx build --platform linux/arm64,linux/amd64 -t bancolombia/distributed-performance-analyzer:${GITHUB_REF##*/} --push .
