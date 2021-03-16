@@ -23,3 +23,5 @@ erl_crash.dump
 perf_analizer-*.tar
 
 .idea
+/perf_analizer
+*result.csv

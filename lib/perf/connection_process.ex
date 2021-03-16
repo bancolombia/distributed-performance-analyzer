@@ -25,16 +25,6 @@ defmodule Perf.ConnectionProcess do
     {:ok, state}
   end
 
-  @impl true
-  def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
-    case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
-      {:ok, conn} -> {:noreply, %{state | conn: conn}}
-      {:error, err} ->
-        Logger.warn("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
-        {:noreply, state}
-    end
-  end
-
   @compile {:inline, options: 1}
   defp options(:https) do
     [transport_opts: [verify: :verify_none]]
@@ -68,6 +58,16 @@ defmodule Perf.ConnectionProcess do
   end
 
   @impl true
+  def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
+    case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
+      {:ok, conn} -> {:noreply, %{state | conn: conn}}
+      {:error, err} ->
+        Logger.warn("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
+        {:noreply, state}
+    end
+  end
+
+  @impl true
   def handle_info(message, state = %__MODULE__{conn: nil}) do
     Logger.warn(fn -> "Received message with null conn: " <> inspect(message) end)
     {:noreply, state}
@@ -87,11 +87,11 @@ defmodule Perf.ConnectionProcess do
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
-      {:error, conn, reason, responses} ->
+      {:error, _conn, reason, _responses} ->
         #IO.puts("########ERROR########")
         #IO.inspect(reason)
         case state.request do
-          %{from: from, ref: request_ref} -> GenServer.reply(from, {:protocol_error, reason})
+          %{from: from, ref: _request_ref} -> GenServer.reply(from, {:protocol_error, reason})
           _ -> nil
         end
         {:noreply, put_in(state.conn, nil)}
@@ -103,7 +103,7 @@ defmodule Perf.ConnectionProcess do
       case message do
         {:status, ^original_ref, status} -> put_in(state.request.status, status)
         {:done, ^original_ref} -> process_response(message, state)
-        {:error, ^original_ref, reason} -> process_response(message, state)
+        {:error, ^original_ref, _reason} -> process_response(message, state)
         _ -> state
       end
     end
@@ -116,7 +116,7 @@ defmodule Perf.ConnectionProcess do
     %{state | request: %{}}
   end
 
-  defp process_response({:error, _request_ref, reason}, state = %__MODULE__{request: %{from: from, init: init}}) do
+  defp process_response({:error, _request_ref, reason}, state = %__MODULE__{request: %{from: from, init: _init}}) do
     GenServer.reply(from, {:protocol_error, reason})
     #IO.puts("Request error")
     IO.inspect(reason)

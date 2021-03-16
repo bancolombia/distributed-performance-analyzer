@@ -25,11 +25,11 @@ defmodule Perf.LoadGenerator do
     end
   end
 
-  defp request(%Request{method: method, path: path, headers: headers, body: body, url: url}, conn) do
-    {total_time, result} = try do
+  defp request(%Request{method: method, path: path, headers: headers, body: body, url: _url}, conn) do
+    {total_time, _result} = try do
       Perf.ConnectionProcess.request(conn, method, path, headers, body)
     catch
-      _, error -> {0, :invocation_error}
+      _, _error -> {0, :invocation_error}
     end
   end
 

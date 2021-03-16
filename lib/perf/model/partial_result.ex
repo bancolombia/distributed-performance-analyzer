@@ -59,28 +59,28 @@ defmodule PartialResult do
     }
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {:nil_conn, reason}}) do
+  defp calculate(partial = %__MODULE__{}, {_time, {:nil_conn, _reason}}) do
     %{partial |
       total_count: partial.total_count + 1,
       nil_conn_count: partial.nil_conn_count + 1
     }
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {:error_conn, reason}}) do
+  defp calculate(partial = %__MODULE__{}, {_time, {:error_conn, _reason}}) do
     %{partial |
       total_count: partial.total_count + 1,
       error_conn_count: partial.error_conn_count + 1
     }
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {:protocol_error, reason}}) do
+  defp calculate(partial = %__MODULE__{}, {_time, {:protocol_error, _reason}}) do
     %{partial |
       total_count: partial.total_count + 1,
       protocol_error_count: partial.protocol_error_count + 1
     }
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {{:fail_http, status_code}, latency}}) do
+  defp calculate(partial = %__MODULE__{}, {_time, {{:fail_http, _status_code}, latency}}) do
     latency = latency / 1000
     %{partial |
       total_count: partial.total_count + 1,
