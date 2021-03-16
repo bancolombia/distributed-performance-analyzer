@@ -1,13 +1,12 @@
 defmodule Perf.LoadStep do
   @moduledoc false
 
-  alias Perf.Model.Request
-
   def start_step(step_model = %StepModel{}) do
     #TODO: Agregar timeout y manejar errores remotos
     node_list = [Node.self | Node.list]
     loads = distribute_load(node_list, step_model.concurrency)
     node_count = Enum.count(node_list)
+    IO.puts("Starting with #{inspect(node_count)} nodes")
 
     Enum.zip(node_list, loads)
       |> Enum.map(fn {node, load} ->

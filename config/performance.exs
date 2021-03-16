@@ -1,20 +1,19 @@
-use Mix.Config
-
+import Config
 
 config :perf_analizer,
-       url: "http://127.0.0.1:8080/wait/1",
+       url: "http://localhost:3000",
        request: %{
-         method: "POST",
+         method: "GET",
          headers: [{"Content-Type", "application/json"}],
          body: "{\"key\": \"example\"}"
        },
        execution: %{
          steps: 5,
-         increment: 370,
-         duration: 7000,
+         increment: 10,
+         duration: 10000,
          constant_load: true
        },
-       distributed: :none
+       distributed: :master
 
 
 config :logger,

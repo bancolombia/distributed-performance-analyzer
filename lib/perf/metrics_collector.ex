@@ -11,6 +11,10 @@ defmodule Perf.MetricsCollector do
     GenServer.call({:global, __MODULE__}, :get_metrics)
   end
 
+  def clean_metrics do
+    GenServer.cast({:global, __MODULE__}, :clean)
+  end
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, nil, name: {:global, __MODULE__})
   end
@@ -28,13 +32,11 @@ defmodule Perf.MetricsCollector do
       new_state = Map.update(state, step, partial, fn acc_partial -> PartialResult.calculate_p90(state[step]) end)
       partial = new_state[step]
       mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
-      #IO.puts("concurrency, success_count -- mean_latency -- fail_http_count, protocol_error_count, error_conn_count, nil_conn_count")
-      IO.puts("#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms -- #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
+      IO.puts("#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
       {:reply, :ok, new_state}
-    else 
+    else
       {:reply, :ok, state}
     end
-    
   end
 
   @impl true
@@ -42,5 +44,9 @@ defmodule Perf.MetricsCollector do
     {:reply, state, state}
   end
 
+  @impl true
+  def handle_cast(:clean, state) do
+    {:noreply, %{}}
+  end
 
 end

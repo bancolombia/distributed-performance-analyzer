@@ -26,6 +26,12 @@ defmodule Perf.ConnectionPool do
   end
 
   @impl true
+  def handle_info(msg, state) do
+    IO.puts("Message In Pool: #{inspect(msg)}")
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_call({:ensure_capacity, capacity}, _from, {scheme, host, port, pool, total_cap}) do
     actual = Enum.count(pool)
     to_create = capacity - actual
@@ -38,12 +44,6 @@ defmodule Perf.ConnectionPool do
     else
       {:reply, {:ok, 0}, {scheme, host, port, pool, total_cap}}
     end
-  end
-
-  @impl true
-  def handle_info(msg, state) do
-    IO.puts("Message In Pool: #{inspect(msg)}")
-    {:noreply, state}
   end
 
   @impl true
@@ -63,7 +63,10 @@ defmodule Perf.ConnectionPool do
 
   defp create_connection(scheme, host, port, id) do
     name = Perf.AppRegistry.via_tuple(id)
-    {:ok, pid} = DynamicSupervisor.start_child(Perf.ConnectionSupervisor, {Perf.ConnectionProcess, {scheme, host, port, name}})
+    {:ok, _pid} = DynamicSupervisor.start_child(
+      Perf.ConnectionSupervisor,
+      {Perf.ConnectionProcess, {scheme, host, port, name}}
+    )
     name
   end
 

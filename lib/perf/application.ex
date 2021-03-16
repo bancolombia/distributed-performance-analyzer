@@ -4,13 +4,17 @@ defmodule Perf.Application do
 
   alias Perf.Model.Request
   alias Perf.Execution
+  @default_runtime_config "config/performance.exs"
 
   def start(_type, _args) do
     init()
   end
 
-
   def init() do
+    with {:ok, _} <- File.stat(@default_runtime_config) do
+      Config.Reader.read!(@default_runtime_config)
+      |> Application.put_all_env()
+    end
     url = Application.fetch_env!(:perf_analizer, :url)
     %{
       host: host,
@@ -20,18 +24,18 @@ defmodule Perf.Application do
       query: query,
     } = ConfParser.parse(url)
 
-    #connection_conf = Application.fetch_env!(:perf_analizer, :host)
     connection_conf = {scheme, host, port}
 
     distributed = Application.fetch_env!(:perf_analizer, :distributed)
 
-    #request = struct(Request, Application.fetch_env!(:perf_analizer, :request))
     %{method: method, headers: headers, body: body} = struct(Request, Application.fetch_env!(:perf_analizer, :request))
-    request = struct(Request, %{method: method, path: ConfParser.path(path, query), headers: headers, body: body, url: url})
+    request = struct(
+      Request,
+      %{method: method, path: ConfParser.path(path, query), headers: headers, body: body, url: url}
+    )
 
     execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analizer, :execution))
     execution_conf = put_in(execution_conf.request, request)
-    #:erlang.system_flag(:schedulers_online, 10)
     children = [
       {Perf.ExecutionConf, execution_conf},
       {Perf.ConnectionPool, connection_conf},
@@ -47,9 +51,9 @@ defmodule Perf.Application do
 
     children = if distributed == :none || distributed == :master do
       children ++ master_children
-      else
-        children
-      end
+    else
+      children
+    end
 
     pid = Supervisor.start_link(children, strategy: :one_for_one)
     if execution_conf.steps > 0 && distributed == :none do
@@ -60,9 +64,10 @@ defmodule Perf.Application do
 
 end
 
-
 defmodule ConfParser do
-  def parse(url), do: :uri_string.parse(url) |> compose_url_parts()
+  def parse(url),
+      do: :uri_string.parse(url)
+          |> compose_url_parts()
 
   defp compose_url_parts(%{host: host, path: path, scheme: scheme} = parts) do
     %{
@@ -73,14 +78,13 @@ defmodule ConfParser do
       query: Map.get(parts, :query, ""),
     }
   end
-
-  def path(path,  nil), do: path
-  def path(path,  ""), do: path
-  def path(path, query), do: "#{path}?#{query}"
-
   defp compose_url_parts(parts) do
     raise "Malformed url: #{inspect(parts)}"
   end
+
+  def path(path, nil), do: path
+  def path(path, ""), do: path
+  def path(path, query), do: "#{path}?#{query}"
 
   defp default_port("http"), do: 80
   defp default_port("https"), do: 443
