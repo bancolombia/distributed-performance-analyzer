@@ -96,26 +96,32 @@ defmodule PartialResult do
   end
   
   def calculate_p90(partial = %__MODULE__{}) do
-    sorted_times = Enum.sort(partial.times)
-    n = length(sorted_times)
-    index = 0.90 * n
-
-    p90_calc = case is_round?(index) do
-      true ->
-        x = Enum.at(sorted_times, trunc(index))
-        xp = Enum.at(sorted_times, trunc(index)+1)
-        (x + xp) / 2 
-          |> round
-      false -> 
-        index = round(index)
-        Enum.at(sorted_times, index)
+    case Enum.count(partial.times) do
+      0 ->
+        partial
+      _ -> 
+        sorted_times = Enum.sort(partial.times)
+        n = length(sorted_times)
+        index = 0.90 * n
+    
+        p90_calc = case is_round?(index) do
+          true ->
+            x = Enum.at(sorted_times, trunc(index))
+            xp = Enum.at(sorted_times, trunc(index)+1)
+            (x + xp) / 2 
+              |> IO.inspect
+              |> round
+          false -> 
+            index = round(index)
+            Enum.at(sorted_times, index)
+        end
+        |> round
+    
+        %{partial |
+          p90: p90_calc,
+          times: [],
+        }
     end
-    |> round
-
-    %{partial |
-      p90: p90_calc,
-      times: [],
-    }
   end
 
   defp is_round?(n) do
