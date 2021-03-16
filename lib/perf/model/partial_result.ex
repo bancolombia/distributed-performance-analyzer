@@ -13,6 +13,8 @@ defmodule PartialResult do
     http_max_latency: 0,
     success_max_latency: 0,
     concurrency: 1,
+    times: [],
+    p90: 0,
   ]
 
   def new, do: %__MODULE__{}
@@ -32,6 +34,7 @@ defmodule PartialResult do
       http_max_latency: max(partial0.http_max_latency, partial1.http_max_latency),
       success_max_latency: max(partial0.success_max_latency, partial1.success_max_latency),
       concurrency: partial0.concurrency + partial1.concurrency,
+      times: Enum.concat(partial0.times, partial1.times)
     }
   end
 
@@ -48,7 +51,8 @@ defmodule PartialResult do
       success_mean_latency: partial.success_mean_latency + latency,
       http_mean_latency: partial.http_mean_latency + latency,
       success_max_latency: max(latency, partial.success_max_latency),
-      http_max_latency: max(latency, partial.http_max_latency)
+      http_max_latency: max(latency, partial.http_max_latency),
+      times: [latency | partial.times]
     }
   end
 
@@ -89,6 +93,39 @@ defmodule PartialResult do
       http_mean_latency: partial.http_mean_latency + latency,
       http_max_latency: max(latency, partial.http_max_latency)
     }
+  end
+  
+  def calculate_p90(partial = %__MODULE__{}) do
+    case Enum.count(partial.times) do
+      0 ->
+        partial
+      _ -> 
+        sorted_times = Enum.sort(partial.times)
+        n = length(sorted_times)
+        index = 0.90 * n
+    
+        p90_calc = case is_round?(index) do
+          true ->
+            x = Enum.at(sorted_times, trunc(index))
+            xp = Enum.at(sorted_times, trunc(index)+1)
+            (x + xp) / 2 
+              |> IO.inspect
+              |> round
+          false -> 
+            index = round(index)
+            Enum.at(sorted_times, index)
+        end
+        |> round
+    
+        %{partial |
+          p90: p90_calc,
+          times: [],
+        }
+    end
+  end
+
+  defp is_round?(n) do
+    Float.floor(n) == n
   end
 
 end

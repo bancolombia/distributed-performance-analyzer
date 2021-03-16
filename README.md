@@ -66,12 +66,12 @@ Perf.Execution.launch_execution()
 After each step is executed you will get a table of results like the following:
 
 ```
-concurrency, throughput -- mean latency -- max latency, mean http latency, http_errors, protocol_error_count, error_conn_count
-50, 22159 -- 2ms -- 12ms, 2ms, 0, 0, 0
-100, 29329 -- 3ms -- 19ms, 3ms, 0, 0, 0
-150, 31000 -- 5ms -- 211ms, 5ms, 0, 0, 0
-200, 31031 -- 6ms -- 33ms, 6ms, 0, 0, 0
-250, 31413 -- 8ms -- 42ms, 8ms, 0, 0, 0
+concurrency, throughput -- mean latency -- p90 latency, max latency, mean http latency, http_errors, protocol_error_count, error_conn_count
+50, 22159 -- 2ms -- 3ms, 12ms, 2ms, 0, 0, 0
+100, 29329 -- 3ms -- 4ms, 19ms, 3ms, 0, 0, 0
+150, 31000 -- 5ms -- 6ms, 211ms, 5ms, 0, 0, 0
+200, 31031 -- 6ms -- 7ms, 33ms, 6ms, 0, 0, 0
+250, 31413 -- 8ms -- 9ms, 42ms, 8ms, 0, 0, 0
 ......
 ```
 

@@ -53,30 +53,24 @@ defmodule Perf.MetricsAnalyzer do
     IO.puts("Total success count: #{total_success_count}")
     IO.puts("Total duration: #{steps_count * duration_segs} seconds")
     IO.puts(
-      "concurrency, throughput -- mean latency -- max latency, mean http latency, http_errors, protocol_error_count, error_conn_count, nil_conn_count"
+      "concurrency, throughput -- mean latency, p90 latency, max latency, mean http latency, http_errors, protocol_error_count, error_conn_count, nil_conn_count"
     )
     Enum.each(
       sorted_curve,
-      fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
-        IO.puts(
-          "#{concurrency}, #{throughput} -- #{round(lat_total)}ms -- #{round(max_latency)}ms, #{
-            round(mean_latency_http)
-          }ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{
-            partial.nil_conn_count
-          }"
-        )
+      fn {step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
+        IO.puts("#{concurrency}, #{throughput} -- #{round(lat_total)}ms, #{partial.p90}ms, #{round(max_latency)}ms, #{round(mean_latency_http)}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
       end
     )
 
     {:ok, file} = File.open("config/result.csv", [:write])
     IO.puts("####CSV#######")
-    header = "concurrency, throughput, mean latency, max latency"
+    header = "concurrency, throughput, mean latency, p90 latency, max latency"
     IO.puts(header)
     IO.binwrite(file, header <> "\n")
     Enum.each(
       sorted_curve,
-      fn {_step, throughput, concurrency, lat_total, max_latency, _mean_latency_http, _partial} ->
-        row = "#{concurrency}, #{round(throughput)}, #{round(lat_total)}, #{round(max_latency)}"
+      fn {_step, throughput, concurrency, lat_total, max_latency, _mean_latency_http, partial} ->
+        row = "#{concurrency}, #{round(throughput)}, #{round(lat_total)}, #{partial.p90}, #{round(max_latency)}"
         IO.binwrite(file, row <> "\n")
         IO.puts(row)
       end
