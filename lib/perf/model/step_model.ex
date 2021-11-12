@@ -4,14 +4,16 @@ defmodule StepModel do
     name
     step_number
     duration
-    concurrency]a
+    concurrency
+    dataset]a
 
   defstruct ~w[
     request
     name
     step_number
     duration
-    concurrency]a
+    concurrency
+    dataset]a
 
   def new(model = %ExecutionModel{increment: increment, constant_load: false}, step_num) when step_num > 0 do
     new(model, step_num, step_num * increment)
@@ -21,13 +23,16 @@ defmodule StepModel do
     new(model, step_num, increment)
   end
 
-  defp new(%ExecutionModel{request: request, duration: duration}, step_num, concurrency) do
+  # TODO: Implement new step model for csv data
+
+  defp new(%ExecutionModel{request: request, duration: duration, dataset: dataset}, step_num, concurrency) do
     %__MODULE__{
       request: request,
       name: "Step-#{step_num}",
       step_number: step_num,
       duration: duration,
       concurrency: concurrency,
+      dataset: dataset
     }
   end
 

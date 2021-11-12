@@ -1,6 +1,6 @@
 import Config
 
-config :perf_analizer,
+config :perf_analyzer,
        url: "http://localhost:3000",
        request: %{
          method: "GET",

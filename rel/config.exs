@@ -52,8 +52,8 @@ end
 # when running `mix distillery.release`, the first release in the file
 # will be used by default
 
-release :perf_analizer do
-  set version: current_version(:perf_analizer)
+release :perf_analyzer do
+  set version: current_version(:perf_analyzer)
   set applications: [
     :runtime_tools
   ]

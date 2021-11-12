@@ -3,7 +3,7 @@ defmodule PerfAnalyzer.MixProject do
 
   def project do
     [
-      app: :perf_analizer,
+      app: :perf_analyzer,
       version: "0.1.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
@@ -29,7 +29,8 @@ defmodule PerfAnalyzer.MixProject do
       {:mint, "~> 1.3.0"},
       {:httpoison, "~> 1.8"},
       {:poison, "~> 5.0"},
-      {:distillery, "~> 2.1"}
+      {:distillery, "~> 2.1"},
+      {:nimble_csv, "~> 1.1"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

@@ -1,7 +1,7 @@
 use Mix.Config
 
 
-config :perf_analizer,
+config :perf_analyzer,
        url: "http://127.0.0.1:8080/wait/1",
        request: %{
          method: "POST",
@@ -19,6 +19,3 @@ config :perf_analizer,
 
 config :logger,
        level: :warn
-
-
-
