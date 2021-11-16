@@ -13,6 +13,9 @@ defmodule Dataset do
       Logger.warn("File not found: #{path}\n")
     end
 
+    {_status, file_size} = FileSize.from_file(path)
+    IO.puts("File Size: #{file_size}\n")
+
     data_stream =
       File.stream!(path)
       |> MyParser.parse_stream(skip_headers: false)
@@ -21,7 +24,8 @@ defmodule Dataset do
       Stream.drop(data_stream, -1)
       |> Enum.to_list()
       |> Enum.at(0)
-      |> Enum.map(&String.to_atom/1)
+
+    # |> Enum.map(&String.to_atom/1)
 
     Stream.drop(data_stream, 1)
     |> Stream.map(fn item ->

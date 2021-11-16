@@ -25,12 +25,13 @@ defmodule PerfAnalyzer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:castore, "~> 0.1.11"},
-      {:mint, "~> 1.3.0"},
+      {:castore, "~> 0.1.13"},
+      {:mint, "~> 1.4.0"},
       {:httpoison, "~> 1.8"},
       {:poison, "~> 5.0"},
       {:distillery, "~> 2.1"},
-      {:nimble_csv, "~> 1.1"}
+      {:nimble_csv, "~> 1.1"},
+      {:file_size, "~> 3.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

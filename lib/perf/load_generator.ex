@@ -26,10 +26,10 @@ defmodule Perf.LoadGenerator do
     end
   end
 
-  defp request(%Request{method: method, path: path, headers: headers, body: body_builder, url: _url}, item, conn) do
+  defp request(%Request{method: method, path: path, headers: headers, body: body, url: _url}, item, conn) do
     {_total_time, _result} =
       try do
-        Perf.ConnectionProcess.request(conn, method, path, headers, IO.inspect(get_body(body_builder, item)))
+        Perf.ConnectionProcess.request(conn, method, path, headers, replace_in_body(body, item))
       catch
         _, _error -> {0, :invocation_error}
       end
@@ -48,11 +48,13 @@ defmodule Perf.LoadGenerator do
 
   defp get_random_item(_opt), do: nil
 
-  defp get_body(body_builder, item) when is_function(body_builder) do
-    body_builder.(item)
+  defp replace_in_body(body, item) when is_map(item) do
+    Regex.replace(~r/{([a-z A-Z _-]+)?}/, body, fn _, match ->
+      item[match]
+    end)
   end
 
-  defp get_body(body, _item), do: body
+  defp replace_in_body(body, _item), do: body
 
 end
 
