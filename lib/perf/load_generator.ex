@@ -29,7 +29,7 @@ defmodule Perf.LoadGenerator do
   defp request(%Request{method: method, path: path, headers: headers, body: body, url: _url}, item, conn) do
     {_total_time, _result} =
       try do
-        Perf.ConnectionProcess.request(conn, method, path, headers, replace_in_body(body, item))
+        Perf.ConnectionProcess.request(conn, method, path, headers, IO.inspect(replace_in_body(body, item)))
       catch
         _, _error -> {0, :invocation_error}
       end
@@ -43,12 +43,16 @@ defmodule Perf.LoadGenerator do
   defp get_random_item([]), do: nil
 
   defp get_random_item(list) when is_list(list) do
+    # TODO: Improve random to static list
     Enum.at(list, Enum.random(0..length(list)))
   end
 
   defp get_random_item(_opt), do: nil
 
+  defp replace_in_body(body, item) when is_function(body), do: body.(item)
+
   defp replace_in_body(body, item) when is_map(item) do
+    item = Map.put(item, "random", "#{Enum.random(1..10)}")
     Regex.replace(~r/{([a-z A-Z _-]+)?}/, body, fn _, match ->
       item[match]
     end)

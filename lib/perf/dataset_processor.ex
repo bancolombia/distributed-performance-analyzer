@@ -24,8 +24,7 @@ defmodule Dataset do
       Stream.drop(data_stream, -1)
       |> Enum.to_list()
       |> Enum.at(0)
-
-    # |> Enum.map(&String.to_atom/1)
+      |> Enum.map(&String.to_atom/1)
 
     Stream.drop(data_stream, 1)
     |> Stream.map(fn item ->
