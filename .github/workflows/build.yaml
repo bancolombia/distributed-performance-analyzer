@@ -9,6 +9,11 @@ jobs:
         with:
           otp-version: '24'
           elixir-version: '1.12.3'
+      
+      - run: |
+          iex --version
+          erl --version
+          mix --version
 
       - run: |
           mkdir ./cover
