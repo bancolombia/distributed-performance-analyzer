@@ -9,11 +9,6 @@ jobs:
         with:
           otp-version: '24'
           elixir-version: '1.12.3'
-      
-      - run: |
-          iex --version
-          erl --version
-          mix --version
 
       - run: |
           mkdir ./cover
@@ -25,9 +20,9 @@ jobs:
         name: Compile Dependencies
 
       - run: |
+          MIX_ENV=test mix test --cover
+        name: Run Tests
+
+      - run: |
           MIX_ENV=performance mix escript.build
         name: Compile
-      
-      - run: |
-          MIX_ENV=test mix test --cover  
-        name: Run Tests
