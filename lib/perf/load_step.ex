@@ -33,11 +33,11 @@ defmodule Perf.LoadStep do
     end
   end
 
-  def start_step_local(step_model = %StepModel{duration: duration, name: name}, concurrency) do
+  def start_step_local(step_model = %StepModel{duration: duration, name: name, dataset: dataset}, concurrency) do
     Perf.ConnectionPool.ensure_capacity(concurrency)
     launch_config = LoadProcessModel.new(step_model)
     loads = 1..concurrency |>
-      Enum.map(fn _ -> start_load(launch_config, concurrency) end) |>
+      Enum.map(fn _ -> start_load(launch_config, dataset, concurrency) end) |>
       Enum.map(fn ref -> wait_for(ref, duration + 1000) end)
 
     ended_loads = Enum.filter(loads, fn x -> x == :load_end end) |> Enum.count()
@@ -45,8 +45,8 @@ defmodule Perf.LoadStep do
     IO.puts("#{ended_loads} Processes completed, and #{timeout_loads} Processes timeout for step: #{name}")
   end
 
-  defp start_load(launch_config, concurrency) do
-    {:ok, pid} = Perf.LoadGenerator.start(launch_config, concurrency)
+  defp start_load(launch_config, dataset, concurrency) do
+    {:ok, pid} = Perf.LoadGenerator.start(launch_config, dataset, concurrency)
     Process.monitor(pid)
   end
 

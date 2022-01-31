@@ -15,7 +15,7 @@ defmodule Perf.Application do
       Config.Reader.read!(@default_runtime_config)
       |> Application.put_all_env()
     end
-    url = Application.fetch_env!(:perf_analizer, :url)
+    url = Application.fetch_env!(:perf_analyzer, :url)
     %{
       host: host,
       path: path,
@@ -26,15 +26,15 @@ defmodule Perf.Application do
 
     connection_conf = {scheme, host, port}
 
-    distributed = Application.fetch_env!(:perf_analizer, :distributed)
+    distributed = Application.fetch_env!(:perf_analyzer, :distributed)
 
-    %{method: method, headers: headers, body: body} = struct(Request, Application.fetch_env!(:perf_analizer, :request))
+    %{method: method, headers: headers, body: body} = struct(Request, Application.fetch_env!(:perf_analyzer, :request))
     request = struct(
       Request,
       %{method: method, path: ConfParser.path(path, query), headers: headers, body: body, url: url}
     )
 
-    execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analizer, :execution))
+    execution_conf = struct(ExecutionModel, Application.fetch_env!(:perf_analyzer, :execution))
     execution_conf = put_in(execution_conf.request, request)
     children = [
       {Perf.ExecutionConf, execution_conf},
