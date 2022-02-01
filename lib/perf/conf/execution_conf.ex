@@ -7,8 +7,9 @@ defmodule Perf.ExecutionConf do
   end
 
   def init(conf) do
+    conf_dataset = Map.put(conf, :dataset, load_dataset(conf))
     :ets.new(__MODULE__, [:named_table])
-    :ets.insert(__MODULE__, {:conf, conf})
+    :ets.insert(__MODULE__, {:conf, conf_dataset})
     {:ok, nil}
   end
 
@@ -17,4 +18,9 @@ defmodule Perf.ExecutionConf do
     conf
   end
 
+  defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
+    Dataset.parse_csv(path, separator)
+  end
+
+  defp load_dataset(%{dataset: dataset}), do: dataset
 end

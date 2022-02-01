@@ -18,7 +18,7 @@ Open and edit config/dev.exs file to configure.
 ```
 use Mix.Config
 
-config :perf_analizer,
+config :perf_analyzer,
        url: "http://127.0.0.1:8080/wait/1",
        request: %{method: "POST", headers: [{"Content-Type", "application/json"}], body: "{\"key\": \"example\"}"},
        execution: %{steps: 5, increment: 50, duration: 7000, constant_load: false},

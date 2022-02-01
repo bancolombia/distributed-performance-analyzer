@@ -20,8 +20,6 @@ defmodule Perf.ConnectionPool do
 
   @impl true
   def init({scheme, host, port}) do
-    # :ok = :pg2.create(__MODULE__)
-    # :ok = :pg2.join(__MODULE__, self())
     {:ok, {scheme, host, port, [], 0}}
   end
 

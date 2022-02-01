@@ -1,13 +1,13 @@
-
 defmodule Perf.LoadGenerator do
   use Task
   alias Perf.Model.Request
 
-  def start(%LoadProcessModel{request: request, step_name: step_name, end_time: end_time}, concurrency) do
+  def start(%LoadProcessModel{request: request, step_name: step_name, end_time: end_time}, dataset, concurrency) do
     Task.start(fn  ->
       conn = Perf.ConnectionPool.get_connection()
+
       try do
-        results = generate_load(request, [], end_time, conn)
+        results = generate_load(request, dataset, [], end_time, conn)
         Perf.MetricsCollector.send_metrics(results, step_name, concurrency)
       after
         Perf.ConnectionPool.return_connection(conn)
@@ -15,27 +15,50 @@ defmodule Perf.LoadGenerator do
     end)
   end
 
-  defp generate_load(conf, results, end_time, conn) do
-    result = request(conf, conn)
+  defp generate_load(conf, dataset, results, end_time, conn) do
+    item = get_random_item(dataset)
+    result = request(conf, item, conn)
     if actual_time() < end_time do
       results = [result | results]
-      generate_load(conf, results, end_time, conn)
+      generate_load(conf, dataset, results, end_time, conn)
     else
       results
     end
   end
 
-  defp request(%Request{method: method, path: path, headers: headers, body: body, url: _url}, conn) do
-    {total_time, _result} = try do
-      Perf.ConnectionProcess.request(conn, method, path, headers, body)
-    catch
-      _, _error -> {0, :invocation_error}
-    end
+  defp request(%Request{method: method, path: path, headers: headers, body: body, url: _url}, item, conn) do
+    {_total_time, _result} =
+      try do
+        Perf.ConnectionProcess.request(conn, method, path, headers, IO.inspect(replace_in_body(body, item)))
+      catch
+        _, _error -> {0, :invocation_error}
+      end
   end
 
   defp actual_time do
     :erlang.system_time(:milli_seconds)
   end
+
+
+  defp get_random_item([]), do: nil
+
+  defp get_random_item(list) when is_list(list) do
+    # TODO: Improve random to static list
+    Enum.at(list, Enum.random(0..length(list)))
+  end
+
+  defp get_random_item(_opt), do: nil
+
+  defp replace_in_body(body, item) when is_function(body), do: body.(item)
+
+  defp replace_in_body(body, item) when is_map(item) do
+    item = Map.put(item, "random", "#{Enum.random(1..10)}")
+    Regex.replace(~r/{([a-z A-Z _-]+)?}/, body, fn _, match ->
+      item[match]
+    end)
+  end
+
+  defp replace_in_body(body, _item), do: body
 
 end
 
@@ -104,6 +127,5 @@ defmodule GenericRestClient do
   defp format_headers(headers) do
     Enum.map(headers, fn {name, value} -> {to_charlist(name), to_charlist(value)} end)
   end
-
 
 end
