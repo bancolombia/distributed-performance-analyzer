@@ -8,9 +8,9 @@ config :perf_analyzer,
     body: ~s/{"key": "example"}/
   },
   execution: %{
-    steps: 5,
+    steps: 1,
     increment: 1,
-    duration: 7000,
+    duration: 1000,
     constant_load: true,
     dataset: :none,
     separator: ","
