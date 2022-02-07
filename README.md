@@ -1,6 +1,7 @@
 # Performance Analyzer
 
 [![Docker Hub](https://img.shields.io/docker/pulls/bancolombia/distributed-performance-analyzer?label=Docker%20Hub)](https://hub.docker.com/repository/docker/bancolombia/distributed-performance-analyzer)
+[![Scorecards supply-chain security](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml/badge.svg)](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml)
 
 Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different concurrency scenarios.
 
