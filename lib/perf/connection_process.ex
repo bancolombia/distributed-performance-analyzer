@@ -43,11 +43,11 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_call({:request, method, path, headers, body}, from, state) do
-    init_time = :erlang.monotonic_time(:micro_seconds)
+    response = RequestResult.new("sample", "#{inspect(self())}", "#{method}#{path}")
     #IO.puts "Making Request!"
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
       {:ok, conn, request_ref} ->
-        state = %{state | conn: conn, request: %{from: from, response: %{}, ref: request_ref, status: nil, init: init_time}}
+        state = %{state | conn: conn, request: %{from: from, response: response, ref: request_ref, status: nil}}
         {:noreply, state}
 
       {:error, conn, reason} ->
@@ -110,9 +110,10 @@ defmodule Perf.ConnectionProcess do
   end
 
 
-  defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, init: init, status: status}}) do
+  defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, status: status, response: response}}) do
     #IO.puts("Done request!")
-    GenServer.reply(from, {status_for(status), :erlang.monotonic_time(:micro_seconds) - init})
+    final_result = RequestResult.complete(response, 1 ,1, status, "ok", "text", success?(status), "", 0, 0)
+    GenServer.reply(from, {status_for(status), final_result.elapsed})
     %{state | request: %{}}
   end
 
@@ -125,6 +126,9 @@ defmodule Perf.ConnectionProcess do
 
   defp status_for(status) when status >= 200 and status < 400, do: :ok
   defp status_for(status), do: {:fail_http, status}
+
+  defp success?(status) when status >= 200 and status < 400, do: true
+  defp success?(status), do: false
 
 
 end
