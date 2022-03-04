@@ -17,7 +17,7 @@ mix compile
 Open and edit config/dev.exs file to configure.
 
 ```
-use Mix.Config
+import Config
 
 config :perf_analyzer,
        url: "http://127.0.0.1:8080/wait/1",
