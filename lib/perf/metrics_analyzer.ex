@@ -57,28 +57,110 @@ defmodule Perf.MetricsAnalyzer do
     )
     Enum.each(
       sorted_curve,
-      fn {step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
-        IO.puts("#{concurrency}, #{throughput} -- #{round(lat_total)}ms, #{partial.p90}ms, #{round(max_latency)}ms, #{round(mean_latency_http)}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}")
+      fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
+        IO.puts(
+          "#{concurrency}, #{throughput} -- #{round(lat_total)}ms, #{partial.p90}ms, #{round(max_latency)}ms, #{
+            round(mean_latency_http)
+          }ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{
+            partial.nil_conn_count
+          }"
+        )
       end
     )
 
-    {:ok, file} = File.open("config/result.csv", [:write])
-    IO.puts("####CSV#######")
-    header = "concurrency, throughput, mean latency, p90 latency, max latency"
-    IO.puts(header)
-    IO.binwrite(file, header <> "\n")
-    Enum.each(
+    write_to_file(
       sorted_curve,
+      "config/result.csv",
+      "concurrency, throughput, mean latency, p90 latency, max latency",
+      true,
       fn {_step, throughput, concurrency, lat_total, max_latency, _mean_latency_http, partial} ->
-        row = "#{concurrency}, #{round(throughput)}, #{round(lat_total)}, #{partial.p90}, #{round(max_latency)}"
-        IO.binwrite(file, row <> "\n")
-        IO.puts(row)
+        "#{concurrency}, #{round(throughput)}, #{round(lat_total)}, #{partial.p90}, #{round(max_latency)}"
       end
     )
+
+    request_details = Enum.reduce(
+                        sorted_curve,
+                        [],
+                        fn ({_, _, _, _, _, _, %{requests: list}}, current) -> Enum.concat(list, current) end
+                      )
+                      |> Enum.sort(fn (req_a, req_b) -> req_a.time_stamp < req_b.time_stamp end)
+
+    write_to_file(
+      request_details,
+      "config/jmeter.csv",
+      "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect",
+      false,
+      fn %RequestResult{
+           start: start,
+           time_stamp: time_stamp,
+           label: label,
+           thread_name: thread_name,
+           grp_threads: grp_threads,
+           all_threads: all_threads,
+           url: url,
+           elapsed: elapsed,
+           response_code: response_code,
+           failure_message: failure_message,
+           sent_bytes: sent_bytes,
+           latency: latency,
+           idle_time: idle_time,
+           connect: connect,
+           response_headers: headers,
+         } ->
+        "#{time_stamp},#{elapsed},#{label},#{response_code},#{response_for_code(response_code)},#{thread_name},#{
+          data_type(headers)
+        },#{success?(response_code)},#{with_failure(response_code, failure_message)},#{bytes(headers)},#{sent_bytes},#{
+          grp_threads
+        },#{all_threads},#{url},#{latency},#{idle_time},#{connect}"
+      end
+    )
+
 
     MetricsCollector.clean_metrics()
 
     {:stop, :normal, nil}
+  end
+
+  defp write_to_file(data, file, header, print, fun) do
+    {:ok, file} = File.open(file, [:write])
+    if print do
+      IO.puts("####CSV#######")
+      IO.puts(header)
+    end
+    IO.binwrite(file, header <> "\n")
+    Enum.each(
+      data,
+      fn item ->
+        row = fun.(item)
+        IO.binwrite(file, row <> "\n")
+        if print do
+          IO.puts(row)
+        end
+      end
+    )
+  end
+
+  defp response_for_code(status) when status >= 200 and status < 400, do: "OK"
+  defp response_for_code(status), do: "ERROR"
+
+  defp success?(status) when status >= 200 and status < 400, do: true
+  defp success?(status), do: false
+
+  defp with_failure(status, _body) when status >= 200 and status < 400, do: nil
+  defp with_failure(_status, body), do: body
+
+  defp data_type(headers) do
+    case Enum.find(headers, "TEXT", fn {type, _value} -> type == "content-type" end) do
+      {_header, value} -> value
+      default -> default
+    end
+  end
+
+  defp bytes(headers) do
+    case Enum.find(headers, "TEXT", fn {type, _value} -> type == "content-length" end) do
+      {_header, value} -> value
+      default -> default
+    end
   end
 
 end

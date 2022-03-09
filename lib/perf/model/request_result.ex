@@ -5,7 +5,7 @@ defmodule RequestResult do
     label: "",
     thread_name: "",
     grp_threads: 0,
-    all_threads: 1,
+    all_threads: 0,
     url: "",
     elapsed: 0,
     response_code: 0,
@@ -16,43 +16,38 @@ defmodule RequestResult do
     bytes: 0,
     sent_bytes: 0,
     latency: 0,
+    idle_time: 0,
     connect: 0,
+    response_headers: []
   ]
 
-  def new(label, thread_name, url) do
+  def new(label, thread_name, url, sent_bytes, connect) do
     %__MODULE__{
       start: :erlang.monotonic_time(:millisecond),
       time_stamp: System.os_time(:millisecond),
       label: label,
       thread_name: thread_name,
-      url: url
+      url: url,
+      sent_bytes: sent_bytes,
+      connect: connect
     }
   end
 
   def complete(
         %RequestResult{start: start} = initial,
-        latency,
-        connect,
         response_code,
-        response_message,
-        data_type,
-        success,
-        failure_message,
-        bytes,
-        sent_bytes
+        body,
+        response_headers,
+        latency
       )do
+    elapsed = :erlang.monotonic_time(:millisecond) - start
     %{
       initial |
-      elapsed: :erlang.monotonic_time(:millisecond) - start,
-      latency: latency,
-      connect: connect,
+      elapsed: elapsed,
+      latency: latency - start,
       response_code: response_code,
-      response_message: response_message,
-      data_type: data_type,
-      success: success,
-      failure_message: failure_message,
-      bytes: bytes,
-      sent_bytes: sent_bytes
+      failure_message: body,
+      response_headers: response_headers
     }
   end
 
