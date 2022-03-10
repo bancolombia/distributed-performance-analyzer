@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :perf_analyzer,
   url: "http://localhost:8080/post",

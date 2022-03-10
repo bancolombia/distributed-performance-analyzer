@@ -217,3 +217,4 @@ $RECYCLE.BIN/
 .idea
 /perf_analyzer
 *.csv
+*.log

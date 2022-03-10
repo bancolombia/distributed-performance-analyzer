@@ -3,7 +3,7 @@ defmodule Perf.ConnectionProcess do
 
   require Logger
 
-  defstruct [:conn, :params, request: %{}]
+  defstruct [:conn, :params, :conn_time, request: %{}]
 
   def start_link({scheme, host, port, id}) do
     {:ok, pid} = GenServer.start_link(__MODULE__, {scheme, host, port}, name: id)
@@ -43,11 +43,13 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_call({:request, method, path, headers, body}, from, state) do
-    init_time = :erlang.monotonic_time(:micro_seconds)
+    response = RequestResult.new("sample", "#{inspect(self())}", get_endpoint(state.conn, path, method), String.length(body), state.conn_time)
     #IO.puts "Making Request!"
+    start = :erlang.monotonic_time(:millisecond)
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
       {:ok, conn, request_ref} ->
-        state = %{state | conn: conn, request: %{from: from, response: %{}, ref: request_ref, status: nil, init: init_time}}
+        conn_time = :erlang.monotonic_time(:millisecond) - start
+        state = %{state | conn: conn, conn_time: conn_time, request: %{from: from, response: response, ref: request_ref, status: nil, headers: [], body: "", latency: 0}}
         {:noreply, state}
 
       {:error, conn, reason} ->
@@ -59,8 +61,9 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
+    start = :erlang.monotonic_time(:millisecond)
     case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
-      {:ok, conn} -> {:noreply, %{state | conn: conn}}
+      {:ok, conn} -> {:noreply, %{state | conn: conn, conn_time: :erlang.monotonic_time(:millisecond) - start}}
       {:error, err} ->
         Logger.warn("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
         {:noreply, state}
@@ -101,18 +104,29 @@ defmodule Perf.ConnectionProcess do
   defp process_response_fn(%__MODULE__{request: %{ref: original_ref}}) do
     fn (message, state) ->
       case message do
-        {:status, ^original_ref, status} -> put_in(state.request.status, status)
+        {:status, ^original_ref, status} -> set_latency(state,:status, status)
         {:done, ^original_ref} -> process_response(message, state)
+        {:headers, ^original_ref, headers} -> set_latency(state,:headers, headers)
+        {:data, ^original_ref, data} -> set_latency(state,:body, data <> state.request.body)
         {:error, ^original_ref, _reason} -> process_response(message, state)
         _ -> state
       end
     end
   end
 
+  defp set_latency(state, item, value) do
+    new_state = put_in(state.request[item], value)
+    if new_state.request.latency == 0 do
+      put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond))
+    else
+      new_state
+    end
+  end
 
-  defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, init: init, status: status}}) do
+  defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, status: status, body: body, headers: headers, latency: latency, response: response}}) do
     #IO.puts("Done request!")
-    GenServer.reply(from, {status_for(status), :erlang.monotonic_time(:micro_seconds) - init})
+    final_result = RequestResult.complete(response, status, body, headers, latency)
+    GenServer.reply(from, {status_for(status), final_result})
     %{state | request: %{}}
   end
 
@@ -126,5 +140,12 @@ defmodule Perf.ConnectionProcess do
   defp status_for(status) when status >= 200 and status < 400, do: :ok
   defp status_for(status), do: {:fail_http, status}
 
+  defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, path, method) do
+    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+  end
+
+  defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, path, method) do
+    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+  end
 
 end

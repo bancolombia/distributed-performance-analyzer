@@ -15,6 +15,7 @@ defmodule PartialResult do
     concurrency: 1,
     times: [],
     p90: 0,
+    requests: []
   ]
 
   def new, do: %__MODULE__{}
@@ -34,7 +35,8 @@ defmodule PartialResult do
       http_max_latency: max(partial0.http_max_latency, partial1.http_max_latency),
       success_max_latency: max(partial0.success_max_latency, partial1.success_max_latency),
       concurrency: partial0.concurrency + partial1.concurrency,
-      times: Enum.concat(partial0.times, partial1.times)
+      times: Enum.concat(partial0.times, partial1.times),
+      requests: Enum.concat(partial0.requests, partial1.requests)
     }
   end
 
@@ -42,17 +44,17 @@ defmodule PartialResult do
     Enum.reduce(result_list, new(), fn item, acc -> calculate(acc, item) end)
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {:ok, latency}}) do
-    latency = latency / 1000
+  defp calculate(partial = %__MODULE__{}, {_time, {:ok, %{elapsed: elapsed} = request_result}}) do
     %{partial |
       success_count: partial.success_count + 1,
       http_count: partial.http_count + 1,
       total_count: partial.total_count + 1,
-      success_mean_latency: partial.success_mean_latency + latency,
-      http_mean_latency: partial.http_mean_latency + latency,
-      success_max_latency: max(latency, partial.success_max_latency),
-      http_max_latency: max(latency, partial.http_max_latency),
-      times: [latency | partial.times]
+      success_mean_latency: partial.success_mean_latency + elapsed,
+      http_mean_latency: partial.http_mean_latency + elapsed,
+      success_max_latency: max(elapsed, partial.success_max_latency),
+      http_max_latency: max(elapsed, partial.http_max_latency),
+      times: [elapsed | partial.times],
+      requests: [request_result | partial.requests]
     }
   end
 
@@ -84,39 +86,39 @@ defmodule PartialResult do
     }
   end
 
-  defp calculate(partial = %__MODULE__{}, {_time, {{:fail_http, _status_code}, latency}}) do
-    latency = latency / 1000
+  defp calculate(partial = %__MODULE__{}, {_time, {{:fail_http, _status_code}, %{elapsed: elapsed} = request_result}}) do
     %{partial |
       total_count: partial.total_count + 1,
       http_count: partial.http_count + 1,
       fail_http_count: partial.fail_http_count + 1,
-      http_mean_latency: partial.http_mean_latency + latency,
-      http_max_latency: max(latency, partial.http_max_latency)
+      http_mean_latency: partial.http_mean_latency + elapsed,
+      http_max_latency: max(elapsed, partial.http_max_latency),
+      requests: [request_result | partial.requests]
     }
   end
-  
+
   def calculate_p90(partial = %__MODULE__{}) do
     case Enum.count(partial.times) do
       0 ->
         partial
-      _ -> 
+      _ ->
         sorted_times = Enum.sort(partial.times)
         n = length(sorted_times)
         index = 0.90 * n
-    
+
         p90_calc = case is_round?(index) do
           true ->
             x = Enum.at(sorted_times, trunc(index))
             xp = Enum.at(sorted_times, trunc(index)+1)
-            (x + xp) / 2 
+            (x + xp) / 2
               |> IO.inspect
               |> round
-          false -> 
+          false ->
             index = round(index)
             Enum.at(sorted_times, index)
         end
         |> round
-    
+
         %{partial |
           p90: p90_calc,
           times: [],
