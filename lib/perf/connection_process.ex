@@ -141,7 +141,7 @@ defmodule Perf.ConnectionProcess do
   defp status_for(status), do: {:fail_http, status}
 
 
-  defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, path, method) do
+  defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, path, method) do
     "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
   end
 
