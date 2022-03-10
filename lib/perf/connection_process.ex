@@ -43,7 +43,7 @@ defmodule Perf.ConnectionProcess do
 
   @impl true
   def handle_call({:request, method, path, headers, body}, from, state) do
-    response = RequestResult.new("sample", "#{inspect(self())}", get_endpoint(IO.inspect(state.conn), path, method), String.length(body), state.conn_time)
+    response = RequestResult.new("sample", "#{inspect(self())}", get_endpoint(state.conn, path, method), String.length(body), state.conn_time)
     #IO.puts "Making Request!"
     start = :erlang.monotonic_time(:millisecond)
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
