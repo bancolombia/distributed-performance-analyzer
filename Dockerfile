@@ -12,7 +12,6 @@ FROM elixir:1.13.3-alpine
 WORKDIR /app
 RUN apk update && apk upgrade && apk add bash
 COPY --from=0 /app/perf_analyzer /app
-COPY datasets /app/datasets/
 COPY config /app/config
 VOLUME /app/config/
 ENTRYPOINT exec /app/perf_analyzer
