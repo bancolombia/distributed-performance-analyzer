@@ -1,21 +1,20 @@
 name: E2E
 on: workflow_dispatch
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@d171c3b028d844f2bf14e9fdec0c58114451e4bf
 
       - run: |
           cd .github/workflows
-
           docker container rm -f latency_simulator || true
-
           docker run --rm -d --name latency_simulator -p 8080:8080 juandgiraldom/latency_simulator:1.0
           docker container ls -a
-
           echo "import Config
-
           config :perf_analyzer,
             url: url,
             request: %{
@@ -32,11 +31,9 @@ jobs:
               separator: separator
             },
             distributed: :none
-
           config :logger,
             level: :info
           " >performance.exs
-
           url="http://localhost:8080/wait/100"
           method="POST"
           headers='[{"Content-Type", "application/json"}]'
@@ -60,30 +57,22 @@ jobs:
           constant_load="false"
           dataset="/app/datasets/sample.csv"
           separator=";"
-
           file="./performance.exs"
-
           headers=$(tr -s '[:space:]' '  ' <<<$headers)
           body="$(tr -d '[:space:]' <<<${body})"
-
           sed -i 's;: url;: "'$url'";' $file
           sed -i 's;: method;: "'$method'";' $file
           sed -i "s;: headers;: $headers;" $file
           sed -i 's;/body/;/'$body'/;' $file
-
           sed -i 's;: steps;: '$steps';' $file
           sed -i 's;: increment;: '$increment';' $file
           sed -i 's;: duration;: '$duration';' $file
           sed -i 's;: constant_load;: '$constant_load';' $file
           sed -i 's;: dataset;: "'$dataset'";' $file
           sed -i 's/: separator/: "'$separator'"/' $file
-
           mkdir -p config
           mv $file ./config
           docker run --rm --network=host -v $(pwd)/config/:/app/config -v $(pwd)/datasets/:/app/datasets juandgiraldom/distribuited-performance-analyzer:1.0
           mv -f ./config/result.csv .
           rm -rf ./config
-
           docker container rm -f latency_simulator
-
-        name: E2E test
