@@ -1,11 +1,14 @@
 name: Build
 on: [push, pull_request]
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: erlef/setup-beam@v1
+      - uses: actions/checkout@d171c3b028d844f2bf14e9fdec0c58114451e4bf
+      - uses: erlef/setup-beam@10d50f70626dbb9c5174531ada017b8b4f14c215
         with:
           otp-version: '24'
           elixir-version: '1.12.3'
