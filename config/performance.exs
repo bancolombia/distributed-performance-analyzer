@@ -1,17 +1,19 @@
 import Config
 
 config :perf_analyzer,
-  url: "http://127.0.0.1:8080/post",
+  url: "http://httpbin.org/get",
   request: %{
-    method: "POST",
+    method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    body: ~s/{"key": "example"}/
+    body: fn item ->
+      ~s/'{"data":  #{Enum.random(1..10)},"key": 1}}}'/
+    end
   },
   execution: %{
-    steps: 1,
+    steps: 5,
     increment: 1,
     duration: 1000,
-    constant_load: true,
+    constant_load: false,
     dataset: :none,
     separator: ","
   },

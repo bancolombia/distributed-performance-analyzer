@@ -7,7 +7,7 @@ Performance Analyzer is an HTTP benchmarking tool capable of generating signific
 
 ## Install
 
-```elixir
+```shell
 mix deps.get
 mix compile
 ```
@@ -16,28 +16,45 @@ mix compile
 
 Open and edit config/dev.exs file to configure.
 
-```
+```elixir
 import Config
 
 config :perf_analyzer,
-       url: "http://127.0.0.1:8080/wait/1",
-       request: %{method: "POST", headers: [{"Content-Type", "application/json"}], body: "{\"key\": \"example\"}"},
-       execution: %{steps: 5, increment: 50, duration: 7000, constant_load: false},
-       distributed: :none
+  url: "http://httpbin.org/get",
+  request: %{
+    method: "GET",
+    headers: [{"Content-Type", "application/json"}],
+    # body: ~s/'{"data": "value"}'/ --> If you don't use dynamic values
+    body: fn item ->
+      ~s/'{"data": #{Enum.random(1..10), "key": "#{item.columnName}"}'/ #This is for dataset replacement
+    end
+  },
+  execution: %{
+    steps: 5,
+    increment: 1,
+    duration: 2000,
+    constant_load: false,
+    dataset: "/Users/sample.csv",
+    # dataset: :none, --> If you don't use dataset
+    separator: ","
+  },
+  distributed: :none
 
 config :logger,
-       level: :warn
+  level: :info
 ```
 
-| Property      | Description                                                                                                   |
-| ------------- | ------------------------------------------------------------------------------------------------------------- |
-| url           | The url of the application you want to test. Make sure you have a network connection between two machines     |
-| request       | Here you need to configure the HTTP verb, headers and the body of the request.                                |
-| steps         | The number of executions for the test. Each step adds the concurrency configured in the increment             |
-| increment     | Increment in concurrency after each step                                                                      |
-| duration      | Duration in milliseconds of each step                                                                         |
+| Property      | Description                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| url           | The url of the application you want to test. Make sure you have a network connection between two machines                  |
+| request       | Here you need to configure the HTTP verb, headers and the body of the request.                                             |
+| steps         | The number of executions for the test. Each step adds the concurrency configured in the increment                          |
+| increment     | Increment in concurrency after each step                                                                                   |
+| duration      | Duration in milliseconds of each step                                                                                      |
 | constant_load | Allows you to configure if the load will be constant or if the increment will be used to vary the concurrency in each step |
-| distributed   | Indicates if it should be run from a single node or in a distributed way                                      |
+| dataset       | The path to the csv dataset file                                                                                           |
+| separator     | Dataset separator (, ; :)                                                                                                  |
+| distributed   | Indicates if it should be run from a single node or in a distributed way                                                   |
 
 In the example above will be executed a test of 5 steps with an increment of 50:
 
@@ -46,13 +63,21 @@ In the example above will be executed a test of 5 steps with an increment of 50:
 3. Step 3: 150 of concurrency
 4. ...
 
-Each step will last 7 seconds.
+Each step will last 2 seconds.
 
 ## Run
 
+Docker:
+
+https://hub.docker.com/r/bancolombia/distributed-performance-analyzer
+
+```shell
+docker run --rm -v <project_path>/config:/app/config -v <project_path>/dataset:/app/datasets bancolombia/distributed-performance-analyzer:latest
+```
+
 In the shell:
 
-```
+```shell
 iex -S mix
 or
 iex  --sname node1@localhost -S mix
@@ -60,7 +85,7 @@ iex  --sname node1@localhost -S mix
 
 To run Execution:
 
-```
+```shell
 Perf.Execution.launch_execution()
 ```
 
@@ -68,7 +93,7 @@ Perf.Execution.launch_execution()
 
 After each step is executed you will get a table of results like the following:
 
-```
+```shell
 concurrency, throughput -- mean latency -- p90 latency, max latency, mean http latency, http_errors, protocol_error_count, error_conn_count
 50, 22159 -- 2ms -- 3ms, 12ms, 2ms, 0, 0, 0
 100, 29329 -- 3ms -- 4ms, 19ms, 3ms, 0, 0, 0
@@ -78,7 +103,17 @@ concurrency, throughput -- mean latency -- p90 latency, max latency, mean http l
 ......
 ```
 
-Then, you can compare the attributes that are interesting for you. For example concurrency vs Throughtout or concurrency vs mean latency.
+And in CSV format:
+ 
+ ```shell
+concurrency, throughput, mean latency, p90 latency, max latency
+2, 14, 138, 284, 284
+3, 21, 132, 230, 230
+4, 26, 143, 128, 518
+5, 34, 139, 230, 420
+ ```
+
+Then, you can compare the attributes that are interesting for you. For example concurrency vs Throughput or Concurrency vs Mean Latency.
 
 ### Examples
 
