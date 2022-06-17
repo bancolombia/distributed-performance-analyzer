@@ -14,7 +14,7 @@ mix compile
 
 ## Basic Usage
 
-Open and edit config/dev.exs file to configure.
+Open and edit config/performance.exs file to configure.
 
 ```elixir
 import Config
