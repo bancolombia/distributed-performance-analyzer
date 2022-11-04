@@ -11,7 +11,7 @@ jobs:
       - uses: erlef/setup-beam@10d50f70626dbb9c5174531ada017b8b4f14c215
         with:
           otp-version: '24'
-          elixir-version: '1.12.3'
+          elixir-version: '1.9'
 
       - run: |
           mkdir ./cover
