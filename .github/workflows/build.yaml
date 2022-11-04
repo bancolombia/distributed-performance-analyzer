@@ -27,5 +27,5 @@ jobs:
         name: Run Tests
 
       - run: |
-          MIX_ENV=performance mix escript.build
+          MIX_ENV=prod mix escript.build
         name: Compile
