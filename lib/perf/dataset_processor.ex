@@ -6,7 +6,7 @@ defmodule Dataset do
   require Logger
 
   def parse_csv(path, separator) do
-    NimbleCSV.define(MyParser, separator: separator, escape: "\"")
+    NimbleCSV.define(MyParser, separator: separator, escape: "\'")
     IO.puts("Reading Dataset: #{path}")
 
     if !File.exists?(path) do
