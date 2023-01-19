@@ -31,14 +31,20 @@ environment :dev do
   # dev mode.
   set dev_mode: true
   set include_erts: false
-  set cookie: :"W(olDhnf^$jXit4(J*.g7[0z|MpF2GtFQB^]4}ZyGw=IBJ^5qlTNNmNW`$3ie&Js"
+  set cookie: :"y]>i5Y_hQctBZOvDop6]sigtCM(m!96){@tT?$h)|Lhe(W?NKos@Z2FYLP/tv(tr"
 end
 
 environment :prod do
   set include_erts: true
   set include_src: false
-  set cookie: :"%R4!khf^<:ZYHqGR3Qndkelha)n6fa1!kCA_Xi$%hkhuzN%A);i:9oc?HIZpnUi5"
+  set cookie: :"z3VGj^PL{Cmm7!nHfxEXXS_Pnrid.cul}ey`A<Fm~l7zPeTl;UEY87MY.D8^7dn$"
   set vm_args: "rel/vm.args"
+  set config_providers: [
+    {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "config/config.exs", "etc/config.exs"}
+  ]
 end
 
 # You may define one or more releases in this file.
@@ -46,10 +52,9 @@ end
 # when running `mix distillery.release`, the first release in the file
 # will be used by default
 
-release :distributed_performance_analyzer do
-  set version: current_version(:distributed_performance_analyzer)
+release :perf_analyzer do
+  set version: current_version(:perf_analyzer)
   set applications: [
     :runtime_tools
   ]
 end
-
