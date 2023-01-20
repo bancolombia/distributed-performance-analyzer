@@ -27,7 +27,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
   end
 
   def calculate(result_list) do
-    Enum.reduce(result_list, PartialResult.new(), fn item, acc -> calculate(acc, item) end)
+    Enum.reduce(result_list, PartialResult.new(concurrency: 1), fn item, acc ->
+      calculate(acc, item)
+    end)
   end
 
   defp calculate(partial, {_time, {:ok, %{elapsed: elapsed} = request_result}}) do
