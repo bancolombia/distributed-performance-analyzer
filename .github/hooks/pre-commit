@@ -1,0 +1,10 @@
+#!/bin/bash
+
+regex="^.*\.(ex|exs)$"
+
+for file in $(git diff --name-only --cached); do
+  if [[ $file =~ $regex ]]; then
+    echo "Formatting $file"
+    mix format "$file"
+  fi
+done
