@@ -1,5 +1,4 @@
 defmodule DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.ApiRest do
-
   @moduledoc """
   Access point to the rest exposed services
   """
@@ -24,13 +23,16 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.ApiRest do
   forward(
     "/distributed_performance_analyzer/api/health",
     to: PlugCheckup,
-    init_opts: PlugCheckup.Options.new(json_encoder: Jason, checks: DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.HealthCheck.checks)
+    init_opts:
+      PlugCheckup.Options.new(
+        json_encoder: Jason,
+        checks: DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.HealthCheck.checks()
+      )
   )
 
   get "/distributed_performance_analyzer/api/hello/" do
     build_response("Hello World", conn)
   end
-
 
   def build_response(%{status: status, body: body}, conn) do
     conn

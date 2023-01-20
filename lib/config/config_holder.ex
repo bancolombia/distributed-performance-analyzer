@@ -9,7 +9,6 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   def conf(), do: Agent.get(__MODULE__, & &1)
 
   def set(property, value) do
-    Agent.update(__MODULE__, &(Map.put(&1, property, value)))
+    Agent.update(__MODULE__, &Map.put(&1, property, value))
   end
-
 end

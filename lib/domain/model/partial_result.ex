@@ -1,26 +1,29 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.PartialResult do
+  use Constructor
+
   @moduledoc """
   TODO Result of a step
   """
+  def new(map) when is_map(map) do
+    {:ok, struct(__MODULE__, map)}
+  end
 
-  defstruct success_count: 0,
-            http_count: 0,
-            total_count: 0,
-            fail_http_count: 0,
-            protocol_error_count: 0,
-            invocation_error_count: 0,
-            error_conn_count: 0,
-            nil_conn_count: 0,
-            success_mean_latency: 0,
-            http_mean_latency: 0,
-            http_max_latency: 0,
-            success_max_latency: 0,
-            concurrency: 1,
-            times: [],
-            p90: 0,
-            requests: []
-
-  def new() do
-    %__MODULE__{}
+  constructor do
+    field(:success_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:http_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:total_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:fail_http_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:protocol_error_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:invocation_error_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:error_conn_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:nil_conn_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:success_mean_latency, :integer, constructor: &is_integer/1, default: 0)
+    field(:http_mean_latency, :integer, constructor: &is_integer/1, default: 0)
+    field(:http_max_latency, :integer, constructor: &is_integer/1, default: 0)
+    field(:success_max_latency, :integer, constructor: &is_integer/1, default: 0)
+    field(:concurrency, :integer, constructor: &is_integer/1, default: 1)
+    field(:times, :lists, constructor: &is_list/1, default: [])
+    field(:p90, :integer, constructor: &is_integer/1, default: 0)
+    field(:requests, :lists, constructor: &is_list/1, default: [])
   end
 end

@@ -27,11 +27,14 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
       _ -> {:error, :not_found}
     end
   end
+
   def extract_header(headers, name) do
     {:error, "headers is not a list when finding #{inspect(name)}: #{inspect(headers)}"}
   end
+
   def extract_header!(headers, name) when is_list(headers) do
     out = Enum.filter(headers, create_evaluator(name))
+
     case out do
       [{_, value} | _] -> {:ok, value}
       _ -> {:ok, nil}
@@ -52,14 +55,15 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
     {number, ""} = Float.parse(value)
     number
   rescue
-    _err -> Logger.warn("Error parsing #{value} to float")
-           nil
+    _err ->
+      Logger.warn("Error parsing #{value} to float")
+      nil
   end
 
   def format(value, _type), do: value
 
   def system_time_to_milliseconds(system_time) do
-    system_time / 1.0e6 |> round()
+    (system_time / 1.0e6) |> round()
   end
 
   def monotonic_time_to_milliseconds(monotonic_time) do
@@ -71,6 +75,7 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
   end
 
   def start_time(), do: System.monotonic_time()
-  def duration_time(start), do: (System.monotonic_time() - start) |> monotonic_time_to_milliseconds()
 
+  def duration_time(start),
+    do: (System.monotonic_time() - start) |> monotonic_time_to_milliseconds()
 end

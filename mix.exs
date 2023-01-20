@@ -23,7 +23,10 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:opentelemetry_plug, git: "https://github.com/juancgalvis/opentelemetry_plug.git", ref: "82206fb09fbeb9ffa2f167a5f58ea943c117c003", override: true},
+      {:opentelemetry_plug,
+       git: "https://github.com/juancgalvis/opentelemetry_plug.git",
+       ref: "82206fb09fbeb9ffa2f167a5f58ea943c117c003",
+       override: true},
       {:opentelemetry_api, "~> 0.6.0", override: true},
       {:opentelemetry_exporter, "~> 0.6.0"},
       {:telemetry, "~> 1.0", override: true},
@@ -41,6 +44,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:timex, "~> 3.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_unit_sonarqube, "~> 0.1", only: :test},
+      {:constructor, "~> 1.1"}
     ]
   end
 end
