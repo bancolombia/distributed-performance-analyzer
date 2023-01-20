@@ -2,9 +2,14 @@
 
 regex="^.*\.(ex|exs)$"
 
+function printMessage() {
+  echo -e "\033[90m$1\033[0m"
+}
+
 for file in $(git diff --name-only --cached); do
   if [[ $file =~ $regex ]]; then
-    echo "Formatting $file"
+    printMessage "Formatting $file"
     mix format "$file"
+    git add "$file"
   fi
 done
