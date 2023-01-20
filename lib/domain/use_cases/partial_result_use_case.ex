@@ -25,4 +25,100 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
       requests: Enum.concat(partial0.requests, partial1.requests)
     )
   end
+
+  def calculate(result_list) do
+    Enum.reduce(result_list, PartialResult.new(), fn item, acc -> calculate(acc, item) end)
+  end
+
+  defp calculate(partial, {_time, {:ok, %{elapsed: elapsed} = request_result}}) do
+    %{
+      partial
+      | success_count: partial.success_count + 1,
+        http_count: partial.http_count + 1,
+        total_count: partial.total_count + 1,
+        success_mean_latency: partial.success_mean_latency + elapsed,
+        http_mean_latency: partial.http_mean_latency + elapsed,
+        success_max_latency: max(elapsed, partial.success_max_latency),
+        http_max_latency: max(elapsed, partial.http_max_latency),
+        times: [elapsed | partial.times],
+        requests: [request_result | partial.requests]
+    }
+  end
+
+  defp calculate(partial, {0, :invocation_error}) do
+    %{
+      partial
+      | total_count: partial.total_count + 1,
+        invocation_error_count: partial.invocation_error_count + 1
+    }
+  end
+
+  defp calculate(partial, {_time, {:nil_conn, _reason}}) do
+    %{partial | total_count: partial.total_count + 1, nil_conn_count: partial.nil_conn_count + 1}
+  end
+
+  defp calculate(partial, {_time, {:error_conn, _reason}}) do
+    %{
+      partial
+      | total_count: partial.total_count + 1,
+        error_conn_count: partial.error_conn_count + 1
+    }
+  end
+
+  defp calculate(partial, {_time, {:protocol_error, _reason}}) do
+    %{
+      partial
+      | total_count: partial.total_count + 1,
+        protocol_error_count: partial.protocol_error_count + 1
+    }
+  end
+
+  defp calculate(
+         partial,
+         {_time, {{:fail_http, _status_code}, %{elapsed: elapsed} = request_result}}
+       ) do
+    %{
+      partial
+      | total_count: partial.total_count + 1,
+        http_count: partial.http_count + 1,
+        fail_http_count: partial.fail_http_count + 1,
+        http_mean_latency: partial.http_mean_latency + elapsed,
+        http_max_latency: max(elapsed, partial.http_max_latency),
+        requests: [request_result | partial.requests]
+    }
+  end
+
+  def calculate_p90(partial) do
+    case Enum.count(partial.times) do
+      0 ->
+        partial
+
+      _ ->
+        sorted_times = Enum.sort(partial.times)
+        n = length(sorted_times)
+        index = 0.90 * n
+
+        p90_calc =
+          case is_round?(index) do
+            true ->
+              x = Enum.at(sorted_times, trunc(index))
+              xp = Enum.at(sorted_times, trunc(index) + 1)
+
+              ((x + xp) / 2)
+              |> IO.inspect()
+              |> round
+
+            false ->
+              index = round(index)
+              Enum.at(sorted_times, index)
+          end
+          |> round
+
+        %{partial | p90: p90_calc, times: []}
+    end
+  end
+
+  defp is_round?(n) do
+    Float.floor(n) == n
+  end
 end
