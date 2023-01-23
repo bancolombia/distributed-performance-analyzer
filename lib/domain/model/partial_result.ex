@@ -4,10 +4,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.PartialResult do
   @moduledoc """
   TODO Result of a step
   """
-  def new(map) when is_map(map) do
-    {:ok, struct(__MODULE__, map)}
-  end
-
   constructor do
     field(:success_count, :integer, constructor: &is_integer/1, default: 0)
     field(:http_count, :integer, constructor: &is_integer/1, default: 0)
