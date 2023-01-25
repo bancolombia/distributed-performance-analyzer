@@ -2,7 +2,51 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
   @moduledoc """
   TODO Result of a single request
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
+  @enforce_keys [:label, :thread_name, :url, :sent_bytes, :connect]
+
+  @allowed_keys [
+    "start",
+    "time_stamp",
+    "label",
+    "thread_name",
+    "grp_threads",
+    "all_threads",
+    "url",
+    "elapsed",
+    "response_code",
+    "response_message",
+    "data_type",
+    "success",
+    "failure_message",
+    "bytes",
+    "sent_bytes",
+    "latency",
+    "idle_time",
+    "connect",
+    "response_headers"
+  ]
+
+  @type t :: %__MODULE__{
+          start: float(),
+          time_stamp: float(),
+          label: String.t(),
+          thread_name: String.t(),
+          grp_threads: integer(),
+          all_threads: integer(),
+          url: String.t(),
+          elapsed: float(),
+          response_code: integer(),
+          response_message: String.t(),
+          data_type: String.t(),
+          success: boolean(),
+          failure_message: String.t(),
+          bytes: integer(),
+          sent_bytes: integer(),
+          latency: float(),
+          idle_time: float(),
+          connect: integer(),
+          response_headers: list()
+        }
 
   defstruct start: 0,
             time_stamp: 0,
@@ -24,6 +68,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
             connect: 0,
             response_headers: []
 
+  @spec new(String.t(), String.t(), String.t(), integer(), integer()) :: RequestResult.t()
   def new(label, thread_name, url, sent_bytes, connect) do
     %__MODULE__{
       start: :erlang.monotonic_time(:millisecond),
@@ -33,25 +78,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
       url: url,
       sent_bytes: sent_bytes,
       connect: connect
-    }
-  end
-
-  def complete(
-        %RequestResult{start: start} = initial,
-        response_code,
-        body,
-        response_headers,
-        latency
-      ) do
-    elapsed = :erlang.monotonic_time(:millisecond) - start
-
-    %{
-      initial
-      | elapsed: elapsed,
-        latency: latency - start,
-        response_code: response_code,
-        failure_message: body,
-        response_headers: response_headers
     }
   end
 end

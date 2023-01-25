@@ -6,13 +6,22 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
 
   @enforce_keys [:request, :step_name, :end_time]
 
+  @allowed_keys ["request", "step_name", "end_time"]
+
+  @type t :: %__MODULE__{
+          request: Request.t(),
+          step_name: String.t(),
+          end_time: float()
+        }
+
   defstruct [:request, :step_name, :end_time]
 
-  def new(%StepModel{duration: duration, request: request, name: name}) do
+  @spec new(StepModel.t()) :: LoadProcess.t()
+  def new(%StepModel{execution_model: execution_model, name: name}) do
     %__MODULE__{
-      request: request,
+      request: execution_model.request,
       step_name: name,
-      end_time: :erlang.system_time(:milli_seconds) + duration
+      end_time: :erlang.system_time(:milli_seconds) + execution_model.duration
     }
   end
 end

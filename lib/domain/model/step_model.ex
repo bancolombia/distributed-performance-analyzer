@@ -5,23 +5,29 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.StepModel do
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
 
   @enforce_keys [
-    :request,
+    :execution_model,
     :name,
     :step_number,
-    :duration,
-    :concurrency,
-    :dataset
+    :concurrency
   ]
+
+  @allowed_keys ["execution_model", "name", "step_number", "concurrency"]
+
+  @type t :: %__MODULE__{
+          execution_model: ExecutionModel.t(),
+          name: String.t(),
+          step_number: integer(),
+          concurrency: integer()
+        }
 
   defstruct [
-    :request,
+    :execution_model,
     :name,
     :step_number,
-    :duration,
-    :concurrency,
-    :dataset
+    :concurrency
   ]
 
+  @spec new(ExecutionModel.t(), integer()) :: StepModel.t()
   def new(model = %ExecutionModel{increment: increment, constant_load: false}, step_num)
       when step_num > 0 do
     new(model, step_num, step_num * increment)
@@ -32,18 +38,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.StepModel do
     new(model, step_num, increment)
   end
 
-  defp new(
-         %ExecutionModel{request: request, duration: duration, dataset: dataset},
-         step_num,
-         concurrency
-       ) do
+  defp new(model, step_num, concurrency) do
     %__MODULE__{
-      request: request,
+      execution_model: model,
       name: "Step-#{step_num}",
       step_number: step_num,
-      duration: duration,
-      concurrency: concurrency,
-      dataset: dataset
+      concurrency: concurrency
     }
   end
 end
