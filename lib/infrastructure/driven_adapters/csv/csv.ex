@@ -12,8 +12,8 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
 
   require Logger
 
-  @spec load(String.t(), :csv, map()) :: {:ok, list}
-  def load(path, type = :csv, %{separator: separator}) do
+  @spec load(String.t(), map()) :: {:ok, list}
+  def load(path, %{type: type, separator: separator}) do
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
     IO.puts("Reading #{type} Dataset: #{path}")
 
@@ -42,5 +42,9 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
       |> Enum.to_list()
 
     {:ok, result}
+  end
+
+  def load(_path, _args) do
+    {:error, "the dataset type and separator are required"}
   end
 end

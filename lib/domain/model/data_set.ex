@@ -3,23 +3,20 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.DataSet do
   Dataset
   """
 
-  @enforce_keys [:path, :type]
+  @enforce_keys [:path, :args]
 
   @allowed_keys [
     "path",
-    "type",
     "args"
   ]
 
   @type t :: %__MODULE__{
           path: String.t(),
-          type: atom(),
-          args: any()
+          args: map()
         }
 
   defstruct [
     :path,
-    :type,
     :args
   ]
 end
