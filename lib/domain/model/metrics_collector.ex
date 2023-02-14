@@ -6,8 +6,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector do
 
   @allowed_keys["results", "step", "concurrency"]
 
-end@type t :: %__MODULE__{
+@type t :: %__MODULE__{
   results: String.t(),
   step: String.t(),
   concurrency: Integer.t()
 }
+
+end
