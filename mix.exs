@@ -10,6 +10,9 @@ defmodule PerfAnalyzer.MixProject do
       escript: [
         main_module: Cli.CommandLine
       ],
+      test_coverage: [
+        summary: [threshold: 34] # TODO: increase project coverage
+      ],
       deps: deps()
     ]
   end

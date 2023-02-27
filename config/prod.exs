@@ -15,7 +15,8 @@ config :perf_analyzer,
     dataset: :none,
     separator: ","
   },
-  distributed: :none
+  distributed: :none,
+  jmeter_report: true
 
 config :logger,
   level: :info

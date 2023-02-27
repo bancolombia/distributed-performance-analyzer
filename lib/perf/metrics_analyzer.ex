@@ -78,12 +78,23 @@ defmodule Perf.MetricsAnalyzer do
       end
     )
 
-    request_details = Enum.reduce(
-                        sorted_curve,
-                        [],
-                        fn ({_, _, _, _, _, _, %{requests: list}}, current) -> Enum.concat(list, current) end
-                      )
-                      |> Enum.sort(fn (req_a, req_b) -> req_a.time_stamp < req_b.time_stamp end)
+    if Application.get_env(:perf_analyzer, :jmeter_report, true) do
+      generate_jmeter_report(sorted_curve)
+    end
+
+    MetricsCollector.clean_metrics()
+
+    {:stop, :normal, nil}
+  end
+
+  defp generate_jmeter_report(sorted_curve) do
+    request_details =
+      Enum.reduce(
+        sorted_curve,
+        [],
+        fn {_, _, _, _, _, _, %{requests: list}}, current -> Enum.concat(list, current) end
+      )
+      |> Enum.sort(fn req_a, req_b -> req_a.time_stamp < req_b.time_stamp end)
 
     write_to_file(
       request_details,
@@ -105,20 +116,11 @@ defmodule Perf.MetricsAnalyzer do
            latency: latency,
            idle_time: idle_time,
            connect: connect,
-           response_headers: headers,
+           response_headers: headers
          } ->
-        "#{time_stamp},#{elapsed},#{label},#{response_code},#{response_for_code(response_code)},#{thread_name},#{
-          data_type(headers)
-        },#{success?(response_code)},#{with_failure(response_code, failure_message)},#{bytes(headers)},#{sent_bytes},#{
-          grp_threads
-        },#{all_threads},#{url},#{latency},#{idle_time},#{connect}"
+        "#{time_stamp},#{elapsed},#{label},#{response_code},#{response_for_code(response_code)},#{thread_name},#{data_type(headers)},#{success?(response_code)},#{with_failure(response_code, failure_message)},#{bytes(headers)},#{sent_bytes},#{grp_threads},#{all_threads},#{url},#{latency},#{idle_time},#{connect}"
       end
     )
-
-
-    MetricsCollector.clean_metrics()
-
-    {:stop, :normal, nil}
   end
 
   defp write_to_file(data, file, header, print, fun) do

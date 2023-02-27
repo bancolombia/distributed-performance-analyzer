@@ -24,6 +24,8 @@ defmodule Perf.Application do
       query: query,
     } = ConfParser.parse(url)
 
+    IO.puts "JMeter Report enabled: #{Application.get_env(:perf_analyzer, :jmeter_report, true)}"
+
     connection_conf = {scheme, host, port}
 
     distributed = Application.fetch_env!(:perf_analyzer, :distributed)
