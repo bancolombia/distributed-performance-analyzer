@@ -5,19 +5,20 @@ config :perf_analyzer,
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    body: fn item ->
+    body: fn _item ->
       ~s/'{"data":  #{Enum.random(1..10)},"key": 1}}}'/
     end
   },
   execution: %{
     steps: 5,
     increment: 1,
-    duration: 1000,
+    duration: 5000,
     constant_load: false,
     dataset: :none,
     separator: ","
   },
-  distributed: :none
+  distributed: :none,
+  jmeter_report: true
 
 config :logger,
   level: :info
