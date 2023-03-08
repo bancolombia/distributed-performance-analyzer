@@ -46,3 +46,6 @@ config :perf_analyzer,
 
 config :logger,
   level: :debug
+
+config :app,
+  file_system_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystemBehaviour

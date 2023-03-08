@@ -7,6 +7,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCaseUseCase
 
+  @file_system_behaviour Application.get_env(:app, :file_system_behaviour)
 
   def compute_metrics do
     GenServer.cast(__MODULE__, :compute)
@@ -129,22 +130,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   end
 
   defp write_to_file(data, file, header, print, fun) do
-    {:ok, file} = File.open(file, [:write])
-    if print do
-      IO.puts("####CSV#######")
-      IO.puts(header)
-    end
-    IO.binwrite(file, header <> "\n")
-    Enum.each(
-      data,
-      fn item ->
-        row = fun.(item)
-        IO.binwrite(file, row <> "\n")
-        if print do
-          IO.puts(row)
-        end
-      end
-    )
+    @file_system_behaviour.write_to_file(data, file, header, print, fun)
   end
 
   defp response_for_code(status) when status >= 200 and status < 400, do: "OK"
