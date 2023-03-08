@@ -1,5 +1,4 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.FileSystem do
-
   @moduledoc """
   Model is responsible for managing multiple files or directories
   """
