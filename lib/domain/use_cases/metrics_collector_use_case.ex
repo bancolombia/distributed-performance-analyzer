@@ -10,7 +10,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
 
   @spec send_metrics(String.t(), String.t(), Integer()) :: {:ok, atom()} | {:error, atom()} #TODO: definir formato salida
   def send_metrics(results, step, concurrency) do
-    partial = PartialResult.calculate(results)
+    partial = PartialResult.calculate(results, keep_responses: Application.get_env(:perf_analyzer, :jmeter_report, true))
     GenServer.call({:global, __MODULE__}, {:results, partial, step, concurrency})
   end
 
