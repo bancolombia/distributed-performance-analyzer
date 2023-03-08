@@ -7,8 +7,14 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       version: "0.1.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      test_coverage: [tool: ExCoveralls]
+      escript: [
+        main_module: Cli.CommandLine
+      ],
+      test_coverage: [
+        tool: ExCoveralls,
+        summary: [threshold: 34] # TODO: increase project coverage
+      ],
+      deps: deps()
     ]
   end
 

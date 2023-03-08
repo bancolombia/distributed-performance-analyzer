@@ -3,7 +3,7 @@ defmodule Perf.MetricsCollector do
   use GenServer
 
   def send_metrics(results, step, concurrency) do
-    partial = PartialResult.calculate(results)
+    partial = PartialResult.calculate(results, keep_responses: Application.get_env(:perf_analyzer, :jmeter_report, true))
     GenServer.call({:global, __MODULE__}, {:results, partial, step, concurrency})
   end
 
