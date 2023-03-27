@@ -1,6 +1,6 @@
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://httpbin.org/get",
   request: %{
     method: "GET",
@@ -22,7 +22,3 @@ config :perf_analyzer,
 
 config :logger,
   level: :info
-
-config :app,
-  file_system_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystemBehaviour,
-  dataset_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.DataSetBehaviour
