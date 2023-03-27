@@ -1,0 +1,57 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "mix_task",
+            "request": "launch",
+            "name": "mix deps.get",
+            "task": "deps.get",
+            "taskArgs": [],
+            "projectDir": "${workspaceRoot}"
+        },
+        {
+            "type": "mix_task",
+            "request": "launch",
+            "name": "mix deps.compile",
+            "task": "deps.compile",
+            "taskArgs": [],
+            "projectDir": "${workspaceRoot}"
+        },
+        {
+            "command": "iex -S mix",
+            "name": "run interactive app",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
+            "command": "mix deps.get && mix deps.compile",
+            "name": "compile all",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "type": "mix_task",
+            "name": "mix (Default task)",
+            "request": "launch",
+            "projectDir": "${workspaceRoot}"
+        },
+        {
+            "type": "mix_task",
+            "name": "mix test",
+            "request": "launch",
+            "task": "test",
+            "taskArgs": [
+                "--trace"
+            ],
+            "startApps": true,
+            "projectDir": "${workspaceRoot}",
+            "requireFiles": [
+                "test/**/test_helper.exs",
+                "test/**/*_test.exs"
+            ]
+        }
+    ]
+}
