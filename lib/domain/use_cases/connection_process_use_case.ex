@@ -1,4 +1,10 @@
-defmodule Perf.ConnectionProcess do
+defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase do
+
+  @moduledoc """
+  Connection process use case.
+
+  url connection handler
+  """
 
   use GenServer
   require Logger
@@ -147,5 +153,4 @@ defmodule Perf.ConnectionProcess do
   defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, path, method) do
     "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
   end
-
 end
