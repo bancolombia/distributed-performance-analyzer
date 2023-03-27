@@ -12,7 +12,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.DataSet do
 
   @type t :: %__MODULE__{
           path: String.t(),
-          args: map()
+          args: String.t()
         }
 
   defstruct [

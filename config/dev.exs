@@ -34,3 +34,4 @@ config :logger,
 
 config :app,
   file_system_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystemBehaviour
+  dataset_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.DataSetBehaviour

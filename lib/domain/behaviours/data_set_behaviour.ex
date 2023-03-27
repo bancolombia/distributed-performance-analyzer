@@ -3,5 +3,5 @@ defmodule DistributedPerformanceAnalyzer.Domain.Behaviours.DataSetBehaviour do
   Definitions of operations on datasets
   """
 
-  @callback load(path :: term, args :: term) :: {:ok, result :: term} | {:error, reason :: term}
+  @callback parse_csv(path :: term, args :: term) :: {:ok, result :: term} | {:error, reason :: term}
 end

@@ -12,10 +12,10 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
 
   require Logger
 
-  @spec load(String.t(), map()) :: {:ok, list}
-  def load(path, %{type: type, separator: separator}) do
+  @spec parse_csv(String.t(), String.t()) :: {:ok, list}
+  def parse_csv(path, separator) do
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
-    IO.puts("Reading #{type} Dataset: #{path}")
+    IO.puts("Reading Dataset: #{path}")
 
     if !File.exists?(path) do
       Logger.warn("File not found: #{path}\n")
@@ -34,17 +34,12 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
       |> Enum.at(0)
       |> Enum.map(&String.to_atom/1)
 
-    result =
-      Stream.drop(data_stream, 1)
-      |> Stream.map(fn item ->
-        Enum.zip(headers, item) |> Enum.into(%{})
-      end)
-      |> Enum.to_list()
+    result = Stream.drop(data_stream, 1)
+    |> Stream.map(fn item ->
+      Enum.zip(headers, item) |> Enum.into(%{})
+    end)
+    |> Enum.to_list()
 
     {:ok, result}
-  end
-
-  def load(_path, _args) do
-    {:error, "the dataset type and separator are required"}
   end
 end
