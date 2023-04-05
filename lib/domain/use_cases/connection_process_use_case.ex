@@ -8,8 +8,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   use GenServer
   require Logger
+  alias DistributedPerformanceAnalyzer.Domain.Model.ConnectionProcess
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.RequestResultUseCase
+  alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
 
-  defstruct [:conn, :params, :conn_time, request: %{}]
+  #defstruct [:conn, :params, :conn_time, request: %{}]
 
   def start_link({scheme, host, port, id}) do
     {:ok, pid} = GenServer.start_link(__MODULE__, {scheme, host, port}, name: id)
@@ -27,7 +30,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @impl true
   def init({scheme, host, port}) do
-    state = %__MODULE__{conn: nil, params: {scheme, host, port}}
+    state = %ConnectionProcess{conn: nil, params: {scheme, host, port}}
     {:ok, state}
   end
 
@@ -41,7 +44,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   @impl true
-  def handle_call({:request, _, _, _, _}, _, state = %__MODULE__{conn: nil}) do
+  def handle_call({:request, _, _, _, _}, _, state = %ConnectionProcess{conn: nil}) do
     send(self(), :late_init)
     Process.sleep(200)
     {:reply, {:nil_conn, "Invalid connection state: nil"}, state}
@@ -66,7 +69,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   @impl true
-  def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
+  def handle_info(:late_init, state = %ConnectionProcess{params: {scheme, host, port}}) do
     start = :erlang.monotonic_time(:millisecond)
     case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
       {:ok, conn} -> {:noreply, %{state | conn: conn, conn_time: :erlang.monotonic_time(:millisecond) - start}}
@@ -77,7 +80,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   @impl true
-  def handle_info(message, state = %__MODULE__{conn: nil}) do
+  def handle_info(message, state = %ConnectionProcess{conn: nil}) do
     Logger.warn(fn -> "Received message with null conn: " <> inspect(message) end)
     {:noreply, state}
   end
@@ -107,7 +110,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
     end
   end
 
-  defp process_response_fn(%__MODULE__{request: %{ref: original_ref}}) do
+  defp process_response_fn(%ConnectionProcess{request: %{ref: original_ref}}) do
     fn (message, state) ->
       case message do
         {:status, ^original_ref, status} -> set_latency(state,:status, status)
@@ -129,14 +132,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
     end
   end
 
-  defp process_response({:done, _request_ref}, state = %__MODULE__{request: %{from: from, status: status, body: body, headers: headers, latency: latency, response: response}}) do
+  defp process_response({:done, _request_ref}, state = %ConnectionProcess{request: %{from: from, status: status, body: body, headers: headers, latency: latency, response: response}}) do
     #IO.puts("Done request!")
-    final_result = RequestResult.complete(response, status, body, headers, latency)
+    final_result = RequestResultUseCase.complete(response, status, body, headers, latency)
     GenServer.reply(from, {status_for(status), final_result})
     %{state | request: %{}}
   end
 
-  defp process_response({:error, _request_ref, reason}, state = %__MODULE__{request: %{from: from, init: _init}}) do
+  defp process_response({:error, _request_ref, reason}, state = %ConnectionProcess{request: %{from: from, init: _init}}) do
     GenServer.reply(from, {:protocol_error, reason})
     #IO.puts("Request error")
     IO.inspect(reason)

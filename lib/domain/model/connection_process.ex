@@ -9,7 +9,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.ConnectionProcess do
   request: save info with the request
   """
 
-  @enforce_keys [:conn, :params, :conn_time, :request]
+#  @enforce_keys [:conn, :params, :conn_time, :request]
 
   @allowed_keys ["conn", "params", "conn_time", "request"]
 

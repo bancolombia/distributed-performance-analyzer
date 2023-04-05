@@ -5,7 +5,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   use GenServer
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
   alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCaseUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
 
   @file_system_behaviour Application.get_env(:app, :file_system_behaviour)
 

@@ -2,9 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector do
   @moduledoc """
   Metrics collector module model.
 
-  Results: partial test results per step
-  Step: current step
-  Concurrency: Number of tps for each executed step
+
   """
   @enforce_keys [:results, :step, :concurrency]
 

@@ -52,7 +52,8 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:ex_unit_sonarqube, "~> 0.1", only: :test},
       {:constructor, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
-      {:file_size, "~> 3.0"}
+      {:file_size, "~> 3.0"},
+      {:mint, "~> 1.5"}
     ]
   end
 end

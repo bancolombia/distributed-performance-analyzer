@@ -8,6 +8,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.AppRegistryUseCase do
    Assign key-value to process
   """
 
+
   ## TODO Add functions to business logic app
 
   def start_link do

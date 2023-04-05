@@ -7,7 +7,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   the result row of this step is also printed.
   """
   alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
-  alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
+  #alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
 
   # @behaviour MetricsCollectorBehaviour
 
@@ -17,7 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   @spec send_metrics(String.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
   def send_metrics(results, step, concurrency) do
     partial =
-      PartialResult.calculate(results,
+      PartialResultUseCase.calculate(results,
         keep_responses: Application.get_env(:perf_analyzer, :jmeter_report, true)
       )
 
@@ -45,16 +46,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   def handle_call({:results, partial, step, concurrency}, _from, state) do
     state =
       Map.update(state, step, partial, fn acc_partial ->
-        PartialResult.combine(acc_partial, partial)
+        PartialResultUseCase.combine(acc_partial, partial)
       end)
 
     partial = state[step]
 
     if partial.concurrency == concurrency do
       new_state =
-        Map.update(state, step, partial, fn acc_partial ->
-          PartialResult.calculate_p90(state[step])
-        end)
+         Map.update(state, step, partial, fn acc_partial -> PartialResultUseCase.calculate_p90(state[step]) end)
 
       partial = new_state[step]
       mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
