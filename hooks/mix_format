@@ -1,20 +1,13 @@
 #!/bin/bash
 
-regex="^.*\.(ex|exs)$"
-
 function printMessage() {
   echo -e "\033[90m$1\033[0m"
 }
 
-files=""
-printMessage "Formatting files:"
+files=$(git diff --diff-filter=d --name-only --cached -- '*.ex' '*.exs')
 
-for file in $(git diff --diff-filter=d --name-only --cached); do
-  if [[ $file =~ $regex ]]; then
-    files="$files $file"
-    printMessage "  $file"
-  fi
-done
-
-mix format $files
-git add $files
+if ! [ -z "$files" ]; then
+  printMessage "Formatting files: \n\n$files\n"
+  mix format $files
+  git add $files
+fi
