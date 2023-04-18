@@ -1,5 +1,26 @@
 import Config
 
+config :git_hooks,
+  auto_install: true,
+  hooks: [
+    pre_commit: [
+      verbose: true,
+      tasks: [
+        {:file, "./hooks/mix_format"}
+        # {:mix_task, :format, ["--check-formatted", "--dry-run"]},
+        # {:mix_task, :credo}
+      ]
+    ]
+    # pre_push: [
+    #   verbose: false,
+    #   tasks: [
+    #     {:cmd, "mix dialyzer"},
+    #     {:cmd, "mix test --color"},
+    #     {:cmd, "echo 'success!'"}
+    #   ]
+    # ]
+  ]
+
 config :distributed_performance_analyzer,
   timezone: "America/Bogota",
   http_port: 8083,

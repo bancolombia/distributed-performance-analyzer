@@ -12,7 +12,8 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       ],
       test_coverage: [
         tool: ExCoveralls,
-        summary: [threshold: 34] # TODO: increase project coverage
+        # TODO: increase project coverage
+        summary: [threshold: 34]
       ],
       deps: deps()
     ]
@@ -53,7 +54,8 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:constructor, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
-      {:mint, "~> 1.5"}
+      {:mint, "~> 1.5"},
+      {:git_hooks, "~> 0.7.3", only: [:dev], runtime: false}
     ]
   end
 end

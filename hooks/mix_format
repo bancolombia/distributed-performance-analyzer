@@ -6,10 +6,15 @@ function printMessage() {
   echo -e "\033[90m$1\033[0m"
 }
 
+files=""
+printMessage "Formatting files:"
+
 for file in $(git diff --diff-filter=d --name-only --cached); do
   if [[ $file =~ $regex ]]; then
-    printMessage "Formatting $file"
-    mix format "$file"
-    git add "$file"
+    files="$files $file"
+    printMessage "  $file"
   fi
 done
+
+mix format $files
+git add $files

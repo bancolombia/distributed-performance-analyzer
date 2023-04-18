@@ -4,4 +4,4 @@ function printMessage() {
   echo -e "\033[90m$1\033[0m"
 }
 
-git config core.hooksPath .github/hooks && printMessage "Hooks enabled!"
+mix git_hooks.install && printMessage "Hooks enabled!"
