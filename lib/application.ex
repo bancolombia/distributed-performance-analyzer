@@ -2,6 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
   alias DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.ApiRest
   alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry, ConfigHolder}
   alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry, ConfigParser}
+  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
