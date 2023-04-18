@@ -3,11 +3,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   Metrics Analyzer use case
   """
   use GenServer
-  alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
-  alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
+  alias DistributedPerformanceAnalyzer.Domain.Model.{ExecutionModel, RequestResult}
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
 
-  @file_system_behaviour Application.get_env(:app, :file_system_behaviour)
+  @file_system_behaviour Application.get_env(
+                           :distributed_performance_analyzer,
+                           :file_system_behaviour
+                         )
 
   def compute_metrics do
     GenServer.cast(__MODULE__, :compute)
