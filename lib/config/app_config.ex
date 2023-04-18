@@ -1,6 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Config.AppConfig do
   @moduledoc """
-   Provides strcut for app-config
+   Provides struct for app-config
   """
 
   defstruct [

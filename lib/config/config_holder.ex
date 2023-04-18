@@ -1,14 +1,35 @@
 defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
-  use Agent
+  use GenServer
   alias DistributedPerformanceAnalyzer.Config.AppConfig
+
+  @dataset_behaviour Application.compile_env(
+                       :distributed_performance_analyzer,
+                       :dataset_behaviour
+                     )
 
   @moduledoc """
   Provides Behaviours for handle app-configs
   """
-  def start_link(%AppConfig{} = conf), do: Agent.start_link(fn -> conf end, name: __MODULE__)
-  def conf(), do: Agent.get(__MODULE__, & &1)
 
-  def set(property, value) do
-    Agent.update(__MODULE__, &Map.put(&1, property, value))
+  def start_link(%AppConfig{} = conf) do
+    GenServer.start_link(__MODULE__, conf, name: __MODULE__)
   end
+
+  def init(conf) do
+    conf_dataset = Map.put(conf, :dataset, load_dataset(conf))
+    :ets.new(__MODULE__, [:named_table])
+    :ets.insert(__MODULE__, {:conf, conf_dataset})
+    {:ok, nil}
+  end
+
+  def get() do
+    [{:conf, conf}] = :ets.lookup(__MODULE__, :conf)
+    conf
+  end
+
+  defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
+    @dataset_behaviour.parse_csv(path, separator)
+  end
+
+  defp load_dataset(%{dataset: dataset}), do: dataset
 end
