@@ -21,6 +21,14 @@
             "projectDir": "${workspaceRoot}"
         },
         {
+            "type": "mix_task",
+            "request": "launch",
+            "name": "mix git_hooks.install",
+            "task": "git_hooks.install",
+            "taskArgs": [],
+            "projectDir": "${workspaceRoot}"
+        },
+        {
             "command": "iex -S mix",
             "name": "run interactive app",
             "request": "launch",
