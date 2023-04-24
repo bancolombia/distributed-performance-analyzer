@@ -4,7 +4,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   """
 
   alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, StepModel}
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    ConnectionPoolUseCase,
+    LoadGeneratorUseCase
+  }
 
   def start_step(step_model = %StepModel{}) do
     # TODO: Agregar timeout y manejar errores remotos
@@ -63,7 +67,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   end
 
   defp start_load(launch_config, dataset, concurrency) do
-    {:ok, pid} = LoadGenerator.start(launch_config, dataset, concurrency)
+    {:ok, pid} = LoadGeneratorUseCase.start(launch_config, dataset, concurrency)
     Process.monitor(pid)
   end
 

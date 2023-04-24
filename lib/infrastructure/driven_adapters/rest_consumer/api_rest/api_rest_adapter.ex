@@ -4,7 +4,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.RestConsumer.Ap
   # alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.RestConsumer.ApiRest.Data.ApiRestRequest
 
   def get() do
-    %{api_rest_url: url} = ConfigHolder.conf()
+    %{api_rest_url: url} = ConfigHolder.get()
 
     with {:ok, %Finch.Response{body: body}} <- Finch.build(:get, url) |> Finch.request(HttpFinch),
          {:ok, response} <- Poison.decode(body) do
@@ -13,7 +13,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.RestConsumer.Ap
   end
 
   def post(body) do
-    %{api_rest_url: url} = ConfigHolder.conf()
+    %{api_rest_url: url} = ConfigHolder.get()
     headers = [{"Content-Type", "application/json"}]
 
     # body = struct(ApiRestRequest, body)
