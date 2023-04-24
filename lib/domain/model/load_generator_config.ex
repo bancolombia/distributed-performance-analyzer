@@ -23,7 +23,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadGeneratorConfig do
 
   defstruct [:method, :path, :headers, :body]
 
-  @spec new(String.t(), String.t()) :: DistributedPerformanceAnalyzer.Domain.Model.Request.t()
+  @spec new(String.t(), String.t()) :: Request.t()
   def new(method, path) do
     %Request{method: method, path: path, headers: [], body: "", url: ""}
   end

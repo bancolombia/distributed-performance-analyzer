@@ -30,6 +30,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:finch, "~> 0.13"},
       {:opentelemetry_plug,
        git: "https://github.com/juancgalvis/opentelemetry_plug.git",
        ref: "82206fb09fbeb9ffa2f167a5f58ea943c117c003",

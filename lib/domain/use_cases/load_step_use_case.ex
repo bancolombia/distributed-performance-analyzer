@@ -3,7 +3,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   Load step use case
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.StepModel
+  alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, StepModel}
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase
 
   def start_step(step_model = %StepModel{}) do
     # TODO: Agregar timeout y manejar errores remotos
@@ -45,8 +46,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
           concurrency: concurrency
         }
       ) do
-    Perf.ConnectionPool.ensure_capacity(concurrency)
-    launch_config = LoadProcessModel.new(step_model)
+    ConnectionPoolUseCase.ensure_capacity(concurrency)
+    launch_config = LoadProcess.new(step_model)
 
     loads =
       1..concurrency
@@ -62,7 +63,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   end
 
   defp start_load(launch_config, dataset, concurrency) do
-    {:ok, pid} = Perf.LoadGenerator.start(launch_config, dataset, concurrency)
+    {:ok, pid} = LoadGenerator.start(launch_config, dataset, concurrency)
     Process.monitor(pid)
   end
 

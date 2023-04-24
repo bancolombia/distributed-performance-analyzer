@@ -3,6 +3,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   ConnectionPoolUseCase is module manages the connection pool
   """
   alias DistributedPerformanceAnalyzer.Config.AppRegistry
+
   use GenServer
   require Logger
 

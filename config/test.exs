@@ -35,3 +35,6 @@ config :distributed_performance_analyzer,
 
 config :logger,
   level: :debug
+
+config :distributed_performance_analyzer,
+  api_rest_url: "https://jsonplaceholder.typicode.com/todos"

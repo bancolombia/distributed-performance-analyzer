@@ -27,7 +27,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   @impl true
   def handle_cast(:compute, %ExecutionModel{duration: duration}) do
     duration_segs = duration / 1000
-    metrics = MetricsCollectorUseCaseUseCase.get_metrics()
+    metrics = MetricsCollectorUseCase.get_metrics()
     steps = Map.keys(metrics)
     steps_count = Enum.count(steps)
 
@@ -94,7 +94,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
       generate_jmeter_report(sorted_curve)
     end
 
-    MetricsCollectorUseCaseUseCase.clean_metrics()
+    MetricsCollectorUseCase.clean_metrics()
 
     {:stop, :normal, nil}
   end

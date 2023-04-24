@@ -2,8 +2,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @moduledoc """
   Execution use case
   """
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
+  alias DistributedPerformanceAnalyzer.Domain.Model.StepModel
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{LoadStepUseCase, MetricsAnalyzerUseCase}
   alias DistributedPerformanceAnalyzer.Config.ConfigHolder
   use GenServer
 

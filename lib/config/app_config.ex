@@ -4,12 +4,14 @@ defmodule DistributedPerformanceAnalyzer.Config.AppConfig do
   """
 
   defstruct [
+    :api_rest_url,
     :enable_server,
     :http_port
   ]
 
   def load_config do
     %__MODULE__{
+      api_rest_url: load(:api_rest_url),
       enable_server: load(:enable_server),
       http_port: load(:http_port)
     }

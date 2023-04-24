@@ -49,7 +49,9 @@ defmodule DistributedPerformanceAnalyzer.Application do
   end
 
   def env_children(_other_env) do
-    []
+    [
+      {Finch, name: HttpFinch, pools: %{:default => [size: 500]}}
+    ]
   end
 
   defp init() do
