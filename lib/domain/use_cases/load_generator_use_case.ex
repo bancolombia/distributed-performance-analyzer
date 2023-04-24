@@ -5,15 +5,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   TODO Updates usecase description
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.Request
+  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, LoadProcess}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     MetricsCollectorUseCase,
     ConnectionProcessUseCase
   }
-
-  alias DistributedPerformanceAnalyzer.Domain.Model.LoadProcess
 
   ## TODO Add functions to business logic app
   def start(
