@@ -84,7 +84,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
         Request,
         %{
           method: method,
-          path: ConfParser.path(path, query),
+          path: ConfigParser.path(path, query),
           headers: headers,
           body: body,
           url: url

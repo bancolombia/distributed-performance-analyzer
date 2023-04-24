@@ -2,6 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   @moduledoc """
   ConnectionPoolUseCase is module manages the connection pool
   """
+  alias DistributedPerformanceAnalyzer.Config.AppRegistry
   use GenServer
   require Logger
 
@@ -66,12 +67,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   end
 
   defp create_connection(scheme, host, port, id) do
-    name = Perf.AppRegistry.via_tuple(id)
+    name = AppRegistry.via_tuple(id)
 
     {:ok, _pid} =
       DynamicSupervisor.start_child(
-        Perf.ConnectionSupervisor,
-        {Perf.ConnectionProcess, {scheme, host, port, name}}
+        DPA.ConnectionSupervisor,
+        {DPA.ConnectionProcess, {scheme, host, port, name}}
       )
 
     name

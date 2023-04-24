@@ -2,6 +2,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @moduledoc """
   Execution use case
   """
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
+  alias DistributedPerformanceAnalyzer.Config.ConfigHolder
   use GenServer
 
   defstruct [:request, :steps, :increment, :duration]
@@ -16,8 +19,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
 
   @impl true
   def init(state) do
-    IO.puts("Initializing Perf.Execution...")
-    %{steps: steps} = Perf.ExecutionConf.get()
+    IO.puts("Initializing Distributed Performance Analyzer...")
+    %{steps: steps} = ConfigHolder.get()
     {:ok, %{state | steps: steps}}
   end
 
@@ -37,7 +40,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @impl true
   def handle_cast(:continue_execution, state = %{actual_step: actual_step, steps: steps})
       when actual_step <= steps do
-    execution_model = Perf.ExecutionConf.get()
+    execution_model = ConfigHolder.get()
 
     StepModel.new(execution_model, state.actual_step)
     |> start_step()
@@ -48,7 +51,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @impl true
   def handle_cast(:continue_execution, state = %{actual_step: actual_step, steps: steps})
       when actual_step > steps do
-    Perf.MetricsAnalyzer.compute_metrics()
+    MetricsAnalyzerUseCase.compute_metrics()
     {:noreply, %{state | actual_step: -1}}
   end
 
@@ -56,7 +59,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
     IO.puts("Initiating #{step_conf.name}, with #{step_conf.concurrency} actors")
 
     Task.start_link(fn ->
-      Perf.LoadStep.start_step(step_conf)
+      LoadStepUseCase.start_step(step_conf)
       GenServer.cast(__MODULE__, :continue_execution)
     end)
   end
