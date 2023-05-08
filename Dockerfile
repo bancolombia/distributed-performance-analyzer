@@ -1,5 +1,5 @@
-FROM elixir:1.13.4-alpine
-RUN apk add build-base
+FROM elixir:1.14.4-alpine
+RUN apk add git build-base
 WORKDIR /app
 COPY . /app
 RUN mix local.hex --force \
@@ -8,7 +8,7 @@ RUN mix local.hex --force \
     && mix deps.compile \
     && MIX_ENV=prod mix escript.build
 
-FROM elixir:1.13.4-alpine
+FROM alpine:3.17.3
 WORKDIR /app
 RUN apk update && apk upgrade && apk add bash
 COPY --from=0 /app/perf_analyzer /app
