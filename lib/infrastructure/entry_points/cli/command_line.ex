@@ -1,4 +1,4 @@
-defmodule DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.CommandLine do
+defmodule Cli.CommandLine do
   @moduledoc """
   Command Line
   """
