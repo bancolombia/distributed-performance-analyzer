@@ -2,8 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.CommandLine d
   @moduledoc """
   Command Line
   """
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{ExecutionUseCase, MetricsAnalyzerUseCase}
 
   def main(_args) do
     # execution pending migration

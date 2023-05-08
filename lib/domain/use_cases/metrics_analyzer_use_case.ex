@@ -6,7 +6,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   alias DistributedPerformanceAnalyzer.Domain.Model.{ExecutionModel, RequestResult}
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
 
-  @file_system_behaviour Application.get_env(
+  @file_system_behaviour Application.compile_env(
                            :distributed_performance_analyzer,
                            :file_system_behaviour
                          )
@@ -136,7 +136,26 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   end
 
   defp write_to_file(data, file, header, print, fun) do
-    @file_system_behaviour.write_to_file(data, file, header, print, fun)
+    {:ok, file} = File.open(file, [:write])
+
+    if print do
+      IO.puts("####CSV#######")
+      IO.puts(header)
+    end
+
+    IO.binwrite(file, header <> "\n")
+
+    Enum.each(
+      data,
+      fn item ->
+        row = fun.(item)
+        IO.binwrite(file, row <> "\n")
+
+        if print do
+          IO.puts(row)
+        end
+      end
+    )
   end
 
   defp response_for_code(status) when status >= 200 and status < 400, do: "OK"

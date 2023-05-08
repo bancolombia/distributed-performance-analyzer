@@ -2,6 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   @moduledoc """
   ConnectionPoolUseCase is module manages the connection pool
   """
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   alias DistributedPerformanceAnalyzer.Config.AppRegistry
 
   use GenServer
@@ -73,7 +74,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
     {:ok, _pid} =
       DynamicSupervisor.start_child(
         DPA.ConnectionSupervisor,
-        {DPA.ConnectionProcess, {scheme, host, port, name}}
+        {ConnectionProcessUseCase, {scheme, host, port, name}}
       )
 
     name

@@ -11,7 +11,7 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   Provides Behaviours for handle app-configs
   """
 
-  def start_link(%AppConfig{} = conf) do
+  def start_link(conf) do
     GenServer.start_link(__MODULE__, conf, name: __MODULE__)
   end
 
