@@ -1,13 +1,11 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "http://httpbin.org/get",
+  url: "https://httpbin.org/get",
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    body: fn _item ->
-      ~s/'{"data":  #{Enum.random(1..10)},"key": 1}}}'/
-    end
+    body: ""
   },
   execution: %{
     steps: 5,

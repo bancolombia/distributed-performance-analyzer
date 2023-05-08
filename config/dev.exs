@@ -5,7 +5,9 @@ config :distributed_performance_analyzer,
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    body: ""
+    body: fn _item ->
+      ~s/'{"data":  #{Enum.random(1..10)},"key": 1}}}'/
+    end
   },
   execution: %{
     steps: 5,
