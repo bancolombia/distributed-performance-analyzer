@@ -4,3 +4,4 @@ deps
 doc
 deploy_samples
 bench
+Dockerfile
