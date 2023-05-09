@@ -1,6 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   use GenServer
-  alias DistributedPerformanceAnalyzer.Config.AppConfig
 
   @dataset_behaviour Application.compile_env(
                        :distributed_performance_analyzer,

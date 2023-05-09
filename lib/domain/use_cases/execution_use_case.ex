@@ -25,13 +25,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   end
 
   @impl true
-  def handle_call(:launch_execution, _last, conf = %{actual_step: -1}) do
+  def handle_call(:launch_execution, _from, conf = %{actual_step: -1}) do
     GenServer.cast(self(), :continue_execution)
     {:reply, :ok, %{conf | actual_step: 1}}
   end
 
   @impl true
-  def handle_call(:launch_execution, _last, conf) do
+  def handle_call(:launch_execution, _from, conf) do
     IO.warn("Performance test already running")
     IO.inspect(conf)
     {:reply, :error, conf}

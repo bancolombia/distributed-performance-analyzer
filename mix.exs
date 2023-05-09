@@ -49,7 +49,6 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:plug_checkup, "~> 0.6.0"},
       {:poison, "~> 4.0"},
       {:cors_plug, "~> 2.0"},
-      {:timex, "~> 3.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_unit_sonarqube, "~> 0.1", only: :test},
       {:constructor, "~> 1.1"},

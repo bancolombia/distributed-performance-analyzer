@@ -1,5 +1,4 @@
 defmodule DistributedPerformanceAnalyzer.Application do
-  alias DistributedPerformanceAnalyzer.Infrastructure.EntryPoint.ApiRest
   alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry, ConfigHolder}
   alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry, ConfigParser}
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
@@ -17,25 +16,18 @@ defmodule DistributedPerformanceAnalyzer.Application do
   @default_runtime_config "config/performance.exs"
 
   def start(_type, _args) do
-    config = AppConfig.load_config()
+    # config = AppConfig.load_config()
 
-    CertificatesAdmin.setup()
+    # CertificatesAdmin.setup()
 
-    children = with_plug_server(config) ++ all_env_children() ++ env_children(Mix.env())
+    # children = all_env_children() ++ env_children(Mix.env())
 
-    CustomTelemetry.custom_telemetry_events()
-    opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
-    Supervisor.start_link(children, opts)
+    # CustomTelemetry.custom_telemetry_events()
+    # opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
+    # Supervisor.start_link(children, opts)
 
     init()
   end
-
-  defp with_plug_server(%AppConfig{enable_server: true, http_port: port}) do
-    Logger.debug("Configure Http server in port #{inspect(port)}. ")
-    [{Plug.Cowboy, scheme: :http, plug: ApiRest, options: [port: port]}]
-  end
-
-  defp with_plug_server(%AppConfig{enable_server: false}), do: []
 
   def all_env_children() do
     [
