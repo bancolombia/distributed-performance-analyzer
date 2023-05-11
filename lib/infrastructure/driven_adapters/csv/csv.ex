@@ -25,7 +25,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
     IO.puts("File Size: #{file_size}\n")
 
     data_stream =
-      File.stream!(path)
+      File.stream!(path, [{:encoding, :utf8}, :trim_bom])
       |> MyParser.parse_stream(skip_headers: false)
 
     headers =
@@ -34,11 +34,12 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
       |> Enum.at(0)
       |> Enum.map(&String.to_atom/1)
 
-    result = Stream.drop(data_stream, 1)
-    |> Stream.map(fn item ->
-      Enum.zip(headers, item) |> Enum.into(%{})
-    end)
-    |> Enum.to_list()
+    result =
+      Stream.drop(data_stream, 1)
+      |> Stream.map(fn item ->
+        Enum.zip(headers, item) |> Enum.into(%{})
+      end)
+      |> Enum.to_list()
 
     {:ok, result}
   end
