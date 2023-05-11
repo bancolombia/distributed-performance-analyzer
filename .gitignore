@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,intellij+all,elixir,macos,windows,linux
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,intellij+all,elixir,macos,windows,linux
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
 
 ### Elixir ###
 /_build
@@ -14,6 +14,26 @@ erl_crash.dump
 .elixir_ls/
 
 ### Elixir Patch ###
+
+### Erlang ###
+.eunit
+*.o
+*.plt
+.concrete/DEV_MODE
+
+# rebar 2.x
+.rebar
+rel/example_project
+ebin/*.beam
+deps
+
+# rebar 3
+.rebar3
+_build/
+_checkouts/
+
+### Erlang Patch ###
+rebar3.crashdump
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -170,12 +190,6 @@ Temporary Items
 .history
 .ionide
 
-# Support for Project snippet scope
-.vscode/*.code-snippets
-
-# Ignore code-workspaces
-*.code-workspace
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -202,7 +216,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,intellij+all,elixir,macos,windows,linux
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
 
 *.csv
 *.log
