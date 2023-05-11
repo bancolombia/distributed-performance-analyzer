@@ -27,7 +27,8 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   end
 
   defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
-    @dataset_behaviour.parse_csv(path, separator)
+    {:ok, dataset} = @dataset_behaviour.parse_csv(path, separator)
+    dataset
   end
 
   defp load_dataset(%{dataset: dataset}), do: dataset

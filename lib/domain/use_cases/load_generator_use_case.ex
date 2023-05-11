@@ -64,7 +64,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
 
   defp get_random_item(list) when is_list(list) do
     # TODO: Improve random to static list
-    Enum.at(list, Enum.random(0..length(list - 1)))
+    Enum.at(list, Enum.random(0..(length(list) - 1)))
   end
 
   defp get_random_item(_opt), do: nil

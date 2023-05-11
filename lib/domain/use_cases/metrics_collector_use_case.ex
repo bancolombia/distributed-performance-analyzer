@@ -7,7 +7,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   the result row of this step is also printed.
   """
   alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
-  #alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
+  # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
   alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
 
   # @behaviour MetricsCollectorBehaviour
@@ -15,7 +15,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   use GenServer
 
   # TODO: definir formato salida
-  @spec send_metrics(String.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
+  @spec send_metrics(List.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
   def send_metrics(results, step, concurrency) do
     partial =
       PartialResultUseCase.calculate(results,
@@ -53,7 +53,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
 
     if partial.concurrency == concurrency do
       new_state =
-         Map.update(state, step, partial, fn acc_partial -> PartialResultUseCase.calculate_p90(state[step]) end)
+        Map.update(state, step, partial, fn acc_partial ->
+          PartialResultUseCase.calculate_p90(state[step])
+        end)
 
       partial = new_state[step]
       mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
@@ -74,7 +76,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   end
 
   @impl true
-  def handle_cast(:clean, state) do
+  def handle_cast(:clean, _state) do
     {:noreply, %{}}
   end
 end
