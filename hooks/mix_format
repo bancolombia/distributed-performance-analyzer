@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function printMessage() {
+  echo -e "\033[90m$1\033[0m"
+}
+
+files=$(git diff --diff-filter=d --name-only --cached -- '*.ex' '*.exs')
+
+if ! [ -z "$files" ]; then
+  printMessage "Formatting files: \n\n$files\n"
+  mix format $files
+  git add $files
+fi

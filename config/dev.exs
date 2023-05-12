@@ -1,11 +1,13 @@
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://127.0.0.1:8080/wait/1000",
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    body: ""
+    body: fn _item ->
+      ~s/'{"data":  #{Enum.random(1..10)},"key": 1}}}'/
+    end
   },
   execution: %{
     steps: 5,
@@ -19,4 +21,4 @@ config :perf_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :info
+  level: :debug

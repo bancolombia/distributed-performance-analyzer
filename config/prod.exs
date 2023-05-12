@@ -1,6 +1,6 @@
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://127.0.0.1:8080/post",
   request: %{
     method: "POST",
@@ -19,4 +19,4 @@ config :perf_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :info
+  level: :debug

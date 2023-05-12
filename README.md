@@ -8,6 +8,7 @@ Performance Analyzer is an HTTP benchmarking tool capable of generating signific
 ## Install
 
 ```shell
+./enable-hook.sh
 mix deps.get
 mix compile
 ```
