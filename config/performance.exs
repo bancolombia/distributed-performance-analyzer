@@ -1,7 +1,7 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "https://httpbin.org/get",
+  url: "http://localhost:8080/wait/0",
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],

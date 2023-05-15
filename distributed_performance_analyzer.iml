@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="ELIXIR_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/_build/dev/lib/distributed_performance_analyzer/ebin" />
+    <output-test url="file://$MODULE_DIR$/_build/test/lib/distributed_performance_analyzer/ebin" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/lib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/acceptor_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/artificery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/blankable" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/castore" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/certifi" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/chatterbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/combine" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/constructor" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/cors_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/cowboy_telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/cowlib" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ctx" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/decimal" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/distillery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/expo" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/file_size" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/finch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/gettext" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/git_hooks" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/gproc" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/grpcbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/hackney" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/hpack" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/hpax" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/idna" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/jason" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mime" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mimerl" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/mint" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/morphix" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/nimble_csv" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/nimble_options" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/nimble_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/number" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry_api" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry_exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/parse_trans" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug_checkup" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug_cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/plug_crypto" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/poison" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ranch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/recase" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ssl_verify_fun" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry_metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry_metrics_prometheus" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry_metrics_prometheus_core" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/telemetry_poller" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/timex" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/typed_struct" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/tzdata" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/unicode_util_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/acceptor_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/artificery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/castore" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/certifi" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/chatterbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/combine" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/constructor" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/cors_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/cowboy_telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/cowlib" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/ctx" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/decimal" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/distillery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/expo" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/file_size" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/finch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/gettext" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/gproc" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/grpcbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/hackney" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/hpack" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/hpax" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/idna" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/jason" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/mime" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/mimerl" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/mint" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/morphix" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/nimble_csv" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/nimble_options" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/nimble_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/number" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/opentelemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/opentelemetry_api" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/opentelemetry_exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/opentelemetry_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/parse_trans" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/plug_checkup" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/plug_cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/plug_crypto" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/poison" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/ranch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/ssl_verify_fun" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/telemetry_metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/telemetry_metrics_prometheus" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/telemetry_metrics_prometheus_core" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/telemetry_poller" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/timex" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/typed_struct" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/tzdata" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/unicode_util_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/acceptor_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/artificery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/castore" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/certifi" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/chatterbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/combine" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/constructor" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/cors_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/cowboy_telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/cowlib" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/ctx" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/decimal" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/distillery" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/ex_unit_sonarqube" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/excoveralls" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/expo" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/file_size" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/finch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/gettext" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/gproc" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/grpcbox" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/hackney" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/hpack" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/hpax" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/idna" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/jason" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/mime" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/mimerl" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/mint" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/morphix" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/nimble_csv" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/nimble_options" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/nimble_pool" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/number" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/opentelemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/opentelemetry_api" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/opentelemetry_exporter" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/opentelemetry_plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/parse_trans" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/plug" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/plug_checkup" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/plug_cowboy" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/plug_crypto" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/poison" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/ranch" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/ssl_verify_fun" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/telemetry" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/telemetry_metrics" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/telemetry_metrics_prometheus" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/telemetry_metrics_prometheus_core" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/telemetry_poller" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/timex" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/typed_struct" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/tzdata" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/unicode_util_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/assets/node_modules/phoenix" />
+      <excludeFolder url="file://$MODULE_DIR$/assets/node_modules/phoenix_html" />
+      <excludeFolder url="file://$MODULE_DIR$/cover" />
+      <excludeFolder url="file://$MODULE_DIR$/deps" />
+      <excludeFolder url="file://$MODULE_DIR$/doc" />
+      <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry_semantic_conventions" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/tls_certificate_check" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="finch" level="project" />
+    <orderEntry type="library" name="opentelemetry_plug" level="project" />
+    <orderEntry type="library" name="opentelemetry_api" level="project" />
+    <orderEntry type="library" name="opentelemetry_exporter" level="project" />
+    <orderEntry type="library" name="telemetry" level="project" />
+    <orderEntry type="library" name="telemetry_poller" level="project" />
+    <orderEntry type="library" name="telemetry_metrics_prometheus" level="project" />
+    <orderEntry type="library" name="distillery" level="project" />
+    <orderEntry type="library" name="castore" level="project" />
+    <orderEntry type="library" name="plug_cowboy" level="project" />
+    <orderEntry type="library" name="jason" level="project" />
+    <orderEntry type="library" name="plug_checkup" level="project" />
+    <orderEntry type="library" name="poison" level="project" />
+    <orderEntry type="library" name="cors_plug" level="project" />
+    <orderEntry type="library" name="excoveralls" level="project" />
+    <orderEntry type="library" name="ex_unit_sonarqube" level="project" />
+    <orderEntry type="library" name="constructor" level="project" />
+    <orderEntry type="library" name="nimble_csv" level="project" />
+    <orderEntry type="library" name="file_size" level="project" />
+    <orderEntry type="library" name="mint" level="project" />
+    <orderEntry type="library" name="git_hooks" level="project" />
+    <orderEntry type="library" name="nimble_pool" level="project" />
+    <orderEntry type="library" name="nimble_options" level="project" />
+    <orderEntry type="library" name="mime" level="project" />
+    <orderEntry type="library" name="ex_doc" level="project" />
+    <orderEntry type="library" name="credo" level="project" />
+    <orderEntry type="library" name="dialyxir" level="project" />
+    <orderEntry type="library" name="bypass" level="project" />
+    <orderEntry type="library" name="cowboy" level="project" />
+    <orderEntry type="library" name="x509" level="project" />
+    <orderEntry type="library" name="hackney" level="project" />
+    <orderEntry type="library" name="opentelemetry" level="project" />
+    <orderEntry type="library" name="plug" level="project" />
+    <orderEntry type="library" name="telemetry_metrics_prometheus_core" level="project" />
+    <orderEntry type="library" name="artificery" level="project" />
+    <orderEntry type="library" name="eqc_ex" level="project" />
+    <orderEntry type="library" name="ex_unit_clustered_case" level="project" />
+    <orderEntry type="library" name="dialyzex" level="project" />
+    <orderEntry type="library" name="cowboy_telemetry" level="project" />
+    <orderEntry type="library" name="kadabra" level="project" />
+    <orderEntry type="library" name="ex_json_schema" level="project" />
+    <orderEntry type="library" name="benchee_html" level="project" />
+    <orderEntry type="library" name="benchee" level="project" />
+    <orderEntry type="library" name="decimal" level="project" />
+    <orderEntry type="library" name="exjsx" level="project" />
+    <orderEntry type="library" name="jiffy" level="project" />
+    <orderEntry type="library" name="json" level="project" />
+    <orderEntry type="library" name="jsone" level="project" />
+    <orderEntry type="library" name="junit_formatter" level="project" />
+    <orderEntry type="library" name="stream_data" level="project" />
+    <orderEntry type="library" name="tiny" level="project" />
+    <orderEntry type="library" name="earmark" level="project" />
+    <orderEntry type="library" name="mix_test_watch" level="project" />
+    <orderEntry type="library" name="meck" level="project" />
+    <orderEntry type="library" name="mock" level="project" />
+    <orderEntry type="library" name="morphix" level="project" />
+    <orderEntry type="library" name="typed_struct" level="project" />
+    <orderEntry type="library" name="number" level="project" />
+    <orderEntry type="library" name="hpack" level="project" />
+    <orderEntry type="library" name="blankable" level="project" />
+    <orderEntry type="library" name="inch_ex" level="project" />
+    <orderEntry type="library" name="recase" level="project" />
+    <orderEntry type="library" name="plug_crypto" level="project" />
+    <orderEntry type="library" name="telemetry_metrics" level="project" />
+    <orderEntry type="library" name="ex_unit_notifier" level="project" />
+    <orderEntry type="library" name="benchee_json" level="project" />
+    <orderEntry type="library" name="hpax" level="project" />
+    <orderEntry type="library" name="mox" level="project" />
+    <orderEntry type="library" name="sax_map" level="project" />
+    <orderEntry type="library" name="saxy" level="project" />
+  </component>
+</module>

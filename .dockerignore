@@ -1,18 +1,26 @@
-.git
-.elixir_ls
-_build
-deps
-dpa
-hooks
-.github
-.vscode
-assets
+### Elixir ###
+/_build
+/cover
+/deps
+/doc
+/.fetch
+erl_crash.dump
+*.ez
+*.beam
+/config/*.secret.exs
+.elixir_ls/
 test
+
+### Docker ###
 Dockerfile
-scripts
-*.sh
-*.md
-.gitignore
 .dockerignore
-*.dump
-LICENSE
+
+### Git ###
+.git
+.github
+.gitignore
+hooks
+
+### IDE ###
+.vscode
+.idea
