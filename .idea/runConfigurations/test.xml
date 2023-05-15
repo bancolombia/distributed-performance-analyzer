@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="test" type="MixExUnitRunConfigurationType" factoryName="Elixir Mix ExUnit">
+    <module name="distributed_performance_analyzer" />
+    <mix-test>
+      <argument>test</argument>
+      <argument>--cover</argument>
+      <argument>--color</argument>
+    </mix-test>
+    <envs>
+      <env name="MIX_ENV" value="test" />
+    </envs>
+    <module name="distributed_performance_analyzer" />
+    <module-filters inherit-application-module-filters="true" />
+    <method v="2" />
+  </configuration>
+</component>

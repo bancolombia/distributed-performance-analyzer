@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="hex - rebar" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed_performance_analyzer" />
+    <mix>
+      <argument>do</argument>
+      <argument>local.hex</argument>
+      <argument>--force,</argument>
+      <argument>local.rebar</argument>
+      <argument>--force</argument>
+    </mix>
+    <module name="distributed_performance_analyzer" />
+    <module-filters inherit-application-module-filters="true" />
+    <method v="2" />
+  </configuration>
+</component>
