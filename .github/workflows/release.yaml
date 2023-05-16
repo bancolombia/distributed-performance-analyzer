@@ -28,8 +28,8 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            bancolombia/latency-simulator:latest
-            bancolombia/latency-simulator:${{ github.ref_name }}
+            bancolombia/distributed-performance-analyzer:latest
+            bancolombia/distributed-performance-analyzer:${{ github.ref_name }}
 
       - name: Build and push - prerelease
         uses: docker/build-push-action@v4
@@ -38,4 +38,4 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
-          tags: bancolombia/latency-simulator:${{ github.ref_name }}
+          tags: bancolombia/distributed-performance-analyzer:${{ github.ref_name }}
