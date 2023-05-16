@@ -31,7 +31,7 @@ jobs:
             bancolombia/latency-simulator:latest
             bancolombia/latency-simulator:${{ github.ref_name }}
 
-      - name: Build and push
+      - name: Build and push - prerelease
         uses: docker/build-push-action@v4
         if: "github.event.release.prerelease"
         with:
