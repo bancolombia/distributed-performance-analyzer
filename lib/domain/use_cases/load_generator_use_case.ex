@@ -50,13 +50,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
        ) do
     {_total_time, _result} =
       try do
-        new_headers = replace_in_headers(headers, item) |> IO.inspect(label: "new_headers")
-
         ConnectionProcessUseCase.request(
           conn,
           method,
           path,
-          new_headers,
+          replace_in_headers(headers, item),
           replace_in_body(body, item)
         )
       catch
