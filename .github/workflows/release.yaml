@@ -2,6 +2,10 @@ name: Deploy Image
 on:
   release:
     types: [ published ]
+
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
