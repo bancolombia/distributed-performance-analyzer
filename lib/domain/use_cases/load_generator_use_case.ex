@@ -50,7 +50,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
        ) do
     {_total_time, _result} =
       try do
-        ConnectionProcessUseCase.request(conn, method, path, headers, replace_in_body(body, item))
+        new_headers = replace_in_headers(headers, item) |> IO.inspect(label: "new_headers")
+
+        ConnectionProcessUseCase.request(
+          conn,
+          method,
+          path,
+          new_headers,
+          replace_in_body(body, item)
+        )
       catch
         _, _error -> {0, :invocation_error}
       end
@@ -80,4 +88,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   end
 
   defp replace_in_body(body, _item), do: body
+
+  defp replace_in_headers(headers, item) do
+    Enum.map(headers, fn {key, value} ->
+      {key, replace_value(value, item)}
+    end)
+  end
+
+  defp replace_value(value, item) when is_function(value), do: value.(item)
+  defp replace_value(value, _item), do: value
 end
