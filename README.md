@@ -1,5 +1,6 @@
 # Performance Analyzer
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Docker Hub](https://img.shields.io/docker/pulls/bancolombia/distributed-performance-analyzer?label=Docker%20Hub)](https://hub.docker.com/repository/docker/bancolombia/distributed-performance-analyzer)
 [![Scorecards supply-chain security](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml/badge.svg)](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml)
 
@@ -25,9 +26,10 @@ config :perf_analyzer,
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
-    # body: ~s/'{"data": "value"}'/ --> If you don't use dynamic values
+    # body: ~s|'{"data": "value"}'| --> If you don't use dataset values
     body: fn item ->
-      ~s/'{"data": #{Enum.random(1..10), "key": "#{item.columnName}"}'/ #This is for dataset replacement
+      # This is for dataset replacement
+      ~s|'{"data": #{Enum.random(1..10)}, "key": "#{item.columnName}"}'|
     end
   },
   execution: %{
@@ -39,10 +41,12 @@ config :perf_analyzer,
     # dataset: :none, --> If you don't use dataset
     separator: ","
   },
-  distributed: :none
+  distributed: :none,
+  jmeter_report: true
 
 config :logger,
   level: :info
+
 ```
 
 | Property      | Description                                                                                                                |

@@ -185,6 +185,8 @@
       <excludeFolder url="file://$MODULE_DIR$/logs" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/opentelemetry_semantic_conventions" />
       <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/tls_certificate_check" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/opentelemetry_semantic_conventions" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/prod/lib/tls_certificate_check" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

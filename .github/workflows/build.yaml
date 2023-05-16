@@ -1,5 +1,6 @@
 name: Build
-on: [push, pull_request]
+on: [ push, pull_request ]
+
 permissions:
   contents: read
 
@@ -12,6 +13,13 @@ jobs:
         with:
           otp-version: '25'
           elixir-version: '1.14'
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
 
       - run: |
           mix local.hex --force
