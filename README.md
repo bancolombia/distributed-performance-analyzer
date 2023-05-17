@@ -1,8 +1,12 @@
 # Performance Analyzer
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![Docker Hub](https://img.shields.io/docker/pulls/bancolombia/distributed-performance-analyzer?label=Docker%20Hub)](https://hub.docker.com/repository/docker/bancolombia/distributed-performance-analyzer)
-[![Scorecards supply-chain security](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml/badge.svg)](https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml)
+[![MIT License][license-shield]][license-url]
+[![Docker Hub][docker-shield]][docker-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![Score Cards][scorecards-shield]][scorecards-url]
 
 Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different concurrency scenarios.
 
@@ -125,3 +129,19 @@ Then, you can compare the attributes that are interesting for you. For example c
 ![Example 1 - Throughput](assets/dresults_example1.png)
 
 ![Example 2 - Latency](assets/dresults_example2.png)
+
+
+[scorecards-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml/badge.svg
+[scorecards-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml
+[docker-shield]: https://img.shields.io/docker/pulls/bancolombia/distributed-performance-analyzer
+[docker-url]: https://hub.docker.com/repository/docker/bancolombia/distributed-performance-analyzer
+[contributors-shield]: https://img.shields.io/github/contributors/bancolombia/distributed-performance-analyzer.svg
+[contributors-url]: https://github.com/bancolombia/distributed-performance-analyzer/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/bancolombia/distributed-performance-analyzer.svg
+[forks-url]: https://github.com/bancolombia/distributed-performance-analyzer/network/members
+[stars-shield]: https://img.shields.io/github/stars/bancolombia/distributed-performance-analyzer.svg
+[stars-url]: https://github.com/bancolombia/distributed-performance-analyzer/stargazers
+[issues-shield]: https://img.shields.io/github/issues/bancolombia/distributed-performance-analyzer.svg
+[issues-url]: https://github.com/bancolombia/distributed-performance-analyzer/issues
+[license-shield]: https://img.shields.io/github/license/bancolombia/distributed-performance-analyzer.svg
+[license-url]: https://github.com/bancolombia/distributed-performance-analyzer/blob/main/LICENSE
