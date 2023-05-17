@@ -10,7 +10,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     MetricsCollectorUseCase,
-    ConnectionProcessUseCase
+    ConnectionProcessUseCase,
+    Dataset.DatasetUseCase
   }
 
   ## TODO Add functions to business logic app
@@ -32,7 +33,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   end
 
   defp generate_load(conf, dataset, results, end_time, conn) do
-    item = get_random_item(dataset)
+    item = DatasetUseCase.get_random_item(dataset)
     result = request(conf, item, conn)
 
     if actual_time() < end_time do
@@ -54,8 +55,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
           conn,
           method,
           path,
-          replace_in_headers(headers, item),
-          replace_in_body(body, item)
+          DatasetUseCase.replace_value(headers, item),
+          DatasetUseCase.replace_value(body, item)
         )
       catch
         _, _error -> {0, :invocation_error}
@@ -65,34 +66,4 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   defp actual_time do
     :erlang.system_time(:milli_seconds)
   end
-
-  defp get_random_item([]), do: nil
-
-  defp get_random_item(list) when is_list(list) do
-    # TODO: Improve random to static list
-    Enum.at(list, Enum.random(0..(length(list) - 1)))
-  end
-
-  defp get_random_item(_opt), do: nil
-
-  defp replace_in_body(body, item) when is_function(body), do: body.(item)
-
-  defp replace_in_body(body, item) when is_map(item) do
-    item = Map.put(item, "random", "#{Enum.random(1..10)}")
-
-    Regex.replace(~r/{([a-z A-Z _-]+)?}/, body, fn _, match ->
-      item[match]
-    end)
-  end
-
-  defp replace_in_body(body, _item), do: body
-
-  defp replace_in_headers(headers, item) do
-    Enum.map(headers, fn {key, value} ->
-      {key, replace_value(value, item)}
-    end)
-  end
-
-  defp replace_value(value, item) when is_function(value), do: value.(item)
-  defp replace_value(value, _item), do: value
 end
