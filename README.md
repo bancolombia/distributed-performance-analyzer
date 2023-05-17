@@ -1,3 +1,10 @@
+- [Performance Analyzer](#performance-analyzer)
+  - [Install](#install)
+  - [Basic Usage](#basic-usage)
+  - [Run](#run)
+  - [Results](#results)
+    - [Examples](#examples)
+
 # Performance Analyzer
 
 [![MIT License][license-shield]][license-url]
