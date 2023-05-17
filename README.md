@@ -122,6 +122,6 @@ Then, you can compare the attributes that are interesting for you. For example c
 
 ### Examples
 
-![Example 1 - Throughput](https://github.com/bancolombia/distributed-performance-analyzer/blob/documentation-improves/assets/dresults_example1.png)
+![Example 1 - Throughput](assets/dresults_example1.png)
 
-![Example 2 - Latency](https://github.com/bancolombia/distributed-performance-analyzer/blob/documentation-improves/assets/dresults_example2.png)
+![Example 2 - Latency](assets/dresults_example2.png)
