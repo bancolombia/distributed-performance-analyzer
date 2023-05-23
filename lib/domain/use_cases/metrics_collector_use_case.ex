@@ -9,6 +9,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
   # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
   alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
+  alias DistributedPerformanceAnalyzer.Utils.Statistics
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Report.ReportUseCase
 
   # @behaviour MetricsCollectorBehaviour
 
@@ -54,15 +56,17 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
     if partial.concurrency == concurrency do
       new_state =
         Map.update(state, step, partial, fn acc_partial ->
-          PartialResultUseCase.calculate_p90(state[step])
+          Statistics.calculate_p90(state[step])
         end)
 
       partial = new_state[step]
-      mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
+      mean_latency = Statistics.mean_latency(partial.success_mean_latency, partial.success_count)
 
-      IO.puts(
-        "#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
-      )
+      # IO.puts(
+      #  "#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
+      # )
+
+      ReportUseCase.report_results(concurrency, partial, mean_latency)
 
       {:reply, :ok, new_state}
     else

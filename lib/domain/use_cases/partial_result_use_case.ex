@@ -98,39 +98,4 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
 
   defp combine_requests(current, to_add, true), do: [current | to_add]
   defp combine_requests(_current, _to_add, _), do: []
-
-  def calculate_p90(partial) do
-    case Enum.count(partial.times) do
-      0 ->
-        partial
-
-      _ ->
-        sorted_times = Enum.sort(partial.times)
-        n = length(sorted_times)
-        index = 0.90 * n
-
-        p90_calc =
-          case is_round?(index) do
-            true ->
-              x = Enum.at(sorted_times, trunc(index))
-              xp = Enum.at(sorted_times, trunc(index) + 1)
-
-              ((x + xp) / 2)
-              |> IO.inspect()
-              |> round
-
-            false ->
-              index = round(index)
-              Enum.at(sorted_times, index)
-          end
-          # TODO: Sometimes pipeline returns nil
-          |> round()
-
-        %{partial | p90: p90_calc, times: []}
-    end
-  end
-
-  defp is_round?(n) do
-    Float.floor(n) == n
-  end
 end
