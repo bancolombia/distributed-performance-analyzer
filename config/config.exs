@@ -31,6 +31,6 @@ config :distributed_performance_analyzer,
   in_test: false,
   custom_metrics_prefix_name: "distributed_performance_analyzer_local",
   file_system_behaviour: DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystemBehaviour,
-  dataset_behaviour: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv
+  dataset_parser: DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.Parser
 
 import_config "#{Mix.env()}.exs"
