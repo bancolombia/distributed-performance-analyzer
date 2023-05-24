@@ -19,6 +19,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   def request(pid, method, path, headers, body) do
+    Logger.debug(%{method: method, path: path, headers: headers, body: body})
+
     :timer.tc(fn ->
       GenServer.call(pid, {:request, method, path, headers, body}, 15_000)
     end)
@@ -115,6 +117,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @impl true
   def handle_info(message, state) do
+    Logger.debug(inspect(message))
+
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
         Logger.warn(fn -> "Received unknown message: " <> inspect(message) end)
