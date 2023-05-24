@@ -1,10 +1,7 @@
 defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   use GenServer
 
-  @dataset_behaviour Application.compile_env(
-                       :distributed_performance_analyzer,
-                       :dataset_behaviour
-                     )
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
   @moduledoc """
   Provides Behaviours for handle app-configs
@@ -27,7 +24,7 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   end
 
   defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
-    {:ok, dataset} = @dataset_behaviour.parse_csv(path, separator)
+    {:ok, dataset} = DatasetUseCase.parse(path, separator)
     dataset
   end
 

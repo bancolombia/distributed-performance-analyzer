@@ -1,10 +1,18 @@
-defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.FileSystem do
+defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem do
   @moduledoc """
   DA to perform operations on the system file system
   """
   alias DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystemBehaviour
 
   @behaviour FileSystemBehaviour
+
+  def path_exists?(path) do
+    File.exists?(path)
+  end
+
+  def get_file_stat(path) do
+    File.stat!(path)
+  end
 
   @spec write_to_file(any(), String.t(), String.t(), boolean(), any()) :: {:ok}
   def write_to_file(data, file, header, print, fun) do
