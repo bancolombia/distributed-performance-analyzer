@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Dataset.DatasetUseCaseTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
