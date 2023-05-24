@@ -32,7 +32,6 @@ jobs:
       - run: |
           MIX_ENV=test mix test --cover --color
         name: Run Tests
-        if: false
 
       - run: |
           MIX_ENV=prod mix escript.build
