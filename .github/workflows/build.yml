@@ -48,13 +48,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=grupo-bancolombia
-            -Dsonar.projectKey=bancolombia_distributed-performance-analyzer
-            -Dsonar.sources=lib/
-            -Dsonar.tests=tests/
-            -Dsonar.exclusions=**/_build
-            -Dsonar.externalIssuesReportPaths=credo_sonarqube.json
-            -Dsonar.coverageReportPaths=cover/excoveralls.xml
-            -Dsonar.testExecutionReportPaths=generic_test_execution_sonarqube.xml
