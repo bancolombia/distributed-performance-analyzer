@@ -30,8 +30,14 @@ jobs:
         name: Compile Dependencies
 
       - run: |
-          MIX_ENV=test mix test --cover --color
-        name: Run Tests
+          mix credo --sonarqube-base-folder ./ --sonarqube-file credo_sonarqube.json --mute-exit-status
+          mix sobelow
+          mix sobelow -f json --out sobelow.json
+        name: Static Code Analysis
+
+      - run: |
+          mix coveralls.xml
+        name: Unit Tests
 
       - run: |
           MIX_ENV=prod mix escript.build

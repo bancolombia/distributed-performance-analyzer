@@ -220,4 +220,8 @@ $RECYCLE.BIN/
 
 *.csv
 *.log
+
 distributed_performance_analyzer
+credo_sonarqube.json
+sobelow.json
+generic_test_execution_sonarqube.xml
