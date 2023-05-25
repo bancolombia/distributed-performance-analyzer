@@ -8,9 +8,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Report.ReportUseCase do
                          )
 
   def total_data(steps_count, total_success_count, total_duration) do
-    IO.puts("Total success count: #{total_success_count}")
-    IO.puts("Total steps: #{steps_count}")
-    IO.puts("Total duration: #{total_duration} seconds")
+    ~s(Total success count: #{total_success_count}\nTotal steps: #{steps_count}\nTotal duration: #{total_duration} seconds)
+    |> IO.puts()
   end
 
   def report_dpa(sorted_curve) do

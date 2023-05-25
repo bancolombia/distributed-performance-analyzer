@@ -3,33 +3,30 @@ import Config
 config :distributed_performance_analyzer,
   url: "http://localhost:8080/wait/100",
   request: %{
-    method: "GET",
+    method: "POST",
     headers: [
-      {"message-id", "60fe36c0-5ab7-11eb-44b3-4c99449343a4"},
-      {"session-tracker", "448d7b90-5ab7-11eb-4a89-42ab43b94a96"},
-      {"channel", "DBB"},
-      {"application-id", "D2B"},
-      {"request-timestamp", "2021-01-10 19:35:21:000"},
-      {"ip", "127.0.0.1"},
+      {"message-id", ~s|e0420cc4-2f0a-4816-9208-49864b5c9e99|},
+      {"session-tracker", ~s|e0420cc4-2f0a-4816-9208-49864b5c9e99|},
+      {"channel", ~s|APP|},
+      {"request-timestamp", ~s|2017-02-14 19:30:59:000|},
+      {"ip", ~s|10.18.140.5|},
       {"user-agent",
-       ~s|{"device": "motorola panell_d", "os": "Android motorola", "browser": "Chrome"}|},
-      {"app-version", "13.0.1015157"},
-      {"platform-type", "mobile"},
-      {"device-id", "e040c3c4-2f0a-4816-9208-49864b5c9e77"},
-      {"validate-captcha", "false"},
-      {"Authorization",
-       "Bearer eyJhbGciOiJIUzI1NiJ9.eyJkb2N1bWVudFR5cGUiOiJBWUFCZUpwZ0hyZFh0aU1xNWRyWExnVDRrWHdBQUFBQkFBZGhkM010YTIxekFFdGhjbTQ2WVhkek9tdHRjenAxY3kxbFlYTjBMVEU2TkRZNU9EQXlNREl3TlRNM09tdGxlUzlpWmpCbFpHWTFaUzFoWmpjNUxUUm1aV010WWpOa1lTMHpZVGxtTm1VeE5EVTRPVGdBdUFFQ0FRQjQ1UmxoOFBBdWZnMmlPWWNBbWlNalVWUTVnZ1A5Z1FBaUhGQ1ZWQ0NwQ0JVQmhWS2ZBb3Z0K2xBTTBEZEIzWlFtOEFBQUFINHdmQVlKS29aSWh2Y05BUWNHb0c4d2JRSUJBREJvQmdrcWhraUc5dzBCQndFd0hnWUpZSVpJQVdVREJBRXVNQkVFRE41V2VaUzBEWnVwajVxb1hBSUJFSUE3SHZGTmRpWjM0Znh1NDBQZVJMelM5SUpiY0YyVFc0SnAwNzNCVFNnc1E0M3JPblNadjl0TzlaNmE1YmJyQlRETWpUUCtWd3c0OHNGZGdvUUNBQUFBQUF3QUFCQUFBQUFBQUFBQUFBQUFBQUFBTUFxaTZLcElpQ2RGVjkrSUpSVGhldlwvXC9cL1wvOEFBQUFCQUFBQUFBQUFBQUFBQUFBQkFBQUFBNWZ0VFJ4d1IwdzdyZTBreDJJT0tGK3AxS0k9IiwiZG9jdW1lbnROdW1iZXIiOiJBWUFCZUt6TllQcUNsUDE3WXdnc3ljeUxsRmdBQUFBQkFBZGhkM010YTIxekFFdGhjbTQ2WVhkek9tdHRjenAxY3kxbFlYTjBMVEU2TkRZNU9EQXlNREl3TlRNM09tdGxlUzlpWmpCbFpHWTFaUzFoWmpjNUxUUm1aV010WWpOa1lTMHpZVGxtTm1VeE5EVTRPVGdBdUFFQ0FRQjQ1UmxoOFBBdWZnMmlPWWNBbWlNalVWUTVnZ1A5Z1FBaUhGQ1ZWQ0NwQ0JVQmhWS2ZBb3Z0K2xBTTBEZEIzWlFtOEFBQUFINHdmQVlKS29aSWh2Y05BUWNHb0c4d2JRSUJBREJvQmdrcWhraUc5dzBCQndFd0hnWUpZSVpJQVdVREJBRXVNQkVFRE41V2VaUzBEWnVwajVxb1hBSUJFSUE3SHZGTmRpWjM0Znh1NDBQZVJMelM5SUpiY0YyVFc0SnAwNzNCVFNnc1E0M3JPblNadjl0TzlaNmE1YmJyQlRETWpUUCtWd3c0OHNGZGdvUUNBQUFBQUF3QUFCQUFBQUFBQUFBQUFBQUFBQUFBKzNRTlwvV1NOTEExQkliN0hOWFliR3ZcL1wvXC9cLzhBQUFBQkFBQUFBQUFBQUFBQUFBQUJBQUFBRGNEYmVkM2R2bVwvMzVMNXE2ZFhKUmpkOTdcL1hJZUxUMmFaXC9pMm5mciIsImtpZCI6IkFZQUJlT3dxb1NQemVXYWJTMWEwNkg2cGw5a0FBQUFCQUFkaGQzTXRhMjF6QUV0aGNtNDZZWGR6T210dGN6cDFjeTFsWVhOMExURTZORFk1T0RBeU1ESXdOVE0zT210bGVTOWlaakJsWkdZMVpTMWhaamM1TFRSbVpXTXRZak5rWVMwellUbG1ObVV4TkRVNE9UZ0F1QUVDQVFCNDVSbGg4UEF1ZmcyaU9ZY0FtaU1qVVZRNWdnUDlnUUFpSEZDVlZDQ3BDQlVCaFZLZkFvdnQrbEFNMERkQjNaUW04QUFBQUg0d2ZBWUpLb1pJaHZjTkFRY0dvRzh3YlFJQkFEQm9CZ2txaGtpRzl3MEJCd0V3SGdZSllJWklBV1VEQkFFdU1CRUVETjVXZVpTMERadXBqNXFvWEFJQkVJQTdIdkZOZGlaMzRmeHU0MFBlUkx6UzlJSmJjRjJUVzRKcDA3M0JUU2dzUTQzck9uU1p2OXRPOVo2YTViYnJCVERNalRQK1Z3dzQ4c0ZkZ29RQ0FBQUFBQXdBQUJBQUFBQUFBQUFBQUFBQUFBQUFwcjZSVGNnSFdYZlZrXC9qRGRzUHRYZlwvXC9cL1wvOEFBQUFCQUFBQUFBQUFBQUFBQUFBQkFBQUFMRnJMK3pvakRveXk2dDJGS21oMDg4bGdjTVVjY0VtVHlLM2dGMXFqcm1tbjRBeGRUOHJ6YjV1WWwrMVh1a0pvcXBYNnhwcjVlU3FDVXJZZGpBPT0iLCJzY29wZSI6IldhbGxldC1jYXJkczpyZWFkOnVzZXIiLCJjaGFubmVsIjoiRDJCIiwiZXhwIjoxNjg0NTM3NjUwLCJhcHBsaWNhdGlvbi1pZCI6ImFiYyIsInVzZXJuYW1lIjoiVGVzdEVESU4ifQ.g0lBa4jWhUFFLOyiuQ787EUjTrXmhN4LLKDVGY8hoBs"},
-      {"Cookie",
-       "incap_ses_9029_2865100=z0bwOxub33vlO1FUEnRNfSLzZ2QAAAAA9fvr5DkTuVFLyHEwq3p59Q=="}
+       ~s|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36|},
+      {"device-id", ~s|e0420cc4-2f0a-4816-9208-49864b5c9e99|},
+      {"app-version", ~s|1|},
+      {"platform-type", ~s|web|},
+      {"Content-Type", ~s|application/json|}
     ],
-    body: "{}"
+    body: fn item ->
+      ~s|{"account": {"type": "S","number": "#{item.v_int_cuenta}"},"customer": {"type": "#{item.v_str_documenttype}","number": "#{item.v_int_documentid}"}}|
+    end
   },
   execution: %{
-    steps: 1,
+    steps: 5,
     increment: 1,
-    duration: 5000,
+    duration: 120_000,
     constant_load: false,
-    dataset: :none,
+    dataset: "/mnt/c/Users/lcdelgad/Downloads/DT_Intervencion_Transferencia.csv",
     separator: ","
   },
   distributed: :none,
