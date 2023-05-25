@@ -221,6 +221,7 @@ $RECYCLE.BIN/
 *.csv
 *.log
 
+# Credo - Sobelow
 distributed_performance_analyzer
 credo_sonarqube.json
 sobelow.json
