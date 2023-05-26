@@ -4,9 +4,15 @@
 [![Docker Hub][docker-shield]][docker-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
+[![Stars][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+
+[![Quality Gate Status][sonarcloud-quality-gate-shield]][sonarcloud-url]
+[![Maintainability Rating][sonarcloud-maintainability-shield]][sonarcloud-url]
+[![GitHub Actions - Build][build-shield]][build-url]
+[![GitHub Actions - Release][release-shield]][release-url]
 [![Score Cards][scorecards-shield]][scorecards-url]
+
 
 Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a
 distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different
@@ -181,3 +187,10 @@ vs Mean Latency.
 [issues-url]: https://github.com/bancolombia/distributed-performance-analyzer/issues
 [license-shield]: https://img.shields.io/github/license/bancolombia/distributed-performance-analyzer.svg
 [license-url]: https://github.com/bancolombia/distributed-performance-analyzer/blob/main/LICENSE
+[sonarcloud-url]: https://sonarcloud.io/dashboard?id=bancolombia_distributed-performance-analyzer
+[build-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/build.yml
+[build-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/build.yml/badge.svg
+[release-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/release.yml
+[release-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/release.yml/badge.svg
+[sonarcloud-quality-gate-shield]: https://sonarcloud.io/api/project_badges/measure?project=bancolombia_distributed-performance-analyzer&metric=alert_status
+[sonarcloud-maintainability-shield]: https://sonarcloud.io/api/project_badges/measure?project=bancolombia_distributed-performance-analyzer&metric=sqale_rating
