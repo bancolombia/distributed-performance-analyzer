@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="sobelow --out" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed_performance_analyzer" />
+    <mix>
+      <argument>sobelow</argument>
+      <argument>-f</argument>
+      <argument>json</argument>
+      <argument>--out</argument>
+      <argument>sobelow.json</argument>
+    </mix>
+    <module name="distributed_performance_analyzer" />
+    <module-filters inherit-application-module-filters="true" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="credo" run_configuration_type="MixRunConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sobelow" run_configuration_type="MixRunConfigurationType" />
+    </method>
+  </configuration>
+</component>

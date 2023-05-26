@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,erlang,windows,intellij+all,visualstudiocode,sonar,sonarqube
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,elixir,erlang,windows,intellij+all,visualstudiocode,sonar,sonarqube
 
 ### Elixir ###
 /_build
@@ -171,6 +171,23 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+### Sonar ###
+#Sonar generated dir
+/.sonar/
+
+### SonarQube ###
+# SonarQube ignore files.
+#
+# https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner
+# Sonar Scanner working directories
+.sonar/
+.sonarqube/
+.scannerwork/
+
+# http://www.sonarlint.org/commandline/
+# SonarLint working directories, configuration files (including credentials)
+.sonarlint/
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -216,8 +233,13 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,windows,intellij+all,visualstudiocode,erlang
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,elixir,erlang,windows,intellij+all,visualstudiocode,sonar,sonarqube
 
 *.csv
 *.log
+
+# Credo - Sobelow
 distributed_performance_analyzer
+credo_sonarqube.json
+sobelow.json
+generic_test_execution_sonarqube.xml

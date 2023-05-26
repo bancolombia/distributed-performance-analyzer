@@ -234,6 +234,15 @@
       <excludeFolder url="file://$MODULE_DIR$/_build/performance/lib/typed_struct" />
       <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/opentelemetry_semantic_conventions" />
       <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/tls_certificate_check" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/bunt" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/credo" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/credo_sonarqube" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/file_system" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/sobelow" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/bunt" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/credo" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/credo_sonarqube" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/test/lib/file_system" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -307,5 +316,9 @@
     <orderEntry type="library" name="mox" level="project" />
     <orderEntry type="library" name="sax_map" level="project" />
     <orderEntry type="library" name="saxy" level="project" />
+    <orderEntry type="library" name="sobelow" level="project" />
+    <orderEntry type="library" name="credo_sonarqube" level="project" />
+    <orderEntry type="library" name="file_system" level="project" />
+    <orderEntry type="library" name="bunt" level="project" />
   </component>
 </module>
