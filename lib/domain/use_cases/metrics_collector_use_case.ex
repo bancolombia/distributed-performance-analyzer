@@ -10,7 +10,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
   alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
   alias DistributedPerformanceAnalyzer.Utils.Statistics
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Report.ReportUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Results.LogUseCase
 
   # @behaviour MetricsCollectorBehaviour
 
@@ -62,11 +62,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
       partial = new_state[step]
       mean_latency = Statistics.mean_latency(partial.success_mean_latency, partial.success_count)
 
-      # IO.puts(
-      #  "#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
-      # )
-
-      ReportUseCase.report_results(concurrency, partial, mean_latency)
+      LogUseCase.format_results_step(concurrency, partial, mean_latency)
 
       {:reply, :ok, new_state}
     else

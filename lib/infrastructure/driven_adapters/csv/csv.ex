@@ -10,6 +10,11 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
 
   @behaviour DataSetBehaviour
 
+  @file_system_behaviour Application.compile_env(
+                           :distributed_performance_analyzer,
+                           :file_system_behaviour
+                         )
+
   require Logger
 
   @spec parse_csv(String.t(), String.t()) :: {:ok, list}
@@ -42,5 +47,28 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv do
       |> Enum.to_list()
 
     {:ok, result}
+  end
+
+  def report_csv(data, file, header, print, fun) do
+    {:ok, file} = File.open(file, [:write])
+
+    if print do
+      IO.puts("####CSV#######")
+      IO.puts(header)
+    end
+
+    IO.binwrite(file, header <> "\n")
+
+    Enum.each(
+      data,
+      fn item ->
+        row = fun.(item)
+        IO.binwrite(file, row <> "\n")
+
+        if print do
+          IO.puts(row)
+        end
+      end
+    )
   end
 end
