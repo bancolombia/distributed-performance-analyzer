@@ -1,4 +1,4 @@
-FROM elixir:1.14.4-alpine AS builder
+FROM elixir:1.14.5-alpine AS builder
 WORKDIR /app
 RUN apk add build-base git \
     && mix local.hex --force \
@@ -9,7 +9,7 @@ RUN mix deps.get \
 COPY . .
 RUN MIX_ENV=prod mix escript.build
 
-FROM elixir:1.14.4-alpine
+FROM elixir:1.14.5-alpine
 WORKDIR /app
 COPY --from=builder /app/distributed_performance_analyzer .
 COPY config /app/config
