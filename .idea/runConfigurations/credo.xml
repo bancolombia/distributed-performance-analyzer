@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="credo" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed_performance_analyzer" />
+    <mix>
+      <argument>credo</argument>
+      <argument>--sonarqube-base-folder</argument>
+      <argument>./</argument>
+      <argument>--sonarqube-file</argument>
+      <argument>credo_sonarqube.json</argument>
+      <argument>--mute-exit-status</argument>
+    </mix>
+    <module name="distributed_performance_analyzer" />
+    <module-filters inherit-application-module-filters="true" />
+    <method v="2" />
+  </configuration>
+</component>

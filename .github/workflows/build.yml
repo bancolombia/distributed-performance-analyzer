@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - uses: erlef/setup-beam@v1.15.2
         with:
           otp-version: '25'
@@ -30,10 +33,21 @@ jobs:
         name: Compile Dependencies
 
       - run: |
-          MIX_ENV=test mix test --cover --color
-        name: Run Tests
-        if: false
+          mix coveralls.xml
+        name: Unit Tests
 
       - run: |
           MIX_ENV=prod mix escript.build
         name: Compile
+
+      - run: |
+          mix credo --sonarqube-base-folder ./ --sonarqube-file credo_sonarqube.json --mute-exit-status
+          mix sobelow
+          mix sobelow -f json --out sobelow.json
+        name: Static Code Analysis
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

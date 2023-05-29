@@ -1,21 +1,29 @@
-- [Performance Analyzer](#performance-analyzer)
-  - [Install](#install)
-  - [Basic Usage](#basic-usage)
-  - [Run](#run)
-  - [Results](#results)
-    - [Examples](#examples)
-
 # Performance Analyzer
 
 [![MIT License][license-shield]][license-url]
 [![Docker Hub][docker-shield]][docker-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
+[![Stars][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+
+[![Quality Gate Status][sonarcloud-quality-gate-shield]][sonarcloud-url]
+[![Maintainability Rating][sonarcloud-maintainability-shield]][sonarcloud-url]
+[![GitHub Actions - Build][build-shield]][build-url]
+[![GitHub Actions - Release][release-shield]][release-url]
 [![Score Cards][scorecards-shield]][scorecards-url]
 
-Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different concurrency scenarios.
+
+Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a
+distributed cluster. It combines the capabilities of elixir to analyze the behavior of an application in different
+concurrency scenarios.
+
+- [Performance Analyzer](#performance-analyzer)
+    - [Install](#install)
+    - [Basic Usage](#basic-usage)
+    - [Run](#run)
+    - [Results](#results)
+        - [Examples](#examples)
 
 ## Install
 
@@ -61,7 +69,7 @@ config :logger,
 ```
 
 | Property      | Description                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+|---------------|----------------------------------------------------------------------------------------------------------------------------|
 | url           | The url of the application you want to test. Make sure you have a network connection between two machines                  |
 | request       | Here you need to configure the HTTP verb, headers and the body of the request.                                             |
 | steps         | The number of executions for the test. Each step adds the concurrency configured in the increment                          |
@@ -71,6 +79,7 @@ config :logger,
 | dataset       | The path to the csv dataset file                                                                                           |
 | separator     | Dataset separator (, ; :)                                                                                                  |
 | distributed   | Indicates if it should be run from a single node or in a distributed way                                                   |
+| jmeter report | Generates jmeter csv style report?                                                                                         |
 
 In the example above will be executed a test of 5 steps with an increment of 50:
 
@@ -96,13 +105,21 @@ In the shell:
 ```shell
 iex -S mix
 or
-iex  --sname node1@localhost -S mix
+iex --sname node1@localhost -S mix
 ```
 
-To run Execution:
+To run IEX Execution:
+
+```elixir
+alias DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase
+ExecutionUseCase.launch_execution()
+```
+
+Elixir Escript:
 
 ```shell
-Perf.Execution.launch_execution()
+MIX_ENV=prod mix escript.build
+./distributed_performance_analyzer
 ```
 
 ## Results
@@ -119,8 +136,8 @@ concurrency, throughput -- mean latency -- p90 latency, max latency, mean http l
 ......
 ```
 
-And in CSV format:
- 
+CSV format:
+
  ```shell
 concurrency, throughput, mean latency, p90 latency, max latency
 2, 14, 138, 284, 284
@@ -129,7 +146,25 @@ concurrency, throughput, mean latency, p90 latency, max latency
 5, 34, 139, 230, 420
  ```
 
-Then, you can compare the attributes that are interesting for you. For example concurrency vs Throughput or Concurrency vs Mean Latency.
+JMeter format:
+
+```shell
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1684342000805,87,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,85,0,55
+1684342000892,19,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,19,0,4
+1684342000911,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,0
+1684342000928,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,0
+1684342000945,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
+1684342000963,16,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,16,0,0
+1684342000979,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
+1684342000997,16,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,16,0,0
+1684342001013,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
+1684342001032,19,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,19,0,0
+1684342001051,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,1
+```
+
+Then, you can compare the attributes that are interesting for you. For example concurrency vs Throughput or Concurrency
+vs Mean Latency.
 
 ### Examples
 
@@ -152,3 +187,10 @@ Then, you can compare the attributes that are interesting for you. For example c
 [issues-url]: https://github.com/bancolombia/distributed-performance-analyzer/issues
 [license-shield]: https://img.shields.io/github/license/bancolombia/distributed-performance-analyzer.svg
 [license-url]: https://github.com/bancolombia/distributed-performance-analyzer/blob/main/LICENSE
+[sonarcloud-url]: https://sonarcloud.io/dashboard?id=bancolombia_distributed-performance-analyzer
+[build-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/build.yml
+[build-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/build.yml/badge.svg
+[release-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/release.yml
+[release-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/release.yml/badge.svg
+[sonarcloud-quality-gate-shield]: https://sonarcloud.io/api/project_badges/measure?project=bancolombia_distributed-performance-analyzer&metric=alert_status
+[sonarcloud-maintainability-shield]: https://sonarcloud.io/api/project_badges/measure?project=bancolombia_distributed-performance-analyzer&metric=sqale_rating

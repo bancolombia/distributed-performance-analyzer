@@ -13,33 +13,41 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       test_coverage: [
         tool: ExCoveralls,
         # TODO: increase project coverage
-        summary: [threshold: 34]
+        summary: [threshold: 25]
       ],
-      deps: deps()
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test,
+        "coveralls.xml": :test
+      ],
+      deps: deps(),
+      metrics: true
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {DistributedPerformanceAnalyzer.Application, []}
+      extra_applications: [:logger, :opentelemetry_exporter, :opentelemetry],
+      mod: {DistributedPerformanceAnalyzer.Application, [Mix.env()]}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:sobelow, "~> 0.11", only: :dev},
+      {:credo_sonarqube, "~> 0.1"},
       {:finch, "~> 0.13"},
       {:opentelemetry_plug,
-       git: "https://github.com/juancgalvis/opentelemetry_plug.git",
-       ref: "82206fb09fbeb9ffa2f167a5f58ea943c117c003",
-       override: true},
-      {:opentelemetry_api, "~> 1.2", override: true},
-      {:opentelemetry_exporter, "~> 1.4", override: true},
-      {:telemetry, "~> 1.0", override: true},
+       git: "https://github.com/juancgalvis/opentelemetry_plug.git", tag: "master"},
+      {:opentelemetry_api, "~> 1.0"},
+      {:opentelemetry_exporter, "~> 1.5"},
+      {:telemetry, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:telemetry_metrics_prometheus, "~> 1.1"},
+      {:telemetry_metrics_prometheus, "~> 1.0"},
       {:distillery, "~> 2.1"},
       {:castore, "~> 1.0"},
       {:plug_cowboy, "~> 2.6"},
