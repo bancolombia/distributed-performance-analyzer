@@ -57,9 +57,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     )
   end
 
-  def generate_csv_report(format_dpa_map) do
+  def generate_csv_report(result) do
     report(
-      format_dpa_map,
+      result,
       @path_csv_report,
       "concurrency, throughput, mean latency, p90 latency in ms, max latency in ms, mean http latency in ms, http_errors, protocol_error_count, error_conn_count, nil_conn_count",
       true,
