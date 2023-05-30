@@ -10,7 +10,7 @@ config :distributed_performance_analyzer,
     end
   },
   execution: %{
-    steps: 5,
+    steps: 1,
     increment: 1,
     duration: 7000,
     constant_load: true,
@@ -21,4 +21,4 @@ config :distributed_performance_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :debug
+  level: :info

@@ -8,9 +8,9 @@ config :distributed_performance_analyzer,
     body: ""
   },
   execution: %{
-    steps: 3,
+    steps: 1,
     increment: 1,
-    duration: 5000,
+    duration: 500,
     constant_load: false,
     dataset: :none,
     separator: ","

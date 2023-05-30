@@ -6,8 +6,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
   alias DistributedPerformanceAnalyzer.Utils.Statistics
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Results.LogUseCase
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Results.ReportUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
 
   def compute_metrics do
     GenServer.cast(__MODULE__, :compute)
@@ -66,10 +65,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
     sorted_curve = Enum.sort(curve, &(elem(&1, 0) <= elem(&2, 0)))
     total_duration = Statistics.total_duration(steps_count, duration_segs)
 
-    {:ok, map_results} =
-      LogUseCase.init(steps_count, total_success_count, total_duration, sorted_curve)
+    total_data = [steps_count, total_success_count, total_duration]
 
-    ReportUseCase.init(map_results, sorted_curve)
+    ReportUseCase.init(sorted_curve, total_data)
 
     MetricsCollectorUseCase.clean_metrics()
 
