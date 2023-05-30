@@ -6,8 +6,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   use Task
 
   @valid_extensions ["csv"]
-  @path_report_jmeter "config/jmeter.csv"
-  @path_report_dpa "config/dpa.csv"
+  @path_jmeter_report "config/jmeter.csv"
+  @path_csv_report "config/report.csv"
 
   def init(sorted_curve, total_data) do
     {:ok, format_dpa_map} = format_dpa(sorted_curve)
@@ -17,12 +17,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
       tasks = [
         Task.async(fn -> generate_jmeter_report(sorted_curve) end),
-        Task.async(fn -> generate_dpa_report(format_dpa_map) end)
+        Task.async(fn -> generate_csv_report(format_dpa_map) end)
       ]
 
       Task.await_many(tasks)
     else
-      generate_dpa_report(format_dpa_map)
+      generate_csv_report(format_dpa_map)
     end
   end
 
@@ -59,10 +59,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     )
   end
 
-  def generate_dpa_report(format_dpa_map) do
+  def generate_csv_report(format_dpa_map) do
     report(
       format_dpa_map,
-      @path_report_dpa,
+      @path_csv_report,
       "concurrency, throughput, mean latency, p90 latency in ms, max latency in ms, mean http latency in ms, http_errors, protocol_error_count, error_conn_count, nil_conn_count",
       true,
       fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
@@ -83,7 +83,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
     report(
       request_details,
-      @path_report_jmeter,
+      @path_jmeter_report,
       "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect",
       false,
       fn %RequestResult{
