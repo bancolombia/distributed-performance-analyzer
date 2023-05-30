@@ -13,7 +13,8 @@ config :git_hooks,
          [
            "--sonarqube-base-folder",
            "./",
-           "--sonarqube-file credo_sonarqube.json",
+           "--sonarqube-file",
+           "credo_sonarqube.json",
            "--mute-exit-status"
          ]},
         {:mix_task, :sobelow}
