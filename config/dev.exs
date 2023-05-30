@@ -1,7 +1,7 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "http://127.0.0.1:8080/wait/1000",
+  url: "http://localhost:8080/wait/100",
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],

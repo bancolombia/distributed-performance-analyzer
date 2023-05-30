@@ -1,7 +1,7 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "http://127.0.0.1:8080/post",
+  url: "http://localhost:8080/post",
   request: %{
     method: "POST",
     headers: [{"Content-Type", "application/json"}],
@@ -19,4 +19,4 @@ config :distributed_performance_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :debug
+  level: :info

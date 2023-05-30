@@ -7,37 +7,35 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   @valid_extensions ["csv"]
   @path_jmeter_report "config/jmeter.csv"
-  @path_csv_report "config/report.csv"
+  @path_csv_report "config/result.csv"
 
   def init(sorted_curve, total_data) do
-    {:ok, format_dpa_map} = format_dpa(sorted_curve)
+    {:ok, report} = format_result(sorted_curve)
 
     resume_total_data(total_data)
 
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
       tasks = [
         Task.async(fn -> generate_jmeter_report(sorted_curve) end),
-        Task.async(fn -> generate_csv_report(format_dpa_map) end)
+        Task.async(fn -> generate_csv_report(report) end)
       ]
 
       Task.await_many(tasks)
     else
-      generate_csv_report(format_dpa_map)
+      generate_csv_report(report)
     end
   end
 
-  def format_dpa(sorted_curve) do
-    format_dpa_map =
-      Enum.map(
-        sorted_curve,
-        fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
-          {concurrency, throughput, round(lat_total), partial.p90, round(max_latency),
-           round(mean_latency_http), partial.fail_http_count, partial.protocol_error_count,
-           partial.error_conn_count, partial.nil_conn_count}
-        end
-      )
-
-    {:ok, format_dpa_map}
+  def format_result(sorted_curve) do
+    {:ok,
+     Enum.map(
+       sorted_curve,
+       fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
+         {concurrency, round(throughput), round(lat_total), partial.p90, round(max_latency),
+          round(mean_latency_http), partial.fail_http_count, partial.protocol_error_count,
+          partial.error_conn_count, partial.nil_conn_count}
+       end
+     )}
   end
 
   def resume_total_data(total_data) do
@@ -55,7 +53,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     mean_latency = Enum.at(result_step, 2)
 
     IO.puts(
-      "#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
+      "#{concurrency}, #{partial.success_count}, #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
     )
   end
 
@@ -109,9 +107,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   end
 
   defp report(data, file, header, print, fun) do
-    format_report = String.ends_with?(file, Enum.at(@valid_extensions, 0))
+    report_format = String.ends_with?(file, Enum.at(@valid_extensions, 0))
 
-    case format_report do
+    case report_format do
       true ->
         Csv.report_csv(data, file, header, print, fun)
     end
