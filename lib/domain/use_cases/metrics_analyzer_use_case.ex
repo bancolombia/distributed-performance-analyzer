@@ -73,9 +73,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   end
 
   def response_for_code(status) when status >= 200 and status < 400, do: "OK"
-  def response_for_code(status), do: "ERROR"
+  def response_for_code(_status), do: "ERROR"
   def success?(status) when status >= 200 and status < 400, do: true
-  def success?(status), do: false
+  def success?(_status), do: false
   def with_failure(status, _body) when status >= 200 and status < 400, do: nil
   def with_failure(_status, body), do: body
 

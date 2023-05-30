@@ -7,10 +7,6 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
   Provides functions for your csv dataset
   """
 
-  @behaviour DataSetBehaviour
-
-  require Logger
-
   def read_csv(path, separator) do
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
 

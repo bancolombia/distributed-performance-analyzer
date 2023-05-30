@@ -87,7 +87,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
       "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect",
       false,
       fn %RequestResult{
-           start: start,
+           start: _start,
            time_stamp: time_stamp,
            label: label,
            thread_name: thread_name,
