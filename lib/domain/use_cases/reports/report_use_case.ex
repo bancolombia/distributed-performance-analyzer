@@ -13,7 +13,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     {:ok, format_dpa_map} = format_dpa(sorted_curve)
 
     resume_total_data(total_data)
-    generate_dpa_log(format_dpa_map)
 
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
       tasks = [
@@ -28,8 +27,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   end
 
   def format_dpa(sorted_curve) do
-    format_dpa_map = [
-      "concurrency, throughput, mean latency, p90 latency in ms, max latency in ms, mean http latency in ms, http_errors, protocol_error_count, error_conn_count, nil_conn_count",
+    format_dpa_map =
       Enum.map(
         sorted_curve,
         fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
@@ -37,12 +35,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
            round(mean_latency_http), partial.fail_http_count, partial.protocol_error_count,
            partial.error_conn_count, partial.nil_conn_count}
         end
-      ),
-      fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
-          fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
-        "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
-      end
-    ]
+      )
 
     {:ok, format_dpa_map}
   end
@@ -54,20 +47,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
     ~s(Total success count: #{total_success_count}\nTotal steps: #{steps_count}\nTotal duration: #{total_duration} seconds)
     |> IO.puts()
-  end
-
-  def generate_dpa_log(format_dpa_map) do
-    IO.puts(hd(format_dpa_map))
-
-    Enum.each(
-      hd(tl(format_dpa_map)),
-      fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
-          fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
-        IO.puts(
-          "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
-        )
-      end
-    )
   end
 
   def results_step_log(result_step) do
@@ -82,11 +61,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   def generate_dpa_report(format_dpa_map) do
     report(
-      hd(tl(format_dpa_map)),
+      format_dpa_map,
       @path_report_dpa,
-      hd(format_dpa_map),
-      false,
-      List.last(format_dpa_map)
+      "concurrency, throughput, mean latency, p90 latency in ms, max latency in ms, mean http latency in ms, http_errors, protocol_error_count, error_conn_count, nil_conn_count",
+      true,
+      fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
+          fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
+        "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
+      end
     )
   end
 
