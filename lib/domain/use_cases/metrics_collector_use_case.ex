@@ -60,7 +60,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
         end)
 
       partial = new_state[step]
-      mean_latency = Statistics.mean_latency(partial.success_mean_latency, partial.success_count)
+      mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
 
       result_step = [concurrency, partial, mean_latency]
 

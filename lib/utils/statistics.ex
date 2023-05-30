@@ -1,6 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
   @moduledoc """
-  Provides functions for statistics and mathematicals operations
+  Provides functions for statistics and mathematical operations
   """
   def calculate_p90(partial) do
     Enum.count(partial.times)
@@ -41,19 +41,19 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
     end
   end
 
-  def mean_latency(success_mean_latency, success_count) do
-    success_mean_latency / (success_count + 0.00001)
+  def mean(value, count) do
+    value / (count + 0.00001)
   end
 
-  def duration_segs(duration) do
-    duration / 1000
+  def millis_to_seconds(millis) do
+    millis / 1000
   end
 
-  def throughput(success_count, duration_segs) do
-    success_count / duration_segs
+  def throughput(count, duration) do
+    count / duration
   end
 
-  def total_duration(steps_count, duration_segs) do
-    steps_count * duration_segs
+  def duration(count, duration) do
+    count * duration
   end
 end

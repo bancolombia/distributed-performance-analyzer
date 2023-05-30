@@ -23,7 +23,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
 
   @impl true
   def handle_cast(:compute, %ExecutionModel{duration: duration}) do
-    duration_segs = Statistics.duration_segs(duration)
+    duration_secs = Statistics.millis_to_seconds(duration)
     metrics = MetricsCollectorUseCase.get_metrics()
     steps = Map.keys(metrics)
     steps_count = Enum.count(steps)
@@ -39,13 +39,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
             |> String.to_integer()
 
           partial = Map.get(metrics, step)
-          throughput = Statistics.throughput(partial.success_count, duration_segs)
+          throughput = Statistics.throughput(partial.success_count, duration_secs)
 
-          mean_latency =
-            Statistics.mean_latency(partial.success_mean_latency, partial.success_count)
+          mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
 
-          mean_latency_http =
-            Statistics.mean_latency(partial.http_mean_latency, partial.http_count)
+          mean_latency_http = Statistics.mean(partial.http_mean_latency, partial.http_count)
 
           {
             step_num,
@@ -63,7 +61,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
       Enum.reduce(steps, 0, fn step, acc -> Map.get(metrics, step).success_count + acc end)
 
     sorted_curve = Enum.sort(curve, &(elem(&1, 0) <= elem(&2, 0)))
-    total_duration = Statistics.total_duration(steps_count, duration_segs)
+    total_duration = Statistics.duration(steps_count, duration_secs)
 
     total_data = [steps_count, total_success_count, total_duration]
 
