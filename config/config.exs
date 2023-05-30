@@ -7,19 +7,17 @@ config :git_hooks,
       verbose: true,
       tasks: [
         {:file, "./hooks/mix_format"},
-        {:cmd, "mix coveralls.xml"}
-        # {:mix_task, :format, ["--check-formatted", "--dry-run"]},
-        # {:mix_task, :credo}
+        {:mix_task, :format, ["--check-formatted", "--dry-run"]}
+        #        {:mix_task, :credo}
+      ]
+    ],
+    pre_push: [
+      verbose: true,
+      tasks: [
+        {:mix_task, :test, ["--color", "--cover"]},
+        {:mix_task, :sobelow}
       ]
     ]
-    # pre_push: [
-    #   verbose: false,
-    #   tasks: [
-    #     {:cmd, "mix dialyzer"},
-    #     {:cmd, "mix test --color"},
-    #     {:cmd, "echo 'success!'"}
-    #   ]
-    # ]
   ]
 
 config :distributed_performance_analyzer,
