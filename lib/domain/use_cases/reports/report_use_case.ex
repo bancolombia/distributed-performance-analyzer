@@ -22,7 +22,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   def init(sorted_curve, total_data) do
     {:ok, report} = format_result(sorted_curve)
-
+    IO.inspect(report)
     resume_total_data(total_data)
 
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
@@ -117,12 +117,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     )
   end
 
-  defp report(data, file, header, print, fun) do
+  def report(data, file, header, print, fun) do
     report_format = String.ends_with?(file, Enum.at(@valid_extensions, 0))
 
     case report_format do
       true ->
         @report_csv.save_csv(data, file, header, print, fun)
+
+      false ->
+        {:error, "invalid report extensions type"}
     end
   end
 end
