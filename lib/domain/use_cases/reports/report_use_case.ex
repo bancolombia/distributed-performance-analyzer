@@ -72,7 +72,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     report(
       result,
       @path_csv_report,
-      "concurrency, throughput, mean latency, p90 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error_count, error_conn_count, nil_conn_count",
+      "concurrency, throughput, mean latency (ms), p90 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn",
       true,
       fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
           fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
