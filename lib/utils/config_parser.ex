@@ -1,4 +1,8 @@
 defmodule DistributedPerformanceAnalyzer.Utils.ConfigParser do
+  @moduledoc """
+  ConfigParser
+  """
+
   def parse(url),
     do:
       :uri_string.parse(url)

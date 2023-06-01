@@ -97,7 +97,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
       {ConfigHolder, execution_conf},
       {ConnectionPoolUseCase, connection_conf},
       {DynamicSupervisor,
-       name: DPA.ConnectionSupervisor, strategy: :one_for_one, max_restarts: 10000, max_seconds: 1},
+       name: DPA.ConnectionSupervisor,
+       strategy: :one_for_one,
+       max_restarts: 10_000,
+       max_seconds: 1},
       AppRegistry
     ]
 
