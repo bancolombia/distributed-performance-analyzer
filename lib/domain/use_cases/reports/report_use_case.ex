@@ -22,7 +22,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   def init(sorted_curve, total_data) do
     {:ok, report} = format_result(sorted_curve)
-    IO.inspect(report)
     resume_total_data(total_data)
 
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
