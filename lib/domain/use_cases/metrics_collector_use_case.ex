@@ -59,9 +59,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
       partial = new_state[step]
       mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
 
-      result_step = [concurrency, partial, mean_latency]
+      step_result = [concurrency, partial, mean_latency]
 
-      ReportUseCase.results_step_log(result_step)
+      ReportUseCase.log_step_result(step_result)
 
       {:reply, :ok, new_state}
     else

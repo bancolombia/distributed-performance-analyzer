@@ -58,7 +58,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     |> IO.puts()
   end
 
-  def results_step_log(result_step) do
+  def log_step_result(result_step) do
     concurrency = Enum.at(result_step, 0)
     partial = Enum.at(result_step, 1)
     mean_latency = Enum.at(result_step, 2)
