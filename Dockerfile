@@ -3,7 +3,7 @@ WORKDIR /app
 RUN apk add build-base git \
     && mix local.hex --force \
     && mix local.rebar --force
-COPY mix.exs mix.lock .
+COPY mix.exs mix.lock ./
 RUN mix deps.get \
     && mix deps.compile
 COPY . .
