@@ -1,17 +1,22 @@
-FROM elixir:1.14.5-alpine AS builder
+FROM elixir:1.14.5-alpine AS base
+ENV APP_NAME=distributed_performance_analyzer
+ENV MIX_ENV=prod
 WORKDIR /app
-RUN apk add build-base git \
-    && mix local.hex --force \
-    && mix local.rebar --force
-COPY mix.exs mix.lock .
-RUN mix deps.get \
-    && mix deps.compile
-COPY . .
-RUN MIX_ENV=prod mix escript.build
+RUN apk update --no-cache && \
+    apk upgrade --available --purge --no-cache && \
+    rm -rf /var/cache/apk/*
 
-FROM elixir:1.14.5-alpine
-WORKDIR /app
-COPY --from=builder /app/distributed_performance_analyzer .
-COPY config /app/config
-VOLUME /app/config/
-ENTRYPOINT exec /app/distributed_performance_analyzer
+FROM base AS builder
+RUN apk add build-base git
+RUN mix local.hex --force && \
+    mix local.rebar --force
+COPY mix.exs mix.lock ./
+RUN mix do deps.get, deps.compile
+COPY . ./
+RUN mix escript.build
+
+FROM base
+COPY --from=builder /app/$APP_NAME ./
+COPY config config
+VOLUME config
+ENTRYPOINT exec ./$APP_NAME
