@@ -6,7 +6,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   The data executed by each step is captured and sent to the partialResult module,
   the result row of this step is also printed.
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
+  # alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
   # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
   alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
   alias DistributedPerformanceAnalyzer.Utils.Statistics
@@ -57,7 +57,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
         end)
 
       partial = new_state[step]
-      mean_latency = Statistics.mean_latency(partial.success_mean_latency, partial.success_count)
+      mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
 
       result_step = [concurrency, partial, mean_latency]
 
