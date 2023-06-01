@@ -1,13 +1,24 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
+  @moduledoc """
+  Use case report
+
+  the report use case is called by all modules that need
+  to print information to outgoing files or logs
+  """
+
   alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
-  alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv
 
   use Task
 
+  @report_csv Application.compile_env(
+                :distributed_performance_analyzer,
+                :report_csv
+              )
+
   @valid_extensions ["csv"]
   @path_report_jmeter "config/jmeter.csv"
-  @path_report_dpa "config/dpa.csv"
+  @path_report_dpa "config/report.csv"
 
   def init(sorted_curve, total_data) do
     {:ok, format_dpa_map} = format_dpa(sorted_curve)
@@ -87,7 +98,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
       "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect",
       false,
       fn %RequestResult{
-           start: start,
+           start: _start,
            time_stamp: time_stamp,
            label: label,
            thread_name: thread_name,
@@ -113,7 +124,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
     case format_report do
       true ->
-        Csv.report_csv(data, file, header, print, fun)
+        @report_csv.save_csv(data, file, header, print, fun)
     end
   end
 end

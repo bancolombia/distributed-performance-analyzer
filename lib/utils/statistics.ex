@@ -3,8 +3,6 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
   Provides functions for statistics and mathematicals operations
   """
   def calculate_p90(partial) do
-    Enum.count(partial.times)
-
     case Enum.count(partial.times) do
       0 ->
         partial
@@ -21,7 +19,6 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
               xp = Enum.at(sorted_times, trunc(index) + 1)
 
               ((x + xp) / 2)
-              |> IO.inspect()
               |> round
 
             false ->

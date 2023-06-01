@@ -12,11 +12,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   alias DistributedPerformanceAnalyzer.Utils.Statistics
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
 
-  # @behaviour MetricsCollectorBehaviour
-
   use GenServer
 
-  # TODO: definir formato salida
   @spec send_metrics(List.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
   def send_metrics(results, step, concurrency) do
     partial =

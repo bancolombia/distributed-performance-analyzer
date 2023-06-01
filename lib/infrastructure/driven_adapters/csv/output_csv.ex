@@ -1,5 +1,10 @@
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.OutputCsv do
-  def report_csv(data, file, header, print, fun) do
+  @moduledoc """
+  Print outgoing report file in csv format
+  """
+
+  @spec save_csv(any(), String.t(), String.t(), boolean(), any()) :: {:ok}
+  def save_csv(data, file, header, print, fun) do
     {:ok, file} = File.open(file, [:write])
 
     if print do
