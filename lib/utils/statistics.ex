@@ -12,6 +12,8 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
       nil
       iex> Statistics.percentile([1], 50)
       1
+      iex> Statistics.percentile([1,2,3,4,5,6,7,8,9],0)
+      1
       iex> Statistics.percentile([1,2,3,4,5,6,7,8,9],80)
       7.4
       iex> Statistics.percentile([1,2,3,4,5,6,7,8,9],100)

@@ -1,9 +1,12 @@
 defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseCaseTest do
   use ExUnit.Case, async: true
 
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
-  alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    Reports.ReportUseCase,
+    MetricsAnalyzerUseCase
+  }
+
+  alias DistributedPerformanceAnalyzer.Domain.Model.{PartialResult, RequestResult}
 
   @report_csv Application.compile_env(
                 :distributed_performance_analyzer,
@@ -25,9 +28,9 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
       101.79999297931083,
       103,
       101.79999297931083,
-      %DistributedPerformanceAnalyzer.Domain.Model.PartialResult{
+      %PartialResult{
         requests: [
-          %DistributedPerformanceAnalyzer.Domain.Model.RequestResult{
+          %RequestResult{
             start: -576_460_648_213,
             time_stamp: 1_685_668_282_444,
             label: "sample",
@@ -55,6 +58,8 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
           }
         ],
         p90: 102,
+        p95: 103,
+        p99: 103,
         times: [],
         concurrency: 4,
         success_max_latency: 103,
@@ -82,7 +87,7 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
     result = ReportUseCase.format_result(@sorted_curve)
     # Assert
     assert result ==
-             {:ok, [{5, 48, 102, 102, 103, 102, 0, 0, 0, 0}]}
+             {:ok, [{5, 48, 102, 102, 103, 103, 103, 102, 0, 0, 0, 0}]}
   end
 
   test "total data printing successful" do
@@ -159,9 +164,9 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
     # Arrange
 
     data = [
-      {1, 6, 113, 102, 300, 113, 0, 0, 0, 0},
-      {2, 19, 101, 102, 102, 101, 0, 0, 0, 0},
-      {3, 29, 101, 102, 102, 101, 0, 0, 0, 0}
+      {1, 6, 113, 102, 103, 103, 300, 113, 0, 0, 0, 0},
+      {2, 19, 101, 102, 103, 103, 102, 101, 0, 0, 0, 0},
+      {3, 29, 101, 102, 103, 103, 102, 101, 0, 0, 0, 0}
     ]
 
     # Act
@@ -171,11 +176,12 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
              ReportUseCase.report(
                data,
                @file_csv,
-               "concurrency, throughput, mean latency (ms), p90 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn",
+               "concurrency, throughput, mean latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn",
                @print,
-               fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
-                   fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
-                 "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
+               fn {concurrency, throughput, lat_total, p90, p95, p99, max_latency,
+                   mean_latency_http, fail_http_count, protocol_error_count, error_conn_count,
+                   nil_conn_count} ->
+                 "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{p95}, #{p99}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
                end
              )
   end
@@ -289,10 +295,4 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
                end
              )
   end
-
-  # test "" do
-  #  # Arrange
-  #  # Act
-  #  # Assert
-  # end
 end
