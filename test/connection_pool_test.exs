@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.ConnectionPoolTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase
 
   test "pool test size" do

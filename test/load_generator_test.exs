@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.LoadGeneratorTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest DistributedPerformanceAnalyzer.Domain.Model.LoadGeneratorConfig
 
   test "should generate load" do

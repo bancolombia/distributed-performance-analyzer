@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.ReportTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   # doctest DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv.Csv
   #
   # require Logger

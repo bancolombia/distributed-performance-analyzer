@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.ExecutionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase
 
   test "test execution" do

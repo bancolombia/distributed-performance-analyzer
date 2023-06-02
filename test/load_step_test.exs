@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Test.LoadStepTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase
 
   test "should generate load" do
