@@ -21,18 +21,18 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   @path_csv_report "config/report.csv"
 
   def init(sorted_curve, total_data) do
-    {:ok, report} = format_result(sorted_curve)
+    {:ok, result} = format_result(sorted_curve)
     resume_total_data(total_data)
 
     if Application.get_env(:perf_analyzer, :jmeter_report, true) do
       tasks = [
         Task.async(fn -> generate_jmeter_report(sorted_curve) end),
-        Task.async(fn -> generate_csv_report(report) end)
+        Task.async(fn -> generate_csv_report(result) end)
       ]
 
       Task.await_many(tasks)
     else
-      generate_csv_report(report)
+      generate_csv_report(result)
     end
   end
 
