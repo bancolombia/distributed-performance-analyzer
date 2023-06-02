@@ -53,9 +53,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
     if partial.concurrency == concurrency do
       new_state =
         Map.update(state, step, partial, fn _acc_partial ->
-          p90 = Statistics.percentile(state[step].times, 90)
-          p95 = Statistics.percentile(state[step].times, 95)
-          p99 = Statistics.percentile(state[step].times, 99)
+          p90 = Statistics.percentile(state[step].times, 90) || 0
+          p95 = Statistics.percentile(state[step].times, 95) || 0
+          p99 = Statistics.percentile(state[step].times, 99) || 0
           %{state[step] | p90: p90, p95: p95, p99: p99, times: []}
         end)
 
