@@ -6,11 +6,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   The data executed by each step is captured and sent to the partialResult module,
   the result row of this step is also printed.
   """
-  # alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
-  # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
   alias DistributedPerformanceAnalyzer.Utils.Statistics
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    Reports.ReportUseCase,
+    PartialResultUseCase
+  }
 
   use GenServer
 
