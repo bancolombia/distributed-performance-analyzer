@@ -18,7 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   @valid_extensions ["csv"]
   @path_report_jmeter "config/jmeter.csv"
-  @path_csv_report "config/report.csv"
+  @path_csv_report "config/result.csv"
 
   def init(sorted_curve, total_data) do
     {:ok, report} = format_result(sorted_curve)
@@ -41,9 +41,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
      Enum.map(
        sorted_curve,
        fn {_step, throughput, concurrency, lat_total, max_latency, mean_latency_http, partial} ->
-         {concurrency, round(throughput), round(lat_total), partial.p90, round(max_latency),
-          round(mean_latency_http), partial.fail_http_count, partial.protocol_error_count,
-          partial.error_conn_count, partial.nil_conn_count}
+         {concurrency, round(throughput), round(lat_total), round(partial.p90),
+          round(partial.p95), round(partial.p99), round(max_latency), round(mean_latency_http),
+          partial.fail_http_count, partial.protocol_error_count, partial.error_conn_count,
+          partial.nil_conn_count}
        end
      )}
   end
@@ -71,11 +72,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     report(
       result,
       @path_csv_report,
-      "concurrency, throughput, mean latency (ms), p90 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn",
+      "concurrency, throughput, mean latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn",
       true,
-      fn {concurrency, throughput, lat_total, p90, max_latency, mean_latency_http,
+      fn {concurrency, throughput, lat_total, p90, p95, p99, max_latency, mean_latency_http,
           fail_http_count, protocol_error_count, error_conn_count, nil_conn_count} ->
-        "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
+        "#{concurrency}, #{throughput}, #{lat_total}, #{p90}, #{p95}, #{p99}, #{max_latency}, #{mean_latency_http}, #{fail_http_count}, #{protocol_error_count}, #{error_conn_count}, #{nil_conn_count}"
       end
     )
   end

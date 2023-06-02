@@ -2,41 +2,6 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
   @moduledoc """
   Provides functions for statistics and mathematical operations
   """
-  def calculate_p90(partial) do
-    case Enum.count(partial.times) do
-      0 ->
-        partial
-
-      _ ->
-        sorted_times = Enum.sort(partial.times)
-        n = length(sorted_times)
-        index = 0.90 * n
-
-        p90_calc =
-          case is_round?(index) do
-            true ->
-              x = Enum.at(sorted_times, trunc(index))
-              xp = Enum.at(sorted_times, trunc(index) + 1)
-
-              ((x + xp) / 2)
-              |> round
-
-            false ->
-              index = round(index)
-              Enum.at(sorted_times, index)
-          end
-          |> round()
-
-        %{partial | p90: p90_calc, times: []}
-    end
-  end
-
-  def is_round?(n) do
-    case is_float(n) do
-      true -> Float.floor(n) == n
-      _ -> false
-    end
-  end
 
   @doc """
   Get the nth percentile from a list
@@ -59,11 +24,11 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
 
   def percentile(list, n) when is_list(list) and is_number(n) do
     sorted_list = Enum.sort(list)
-    position = n / 100.0 * (length(list) - 1)
-    index = trunc(position)
+    rank = n / 100.0 * (length(list) - 1)
+    index = trunc(rank)
     lower = Enum.at(sorted_list, index)
     upper = Enum.at(sorted_list, index + 1)
-    lower + (upper - lower) * (position - index)
+    lower + (upper - lower) * (rank - index)
   end
 
   @doc """
