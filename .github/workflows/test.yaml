@@ -1,20 +1,31 @@
 name: E2E
-on: workflow_dispatch
-
+on:
+  workflow_dispatch:
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - separator: ","
+            dataset: "/app/datasets/sample_comma.csv"
+          - separator: ";"
+            dataset: "/app/datasets/sample_semicolon.csv"
+    fail-fast: true
     steps:
-      - uses: actions/checkout@v3
-
-      - run: |
-          cd .github/workflows
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Start latency_simulator container
+        run: |
           docker container rm -f latency_simulator || true
           docker run --rm -d --name latency_simulator -p 8080:8080 juandgiraldom/latency_simulator:1.0
           docker container ls -a
+      
+      - name: Create performance.exs file
+        run: |
           echo "import Config
           config :perf_analyzer,
             url: url,
@@ -34,7 +45,10 @@ jobs:
             distributed: :none
           config :logger,
             level: :info
-          " >performance.exs
+          " > .github/workflows/config/performance.exs
+      
+      - name: Set variables
+        run: |
           url="http://localhost:8080/wait/100"
           method="POST"
           headers='[{"Content-Type", "application/json"}]'
@@ -56,9 +70,9 @@ jobs:
           increment="1"
           duration="10000"
           constant_load="false"
-          dataset="/app/datasets/sample.csv"
-          separator=";"
-          file="./performance.exs"
+          dataset=${{ matrix.dataset }}
+          separator=${{ matrix.separator }}
+          file=".github/workflows/config/performance.exs"
           headers=$(tr -s '[:space:]' '  ' <<<$headers)
           body="$(tr -d '[:space:]' <<<${body})"
           sed -i 's;: url;: "'$url'";' $file
@@ -71,9 +85,17 @@ jobs:
           sed -i 's;: constant_load;: '$constant_load';' $file
           sed -i 's;: dataset;: "'$dataset'";' $file
           sed -i 's/: separator/: "'$separator'"/' $file
-          mkdir -p config
-          mv $file ./config
-          docker run --rm --network=host -v $(pwd)/config/:/app/config -v $(pwd)/datasets/:/app/datasets juandgiraldom/distribuited-performance-analyzer:1.0
-          mv -f ./config/result.csv .
-          rm -rf ./config
+      
+      - name: Run distributed-performance-analyzer container
+        run: |
+          mkdir -p .github/workflows/config
+          docker run --rm --network=host -v $(pwd)/.github/workflows/config:/app/config -v $(pwd)/datasets:/app/datasets juandgiraldom/distribuited-performance-analyzer:1.0
+      
+      - name: Move result.csv
+        run: mv -f .github/workflows/config/result.csv .
+      
+      - name: Cleanup
+        run: |
+          rm -rf .github/workflows/config
           docker container rm -f latency_simulator
+
