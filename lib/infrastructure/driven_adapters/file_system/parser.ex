@@ -1,13 +1,10 @@
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.Parser do
   require Logger
-  alias DistributedPerformanceAnalyzer.Domain.Behaviours.Dataset.DatasetParser
   alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.{Csv, FileSystem}
 
   @moduledoc """
   Provides functions for handle file parsers
   """
-
-  @behaviour DatasetParser
 
   @spec file_exists?(String.t()) :: boolean
   def file_exists?(path), do: FileSystem.path_exists?(path)

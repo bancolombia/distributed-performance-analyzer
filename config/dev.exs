@@ -1,7 +1,7 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "http://127.0.0.1:8080/wait/1000",
+  url: "http://localhost:8080/wait/100",
   request: %{
     method: "GET",
     headers: [{"Content-Type", "application/json"}],
@@ -12,7 +12,7 @@ config :distributed_performance_analyzer,
   execution: %{
     steps: 5,
     increment: 1,
-    duration: 7000,
+    duration: 3000,
     constant_load: true,
     dataset: :none,
     separator: ","
@@ -21,4 +21,4 @@ config :distributed_performance_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :debug
+  level: :info

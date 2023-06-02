@@ -6,15 +6,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   The data executed by each step is captured and sent to the partialResult module,
   the result row of this step is also printed.
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector
-  # alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase
+  alias DistributedPerformanceAnalyzer.Utils.Statistics
 
-  # @behaviour MetricsCollectorBehaviour
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    Reports.ReportUseCase,
+    PartialResultUseCase
+  }
 
   use GenServer
 
-  # TODO: definir formato salida
   @spec send_metrics(List.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
   def send_metrics(results, step, concurrency) do
     partial =
@@ -53,16 +53,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
 
     if partial.concurrency == concurrency do
       new_state =
-        Map.update(state, step, partial, fn acc_partial ->
-          PartialResultUseCase.calculate_p90(state[step])
+        Map.update(state, step, partial, fn _acc_partial ->
+          p90 = Statistics.percentile(state[step].times, 90) || 0
+          p95 = Statistics.percentile(state[step].times, 95) || 0
+          p99 = Statistics.percentile(state[step].times, 99) || 0
+          %{state[step] | p90: p90, p95: p95, p99: p99, times: []}
         end)
 
       partial = new_state[step]
-      mean_latency = partial.success_mean_latency / (partial.success_count + 0.00001)
+      mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
 
-      IO.puts(
-        "#{concurrency}, #{partial.success_count} -- #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
-      )
+      step_result = [concurrency, partial, mean_latency]
+
+      ReportUseCase.log_step_result(step_result)
 
       {:reply, :ok, new_state}
     else

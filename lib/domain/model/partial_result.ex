@@ -20,6 +20,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.PartialResult do
     field(:concurrency, :integer, constructor: &is_integer/1, default: 1)
     field(:times, :lists, constructor: &is_list/1, default: [])
     field(:p90, :integer, constructor: &is_integer/1, default: 0)
+    field(:p95, :integer, constructor: &is_integer/1, default: 0)
+    field(:p99, :integer, constructor: &is_integer/1, default: 0)
     field(:requests, :lists, constructor: &is_list/1, default: [])
   end
 end

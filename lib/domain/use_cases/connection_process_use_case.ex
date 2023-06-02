@@ -192,7 +192,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
        ) do
     GenServer.reply(from, {:protocol_error, reason})
     # IO.puts("Request error")
-    IO.inspect(reason)
+    Logger.error(reason)
     %{state | request: %{}}
   end
 
