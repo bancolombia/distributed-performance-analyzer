@@ -9,6 +9,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   require Logger
   alias DistributedPerformanceAnalyzer.Domain.Model.{ConnectionProcess, RequestResult}
   alias DistributedPerformanceAnalyzer.Domain.UseCase.RequestResultUseCase
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
 
   # defstruct [:conn, :params, :conn_time, request: %{}]
 
@@ -181,7 +182,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
          }
        ) do
     # IO.puts("Done request!")
-    final_result = RequestResultUseCase.complete(response, status, body, headers, latency)
+    received_bytes = DataTypeUtils.extract_header(headers, "content-length")
+    content_type = DataTypeUtils.extract_header(headers, "content-type")
+
+    final_result =
+      RequestResultUseCase.complete(response, status, body, received_bytes, content_type, latency)
+
     GenServer.reply(from, {status_for(status), final_result})
     %{state | request: %{}}
   end

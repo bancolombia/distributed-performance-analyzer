@@ -23,8 +23,8 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
 
   def extract_header(headers, name) when is_list(headers) do
     case extract_header!(headers, name) do
-      {:ok, value} when value != nil -> {:ok, value}
-      _ -> {:error, :not_found}
+      {:ok, value} -> value
+      default -> default
     end
   end
 

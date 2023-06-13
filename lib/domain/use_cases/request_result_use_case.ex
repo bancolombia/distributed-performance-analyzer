@@ -9,7 +9,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.RequestResultUseCase do
         %RequestResult{start: start} = initial,
         response_code,
         body,
-        response_headers,
+        received_bytes,
+        content_type,
         latency
       ) do
     elapsed = :erlang.monotonic_time(:milli_seconds) - start
@@ -20,7 +21,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.RequestResultUseCase do
         latency: latency - start,
         response_code: response_code,
         failure_message: body,
-        response_headers: response_headers
+        received_bytes: received_bytes,
+        content_type: content_type
     }
   end
 end

@@ -23,7 +23,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
     "latency",
     "idle_time",
     "connect",
-    "response_headers"
+    "received_bytes",
+    "content_type"
   ]
 
   @type t :: %__MODULE__{
@@ -45,7 +46,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
           latency: float(),
           idle_time: float(),
           connect: integer(),
-          response_headers: list()
+          received_bytes: String.t(),
+          content_type: String.t()
         }
 
   defstruct start: 0,
@@ -66,7 +68,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
             latency: 0,
             idle_time: 0,
             connect: 0,
-            response_headers: []
+            received_bytes: "",
+            content_type: ""
 
   @spec new(String.t(), String.t(), String.t(), integer(), integer()) :: RequestResult.t()
   def new(label, thread_name, url, sent_bytes, connect) do

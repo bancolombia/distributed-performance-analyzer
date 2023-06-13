@@ -78,18 +78,4 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   def success?(_status), do: false
   def with_failure(status, _body) when status >= 200 and status < 400, do: nil
   def with_failure(_status, body), do: body
-
-  def data_type(headers) do
-    case Enum.find(headers, "TEXT", fn {type, _value} -> type == "content-type" end) do
-      {_header, value} -> value
-      default -> default
-    end
-  end
-
-  def bytes(headers) do
-    case Enum.find(headers, "TEXT", fn {type, _value} -> type == "content-length" end) do
-      {_header, value} -> value
-      default -> default
-    end
-  end
 end
