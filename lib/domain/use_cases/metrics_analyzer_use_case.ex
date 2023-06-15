@@ -5,8 +5,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   use GenServer
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
   alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
-  alias DistributedPerformanceAnalyzer.Utils.Statistics
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
+  alias DistributedPerformanceAnalyzer.Utils.{Statistics, DataTypeUtils}
 
   def compute_metrics do
     GenServer.cast(__MODULE__, :compute)
@@ -57,6 +57,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
         end
       )
 
+    IO.inspect(curve)
+
     total_success_count =
       Enum.reduce(steps, 0, fn step, acc -> Map.get(metrics, step).success_count + acc end)
 
@@ -77,5 +79,5 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   def success?(status) when status >= 200 and status < 400, do: true
   def success?(_status), do: false
   def with_failure(status, _body) when status >= 200 and status < 400, do: nil
-  def with_failure(_status, body), do: body
+  def with_failure(_status, body), do: DataTypeUtils.format_failure(body)
 end
