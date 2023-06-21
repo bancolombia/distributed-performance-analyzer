@@ -71,13 +71,16 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
             received_bytes: "",
             content_type: ""
 
-  @spec new(String.t(), String.t(), String.t(), integer(), integer()) :: RequestResult.t()
-  def new(label, thread_name, url, sent_bytes, connect) do
+  @spec new(String.t(), String.t(), String.t(), integer(), integer(), integer()) ::
+          RequestResult.t()
+  def new(label, thread_name, url, sent_bytes, connect, concurrency) do
     %__MODULE__{
       start: :erlang.monotonic_time(:millisecond),
       time_stamp: System.os_time(:millisecond),
       label: label,
       thread_name: thread_name,
+      grp_threads: concurrency,
+      all_threads: concurrency,
       url: url,
       sent_bytes: sent_bytes,
       connect: connect
