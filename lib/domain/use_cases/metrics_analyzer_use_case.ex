@@ -57,8 +57,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
         end
       )
 
-    IO.inspect(curve)
-
     total_success_count =
       Enum.reduce(steps, 0, fn step, acc -> Map.get(metrics, step).success_count + acc end)
 
