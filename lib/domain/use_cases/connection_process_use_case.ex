@@ -9,6 +9,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   require Logger
   alias DistributedPerformanceAnalyzer.Domain.Model.{ConnectionProcess, RequestResult}
   alias DistributedPerformanceAnalyzer.Domain.UseCase.RequestResultUseCase
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
 
   # defstruct [:conn, :params, :conn_time, request: %{}]
 
@@ -18,11 +19,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
     {:ok, pid}
   end
 
-  def request(pid, method, path, headers, body) do
+  def request(pid, method, path, headers, body, concurrency) do
     Logger.debug(%{method: method, path: path, headers: headers, body: body})
 
     :timer.tc(fn ->
-      GenServer.call(pid, {:request, method, path, headers, body}, 15_000)
+      GenServer.call(pid, {:request, method, path, headers, body, concurrency}, 15_000)
     end)
   end
 
@@ -51,14 +52,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   @impl true
-  def handle_call({:request, method, path, headers, body}, from, state) do
+  def handle_call({:request, method, path, headers, body, concurrency}, from, state) do
     response =
       RequestResult.new(
         "sample",
         "#{inspect(self())}",
         get_endpoint(state.conn, path, method),
         String.length(body),
-        state.conn_time
+        state.conn_time,
+        concurrency
       )
 
     # IO.puts "Making Request!"
@@ -181,7 +183,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
          }
        ) do
     # IO.puts("Done request!")
-    final_result = RequestResultUseCase.complete(response, status, body, headers, latency)
+    received_bytes = DataTypeUtils.extract_header(headers, "content-length")
+    content_type = DataTypeUtils.extract_header(headers, "content-type")
+
+    final_result =
+      RequestResultUseCase.complete(response, status, body, received_bytes, content_type, latency)
+
     GenServer.reply(from, {status_for(status), final_result})
     %{state | request: %{}}
   end

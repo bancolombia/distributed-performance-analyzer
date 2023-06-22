@@ -12,7 +12,6 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
                 :distributed_performance_analyzer,
                 :report_csv
               )
-
   @data [
     {1, 6, 113, 102, 0},
     {2, 19, 101, 102, 0},
@@ -49,12 +48,8 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
             latency: 102,
             idle_time: 0,
             connect: 0,
-            response_headers: [
-              {"cache-control", "max-age=0, private, must-revalidate"},
-              {"content-length", "25"},
-              {"date", "Fri, 02 Jun 2023 01:11:20 GMT"},
-              {"server", "Cowboy"}
-            ]
+            received_bytes: "25",
+            content_type: "application/json"
           }
         ],
         p90: 102,
@@ -126,12 +121,8 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
             latency: 102,
             idle_time: 0,
             connect: 0,
-            response_headers: [
-              {"cache-control", "max-age=0, private, must-revalidate"},
-              {"content-length", "25"},
-              {"date", "Fri, 02 Jun 2023 01:11:20 GMT"},
-              {"server", "Cowboy"}
-            ]
+            received_bytes: "25",
+            content_type: "application/json"
           }
         ],
         p90: 102,
@@ -208,12 +199,8 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
         latency: 102,
         idle_time: 0,
         connect: 0,
-        response_headers: [
-          {"cache-control", "max-age=0, private, must-revalidate"},
-          {"content-length", "25"},
-          {"date", "Fri, 02 Jun 2023 01:11:20 GMT"},
-          {"server", "Cowboy"}
-        ]
+        received_bytes: "25",
+        content_type: "application/json"
       }
     ]
 
@@ -241,9 +228,10 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
                     latency: latency,
                     idle_time: idle_time,
                     connect: connect,
-                    response_headers: headers
+                    received_bytes: received_bytes,
+                    content_type: content_type
                   } ->
-                 "#{time_stamp},#{elapsed},#{label},#{response_code},#{MetricsAnalyzerUseCase.response_for_code(response_code)},#{thread_name},#{MetricsAnalyzerUseCase.data_type(headers)},#{MetricsAnalyzerUseCase.success?(response_code)},#{MetricsAnalyzerUseCase.with_failure(response_code, failure_message)},#{MetricsAnalyzerUseCase.bytes(headers)},#{sent_bytes},#{grp_threads},#{all_threads},#{url},#{latency},#{idle_time},#{connect}"
+                 "#{time_stamp},#{elapsed},#{label},#{response_code},#{MetricsAnalyzerUseCase.response_for_code(response_code)},#{thread_name},#{content_type},#{MetricsAnalyzerUseCase.success?(response_code)},#{MetricsAnalyzerUseCase.with_failure(response_code, failure_message)},#{received_bytes},#{sent_bytes},#{grp_threads},#{all_threads},#{url},#{latency},#{idle_time},#{connect}"
                end
              )
   end
