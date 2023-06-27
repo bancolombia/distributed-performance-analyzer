@@ -24,7 +24,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
       conn = ConnectionPoolUseCase.get_connection()
 
       try do
-        results = generate_load(request, dataset, [], end_time, conn)
+        results = generate_load(request, dataset, [], end_time, conn, concurrency)
         MetricsCollectorUseCase.send_metrics(results, step_name, concurrency)
       after
         ConnectionPoolUseCase.return_connection(conn)
@@ -32,13 +32,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
     end)
   end
 
-  defp generate_load(conf, dataset, results, end_time, conn) do
+  defp generate_load(conf, dataset, results, end_time, conn, concurrency) do
     item = DatasetUseCase.get_random_item(dataset)
-    result = request(conf, item, conn)
+    result = request(conf, item, conn, concurrency)
 
     if actual_time() < end_time do
       results = [result | results]
-      generate_load(conf, dataset, results, end_time, conn)
+      generate_load(conf, dataset, results, end_time, conn, concurrency)
     else
       results
     end
@@ -47,7 +47,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   defp request(
          %Request{method: method, path: path, headers: headers, body: body, url: _url},
          item,
-         conn
+         conn,
+         concurrency
        ) do
     {_total_time, _result} =
       try do
@@ -56,7 +57,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
           method,
           path,
           DatasetUseCase.replace_value(headers, item),
-          DatasetUseCase.replace_value(body, item)
+          DatasetUseCase.replace_value(body, item),
+          concurrency
         )
       catch
         _, _error -> {0, :invocation_error}
