@@ -13,10 +13,10 @@ RUN mix local.hex --force && \
 COPY mix.exs mix.lock ./
 RUN mix do deps.get, deps.compile
 COPY . ./
-RUN mix escript.build
+RUN mix release
 
 FROM base
-COPY --from=builder /app/$APP_NAME ./
+COPY --from=builder /app/_build/prod ./
 COPY config config
 VOLUME config
-ENTRYPOINT exec ./$APP_NAME
+ENTRYPOINT rel/$APP_NAME/bin/$APP_NAME start

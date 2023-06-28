@@ -18,7 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
   def start(_type, _args) do
     # config = AppConfig.load_config()
 
-    # CertificatesAdmin.setup()
+    CertificatesAdmin.setup()
 
     # children = all_env_children() ++ env_children(Mix.env())
 
@@ -27,6 +27,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
     # Supervisor.start_link(children, opts)
 
     init()
+  end
+
+  def stop() do
+    Application.stop(:distributed_performance_analyzer)
   end
 
   def all_env_children() do
@@ -121,6 +125,15 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     if execution_conf.steps > 0 && distributed == :none do
       ExecutionUseCase.launch_execution()
+    end
+
+    Process.monitor(Process.whereis(MetricsAnalyzerUseCase))
+
+    receive do
+      {:DOWN, _ref, :process, _pid, :normal} ->
+        IO.puts("Finishing...")
+        Application.stop(:distributed_performance_analyzer)
+        System.halt(0)
     end
 
     pid

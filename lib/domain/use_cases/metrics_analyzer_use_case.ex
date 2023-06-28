@@ -3,9 +3,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   Metrics Analyzer use case
   """
   use GenServer
+  alias DistributedPerformanceAnalyzer.Application
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    MetricsCollectorUseCase,
+    Reports.ReportUseCase
+  }
+
   alias DistributedPerformanceAnalyzer.Utils.{Statistics, DataTypeUtils}
 
   def compute_metrics do
