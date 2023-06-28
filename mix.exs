@@ -49,7 +49,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
       {:distillery, "~> 2.1"},
-      {:castore, "~> 1.0.3"},
+      {:castore, "~> 1.0"},
       {:plug_cowboy, "~> 2.6"},
       {:jason, "~> 1.0"},
       {:plug_checkup, "~> 0.6"},
@@ -61,7 +61,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
-      {:git_hooks, "~> 0.7.3", only: [:dev], runtime: false}
+      {:git_hooks, "~> 0.7", only: [:dev], runtime: false}
     ]
   end
 end
