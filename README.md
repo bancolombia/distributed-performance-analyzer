@@ -115,11 +115,11 @@ alias DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase
 ExecutionUseCase.launch_execution()
 ```
 
-Elixir Escript:
+Elixir Release:
 
 ```shell
-MIX_ENV=prod mix escript.build
-./distributed_performance_analyzer
+MIX_ENV=prod mix release
+_build/prod/rel/distributed_performance_analyzer/bin/distributed_performance_analyzer start
 ```
 
 ## Results
