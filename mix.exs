@@ -5,7 +5,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
     [
       app: :distributed_performance_analyzer,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       escript: [
         main_module: Cli.CommandLine
@@ -13,7 +13,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       test_coverage: [
         tool: ExCoveralls,
         # TODO: increase project coverage
-        summary: [threshold: 25]
+        summary: [threshold: 60]
       ],
       preferred_cli_env: [
         coveralls: :test,
@@ -44,7 +44,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:opentelemetry_plug,
        git: "https://github.com/juancgalvis/opentelemetry_plug.git", tag: "master"},
       {:opentelemetry_api, "~> 1.0"},
-      {:opentelemetry_exporter, "~> 1.5"},
+      {:opentelemetry_exporter, "~> 1.6"},
       {:telemetry, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
@@ -61,7 +61,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
-      {:git_hooks, "~> 0.7.3", only: [:dev], runtime: false}
+      {:git_hooks, "~> 0.7", only: [:dev], runtime: false}
     ]
   end
 end
