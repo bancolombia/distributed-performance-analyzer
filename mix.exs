@@ -44,7 +44,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:opentelemetry_plug,
        git: "https://github.com/juancgalvis/opentelemetry_plug.git", tag: "master"},
       {:opentelemetry_api, "~> 1.0"},
-      {:opentelemetry_exporter, "~> 1.0"},
+      {:opentelemetry_exporter, "~> 1.6"},
       {:telemetry, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
