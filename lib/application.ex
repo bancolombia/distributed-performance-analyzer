@@ -29,6 +29,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
     init()
   end
 
+  def stop() do
+    Application.stop(:distributed_performance_analyzer)
+  end
+
   def all_env_children() do
     [
       {ConfigHolder, AppConfig.load_config()},
@@ -121,6 +125,15 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     if execution_conf.steps > 0 && distributed == :none do
       ExecutionUseCase.launch_execution()
+    end
+
+    Process.monitor(Process.whereis(MetricsAnalyzerUseCase))
+
+    receive do
+      {:DOWN, _ref, :process, _pid, :normal} ->
+        IO.puts("Finishing...")
+        Application.stop(:distributed_performance_analyzer)
+        System.halt(0)
     end
 
     pid
