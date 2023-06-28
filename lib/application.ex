@@ -18,7 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
   def start(_type, _args) do
     # config = AppConfig.load_config()
 
-    # CertificatesAdmin.setup()
+    CertificatesAdmin.setup()
 
     # children = all_env_children() ++ env_children(Mix.env())
 
