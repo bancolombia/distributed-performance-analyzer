@@ -127,24 +127,14 @@ _build/prod/rel/distributed_performance_analyzer/bin/distributed_performance_ana
 After each step is executed you will get a table of results like the following:
 
 ```shell
-concurrency, throughput -- mean latency -- p90 latency, max latency, mean http latency, http_errors, protocol_error_count, error_conn_count
-50, 22159 -- 2ms -- 3ms, 12ms, 2ms, 0, 0, 0
-100, 29329 -- 3ms -- 4ms, 19ms, 3ms, 0, 0, 0
-150, 31000 -- 5ms -- 6ms, 211ms, 5ms, 0, 0, 0
-200, 31031 -- 6ms -- 7ms, 33ms, 6ms, 0, 0, 0
-250, 31413 -- 8ms -- 9ms, 42ms, 8ms, 0, 0, 0
-......
+####CSV#######
+concurrency, throughput, mean latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn
+1, 9, 108, 110, 111, 117, 119, 108, 0, 0, 0, 0
+2, 18, 107, 110, 110, 111, 111, 107, 0, 0, 0, 0
+3, 28, 107, 109, 110, 111, 111, 107, 0, 0, 0, 0
+4, 36, 108, 110, 111, 111, 111, 108, 0, 0, 0, 0
+5, 45, 108, 110, 110, 111, 111, 108, 0, 0, 0, 0
 ```
-
-CSV format:
-
- ```shell
-concurrency, throughput, mean latency, p90 latency, max latency
-2, 14, 138, 284, 284
-3, 21, 132, 230, 230
-4, 26, 143, 128, 518
-5, 34, 139, 230, 420
- ```
 
 JMeter format:
 
