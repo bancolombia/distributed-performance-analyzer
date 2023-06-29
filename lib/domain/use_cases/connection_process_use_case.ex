@@ -103,7 +103,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
         {:noreply, %{state | conn: conn, conn_time: :erlang.monotonic_time(:millisecond) - start}}
 
       {:error, err} ->
-        Logger.warn(
+        Logger.warning(
           "Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}"
         )
 
@@ -113,7 +113,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @impl true
   def handle_info(message, state = %ConnectionProcess{conn: nil}) do
-    Logger.warn(fn -> "Received message with null conn: " <> inspect(message) end)
+    Logger.warning(fn -> "Received message with null conn: " <> inspect(message) end)
     {:noreply, state}
   end
 
@@ -123,7 +123,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
-        Logger.warn(fn -> "Received unknown message: " <> inspect(message) end)
+        Logger.warning(fn -> "Received unknown message: " <> inspect(message) end)
         {:noreply, state}
 
       {:ok, conn, []} ->
