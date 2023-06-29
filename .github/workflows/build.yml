@@ -41,7 +41,7 @@ jobs:
         name: Unit Tests
 
       - run: |
-          MIX_ENV=prod mix escript.build
+          MIX_ENV=prod mix release
         name: Compile
 
       - run: |
