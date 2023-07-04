@@ -133,7 +133,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
       {:DOWN, _ref, :process, _pid, :normal} ->
         IO.puts("Finishing...")
         Application.stop(:distributed_performance_analyzer)
-        System.halt(0)
+
+        if Mix.env() != :test do
+          System.stop(0)
+        end
     end
 
     pid

@@ -37,7 +37,7 @@ jobs:
         name: Compile Dependencies
 
       - run: |
-          mix coveralls.xml
+          MIX_ENV=test mix coveralls.xml
         name: Unit Tests
 
       - run: |
