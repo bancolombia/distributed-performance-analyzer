@@ -31,7 +31,8 @@ config :distributed_performance_analyzer,
     separator: ","
   },
   distributed: :none,
-  jmeter_report: true
+  jmeter_report: true,
+  exit_on_finish: false
 
 config :logger,
   level: :debug

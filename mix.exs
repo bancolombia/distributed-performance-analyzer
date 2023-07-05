@@ -12,15 +12,21 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
         # TODO: increase project coverage
         summary: [threshold: 60]
       ],
-      preferred_cli_env: [
+      deps: deps(),
+      metrics: true
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
+        release: :prod,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
         "coveralls.xml": :test
-      ],
-      deps: deps(),
-      metrics: true
+      ]
     ]
   end
 

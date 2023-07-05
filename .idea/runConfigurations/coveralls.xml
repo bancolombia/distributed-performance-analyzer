@@ -3,9 +3,6 @@
     <mix>
       <argument>coveralls.xml</argument>
     </mix>
-    <envs>
-      <env name="MIX_ENV" value="test" />
-    </envs>
     <module-filters inherit-application-module-filters="true" />
     <method v="2" />
   </configuration>
