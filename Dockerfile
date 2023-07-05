@@ -1,4 +1,4 @@
-FROM elixir:1.15.0-alpine AS base
+FROM elixir:1.15-alpine AS base
 ENV APP_NAME=distributed_performance_analyzer
 ENV MIX_ENV=prod
 WORKDIR /app
