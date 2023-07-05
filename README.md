@@ -28,8 +28,8 @@ concurrency scenarios.
 ## Install
 
 ```shell
-./enable-hook.sh
-mix deps.get
+mix do local.hex --force, local.rebar --force
+mix do deps.clean --unused, deps.get, deps.compile
 mix compile
 ```
 
@@ -118,7 +118,7 @@ ExecutionUseCase.launch_execution()
 Elixir Release:
 
 ```shell
-MIX_ENV=prod mix release
+mix release
 _build/prod/rel/distributed_performance_analyzer/bin/distributed_performance_analyzer start
 ```
 

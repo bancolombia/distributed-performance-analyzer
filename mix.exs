@@ -9,10 +9,10 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       start_permanent: Mix.env() == :prod,
       test_coverage: [
         tool: ExCoveralls,
-        # TODO: increase project coverage
-        summary: [threshold: 60]
+        summary: [threshold: 90]
       ],
       deps: deps(),
+      aliases: aliases(),
       metrics: true
     ]
   end
@@ -28,6 +28,13 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
         "coveralls.xml": :test
       ]
     ]
+  end
+
+  defp aliases do
+    case Mix.env() do
+      :dev -> [compile: "do compile, git_hooks.install"]
+      _ -> []
+    end
   end
 
   # Run "mix help compile.app" to learn about applications.
