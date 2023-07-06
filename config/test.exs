@@ -25,7 +25,7 @@ config :distributed_performance_analyzer,
   execution: %{
     steps: 2,
     increment: 1,
-    duration: 3000,
+    duration: 1500,
     constant_load: false,
     dataset: :none,
     separator: ","
