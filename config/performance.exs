@@ -19,4 +19,4 @@ config :distributed_performance_analyzer,
   jmeter_report: true
 
 config :logger,
-  level: :debug
+  level: :info

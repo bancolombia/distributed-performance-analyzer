@@ -2,7 +2,6 @@ import Config
 
 config :distributed_performance_analyzer,
   timezone: "America/Bogota",
-  exit_on_finish: true,
   http_port: 8083,
   enable_server: true,
   secret_name: "",
