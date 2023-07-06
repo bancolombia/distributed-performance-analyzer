@@ -51,12 +51,12 @@ defmodule DistributedPerformanceAnalyzer.Application do
   end
 
   defp init(env) do
-    with {:ok, _} <- File.stat(@default_runtime_config) do
-      Config.Reader.read!(@default_runtime_config)
-      |> Application.put_all_env()
-    end
-
     if env != :test do
+      with {:ok, _} <- File.stat(@default_runtime_config) do
+        Config.Reader.read!(@default_runtime_config)
+        |> Application.put_all_env()
+      end
+
       Logger.configure(level: Application.fetch_env!(:logger, :level))
       Application.get_all_env(:logger)
     end
