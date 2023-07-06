@@ -15,7 +15,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
   @default_runtime_config "config/performance.exs"
 
-  def start(_type, _args) do
+  def start(_type, [env]) do
     # config = AppConfig.load_config()
 
     CertificatesAdmin.setup()
@@ -26,7 +26,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
     # opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
     # Supervisor.start_link(children, opts)
 
-    init()
+    init(env)
   end
 
   def stop() do
@@ -50,10 +50,15 @@ defmodule DistributedPerformanceAnalyzer.Application do
     ]
   end
 
-  defp init() do
-    with {:ok, _} <- File.stat(@default_runtime_config) do
-      Config.Reader.read!(@default_runtime_config)
-      |> Application.put_all_env()
+  defp init(env) do
+    if env != :test do
+      with {:ok, _} <- File.stat(@default_runtime_config) do
+        Config.Reader.read!(@default_runtime_config)
+        |> Application.put_all_env()
+      end
+
+      Logger.configure(level: Application.fetch_env!(:logger, :level))
+      Application.get_all_env(:logger)
     end
 
     url = Application.fetch_env!(:distributed_performance_analyzer, :url)
@@ -133,7 +138,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
       {:DOWN, _ref, :process, _pid, :normal} ->
         IO.puts("Finishing...")
         Application.stop(:distributed_performance_analyzer)
-        System.halt(0)
+
+        if env != :test do
+          System.stop(0)
+        end
     end
 
     pid

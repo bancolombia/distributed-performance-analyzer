@@ -57,7 +57,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         {:noreply, %{state | conn: conn, conn_time: :erlang.monotonic_time(:millisecond) - start}}
 
       {:error, err} ->
-        Logger.warn(
+        Logger.warning(
           "Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}"
         )
 
@@ -80,7 +80,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     MINT HTTP CONNECT TEST
     @impl true
     def handle_info(message, state = %__MODULE__{conn: nil}) do
-      Logger.warn(fn -> "Received message with null conn: " <> inspect(message) end)
+      Logger.warning(fn -> "Received message with null conn: " <> inspect(message) end)
       {:noreply, state}
     end
   """
@@ -90,7 +90,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
   def handle_info(message, state) do
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
-        Logger.warn(fn -> "Received unknown message: " <> inspect(message) end)
+        Logger.warning(fn -> "Received unknown message: " <> inspect(message) end)
         {:noreply, state}
 
       {:ok, conn, []} ->

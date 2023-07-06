@@ -16,9 +16,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: erlef/setup-beam@v1.15.2
+      - uses: erlef/setup-beam@v1
         with:
-          otp-version: '25'
+          otp-version: '26'
           elixir-version: '1.15'
 
       - name: Restore dependencies cache
@@ -37,11 +37,13 @@ jobs:
         name: Compile Dependencies
 
       - run: |
+          docker run --name latency-simulator -d -p 8080:8080 bancolombia/latency-simulator:0.1.0
           mix coveralls.xml
+          docker container rm -f latency-simulator
         name: Unit Tests
 
       - run: |
-          MIX_ENV=prod mix release
+          mix release
         name: Compile
 
       - run: |

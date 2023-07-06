@@ -1,9 +1,9 @@
 import Config
 
 config :distributed_performance_analyzer,
-  url: "http://localhost:8080/post",
+  url: "http://localhost:8080/wait/100",
   request: %{
-    method: "POST",
+    method: "GET",
     headers: [
       {"Content-Type", "application/json"}
     ],
@@ -23,9 +23,9 @@ config :distributed_performance_analyzer,
     }/
   },
   execution: %{
-    steps: 10,
+    steps: 2,
     increment: 1,
-    duration: 10000,
+    duration: 1500,
     constant_load: false,
     dataset: :none,
     separator: ","

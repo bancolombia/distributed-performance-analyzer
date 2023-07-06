@@ -3,7 +3,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   Metrics Analyzer use case
   """
   use GenServer
-  alias DistributedPerformanceAnalyzer.Application
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{

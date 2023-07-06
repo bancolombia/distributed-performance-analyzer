@@ -56,7 +56,7 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
     number
   rescue
     _err ->
-      Logger.warn("Error parsing #{value} to float")
+      Logger.warning("Error parsing #{value} to float")
       nil
   end
 
