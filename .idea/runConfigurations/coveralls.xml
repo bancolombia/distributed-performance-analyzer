@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="coveralls" type="MixRunConfigurationType" factoryName="Elixir Mix">
     <mix>
-      <argument>coveralls.xml</argument>
+      <argument>coveralls.html</argument>
     </mix>
     <module-filters inherit-application-module-filters="true" />
     <method v="2" />
