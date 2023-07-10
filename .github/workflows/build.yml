@@ -38,7 +38,7 @@ jobs:
 
       - run: |
           docker run --name latency-simulator -d -p 8080:8080 bancolombia/latency-simulator:0.1.0
-          mix coveralls.multiple --type github --type xml
+          mix coveralls.xml
           docker container rm -f latency-simulator
         name: Unit Tests
         env:
