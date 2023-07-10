@@ -41,6 +41,8 @@ jobs:
           mix coveralls.multiple --type github --type xml
           docker container rm -f latency-simulator
         name: Unit Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - run: |
           mix release
