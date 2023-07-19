@@ -11,7 +11,8 @@
 [![Maintainability Rating][sonarcloud-maintainability-shield]][sonarcloud-url]
 [![GitHub Actions - Build][build-shield]][build-url]
 [![GitHub Actions - Release][release-shield]][release-url]
-[![Score Cards][scorecards-shield]][scorecards-url]
+
+[//]: # ([![Score Cards][scorecards-shield]][scorecards-url])
 
 
 Performance Analyzer is an HTTP benchmarking tool capable of generating significant load from a single node or from a
