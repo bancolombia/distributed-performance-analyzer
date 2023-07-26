@@ -29,11 +29,8 @@ jobs:
           restore-keys: ${{ runner.os }}-mix-
 
       - run: |
-          mix local.hex --force
-          mix local.rebar --force
-          mix deps.clean --unused
-          mix deps.get
-          mix deps.compile
+          mix do local.hex --force, local.rebar --force
+          mix do deps.clean --unused, deps.get, deps.compile
         name: Compile Dependencies
 
       - run: |
