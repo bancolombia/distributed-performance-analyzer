@@ -1,9 +1,14 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="test" type="MixExUnitRunConfigurationType" factoryName="Elixir Mix ExUnit">
-    <mix-test>
-      <argument>--color</argument>
-      <argument>--cover</argument>
-    </mix-test>
+  <configuration default="false" name="test" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed-performance-analyzer" />
+    <mix>
+      <argument>coveralls.multiple</argument>
+      <argument>--type</argument>
+      <argument>html</argument>
+      <argument>--type</argument>
+      <argument>xml</argument>
+    </mix>
+    <module name="distributed-performance-analyzer" />
     <module-filters inherit-application-module-filters="true" />
     <method v="2" />
   </configuration>

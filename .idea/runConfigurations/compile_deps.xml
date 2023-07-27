@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="compile deps" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed-performance-analyzer" />
     <mix>
       <argument>do</argument>
       <argument>deps.clean</argument>
@@ -7,6 +8,7 @@
       <argument>deps.get,</argument>
       <argument>deps.compile</argument>
     </mix>
+    <module name="distributed-performance-analyzer" />
     <module-filters inherit-application-module-filters="true" />
     <method v="2" />
   </configuration>

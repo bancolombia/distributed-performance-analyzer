@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="build" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed-performance-analyzer" />
+    <mix>
+      <argument>do</argument>
+      <argument>compile</argument>
+    </mix>
+    <module name="distributed-performance-analyzer" />
+    <module-filters inherit-application-module-filters="true" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="hex - rebar" run_configuration_type="MixRunConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="compile deps" run_configuration_type="MixRunConfigurationType" />
+    </method>
+  </configuration>
+</component>
