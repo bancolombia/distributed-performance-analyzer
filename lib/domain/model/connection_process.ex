@@ -1,4 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.ConnectionProcess do
+  use Constructor
+
   @moduledoc """
   Connection process module model
 
@@ -8,21 +10,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.ConnectionProcess do
   request: save info with the request
   """
 
-  #  @enforce_keys [:conn, :params, :conn_time, :request]
-
-  @allowed_keys ["conn", "params", "conn_time", "request"]
-
-  # TODO: review params y conn types
-  @type t :: %__MODULE__{
-          conn: String.t(),
-          params: {},
-          conn_time: integer(),
-          request: %{}
-        }
-
-  defstruct [:conn, :params, :conn_time, request: %{}]
-
-  # def new() do
-  #  %__MODULE__{}
-  # end
+  constructor do
+    field(:conn, String.t(), constructor: &is_string/1)
+    field(:params, :tuple, constructor: &is_tuple/1)
+    field(:conn_time, :integer, constructor: &is_integer/1)
+    field(:request, :maps, constructor: &is_map/1)
+  end
 end
