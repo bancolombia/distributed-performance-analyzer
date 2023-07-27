@@ -22,6 +22,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       preferred_envs: [
         release: :prod,
         coveralls: :test,
+        "coveralls.multiple": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
@@ -58,7 +59,6 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:telemetry, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
-      {:distillery, "~> 2.1"},
       {:castore, "~> 1.0"},
       {:plug_cowboy, "~> 2.6"},
       {:jason, "~> 1.0"},
