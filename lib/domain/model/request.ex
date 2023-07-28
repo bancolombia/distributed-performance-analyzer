@@ -1,19 +1,16 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.Request do
+  use Constructor
+
   @moduledoc """
   TODO Request
   """
 
-  @enforce_keys [:method, :url]
-  @allowed_keys ["method", "path", "headers", "body", "url", "item"]
-
-  @type t :: %__MODULE__{
-          method: String.t(),
-          path: String.t(),
-          headers: list(),
-          body: any(),
-          url: String.t(),
-          item: any()
-        }
-
-  defstruct [:method, :path, :headers, :body, :url, :item]
+  constructor do
+    field(:method, :string, constructor: &is_string/1, enforce: true)
+    field(:path, :string, constructor: &is_string/1)
+    field(:headers, :lists, constructor: &is_list/1)
+    field(:body, :any)
+    field(:url, :string, constructor: &is_string/1, enforce: true)
+    field(:item, :any)
+  end
 end

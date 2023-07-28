@@ -8,8 +8,7 @@ RUN apk update --no-cache && \
 FROM base AS builder
 ENV MIX_ENV=prod
 RUN apk add build-base git
-RUN mix local.hex --force && \
-    mix local.rebar --force
+RUN mix do local.hex --force, local.rebar --force
 COPY mix.exs mix.lock ./
 RUN mix do deps.get, deps.compile
 COPY . ./

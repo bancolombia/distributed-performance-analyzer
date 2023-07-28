@@ -58,7 +58,6 @@ defmodule DistributedPerformanceAnalyzer.Application do
       end
 
       Logger.configure(level: Application.fetch_env!(:logger, :level))
-      Application.get_all_env(:logger)
     end
 
     url = Application.fetch_env!(:distributed_performance_analyzer, :url)

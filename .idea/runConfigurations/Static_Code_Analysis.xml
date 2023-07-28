@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Static Code Analysis" type="CompoundRunConfigurationType">
-    <toRun name="coveralls" type="MixRunConfigurationType" />
     <toRun name="credo" type="MixRunConfigurationType" />
     <toRun name="sobelow" type="MixRunConfigurationType" />
     <toRun name="sobelow --out" type="MixRunConfigurationType" />

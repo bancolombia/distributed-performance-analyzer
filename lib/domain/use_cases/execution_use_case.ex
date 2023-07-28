@@ -2,7 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @moduledoc """
   Execution use case
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.StepModel
+  alias DistributedPerformanceAnalyzer.Domain.Model.Step
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{LoadStepUseCase, MetricsAnalyzerUseCase}
   alias DistributedPerformanceAnalyzer.Config.ConfigHolder
   use GenServer
@@ -42,7 +42,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
       when actual_step <= steps do
     execution_model = ConfigHolder.get()
 
-    StepModel.new(execution_model, state.actual_step)
+    Step.new(execution_model: execution_model, step_number: state.actual_step)
     |> start_step()
 
     {:noreply, %{state | actual_step: state.actual_step + 1}}
@@ -55,7 +55,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
     {:noreply, %{state | actual_step: -1}}
   end
 
-  defp start_step(step_conf) do
+  defp start_step({:ok, step_conf}) do
     IO.puts("Initiating #{step_conf.name}, with #{step_conf.concurrency} actors")
 
     Task.start_link(fn ->

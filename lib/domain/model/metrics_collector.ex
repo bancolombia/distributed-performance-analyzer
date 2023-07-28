@@ -1,22 +1,14 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector do
+  use Constructor
+
   @moduledoc """
   Metrics collector module model.
 
-
   """
-  @enforce_keys [:results, :step, :concurrency]
 
-  @allowed_keys ["results", "step", "concurrency"]
-
-  @type t :: %__MODULE__{
-          results: String.t(),
-          step: String.t(),
-          concurrency: Integer.t()
-        }
-
-  defstruct [
-    :results,
-    :step,
-    :concurrency
-  ]
+  constructor do
+    field(:results, String.t(), constructor: &is_string/1)
+    field(:step, String.t(), constructor: &is_string/1)
+    field(:concurrency, :integer, constructor: &is_integer/1)
+  end
 end

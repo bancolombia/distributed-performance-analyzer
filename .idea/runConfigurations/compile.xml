@@ -1,11 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="compile --force" type="MixRunConfigurationType" factoryName="Elixir Mix">
-    <module name="distributed_performance_analyzer" />
+  <configuration default="false" name="compile" type="MixRunConfigurationType" factoryName="Elixir Mix">
+    <module name="distributed-performance-analyzer" />
     <mix>
+      <argument>do</argument>
       <argument>compile</argument>
       <argument>--force</argument>
     </mix>
-    <module name="distributed_performance_analyzer" />
+    <module name="distributed-performance-analyzer" />
     <module-filters inherit-application-module-filters="true" />
     <method v="2" />
   </configuration>
