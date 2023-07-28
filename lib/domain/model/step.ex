@@ -8,7 +8,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Step do
 
   constructor do
     field(:execution_model, ExecutionModel.t(), enforce: true)
-    field(:name, String.t(), constructor: &is_string/1)
+    field(:name, :string, constructor: &is_string/1)
     field(:step_number, :integer, constructor: &is_integer/1, enforce: true)
     field(:concurrency, :integer, constructor: &is_integer/1)
   end
