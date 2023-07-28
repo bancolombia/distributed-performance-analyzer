@@ -53,14 +53,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @impl true
   def handle_call({:request, method, path, headers, body, concurrency}, from, state) do
-    response =
+    {:ok, response} =
       RequestResult.new(
-        "sample",
-        "#{inspect(self())}",
-        get_endpoint(state.conn, path, method),
-        String.length(body),
-        state.conn_time,
-        concurrency
+        label: "sample",
+        thread_name: "#{inspect(self())}",
+        url: get_endpoint(state.conn, path, method),
+        sent_bytes: String.length(body),
+        connect: state.conn_time,
+        concurrency: concurrency
       )
 
     # IO.puts "Making Request!"

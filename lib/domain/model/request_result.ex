@@ -1,89 +1,61 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
+  use Constructor
+
   @moduledoc """
   TODO Result of a single request
   """
-  @enforce_keys [:label, :thread_name, :url, :sent_bytes, :connect]
 
-  @allowed_keys [
-    "start",
-    "time_stamp",
-    "label",
-    "thread_name",
-    "grp_threads",
-    "all_threads",
-    "url",
-    "elapsed",
-    "response_code",
-    "response_message",
-    "data_type",
-    "success",
-    "failure_message",
-    "bytes",
-    "sent_bytes",
-    "latency",
-    "idle_time",
-    "connect",
-    "received_bytes",
-    "content_type"
-  ]
+  constructor do
+    field(:start, :integer, constructor: &is_integer/1, default: 0)
+    field(:time_stamp, :integer, constructor: &is_integer/1, default: 0)
+    field(:label, :string, constructor: &is_string/1, enforce: true)
+    field(:thread_name, :string, constructor: &is_string/1, default: "", enforce: true)
+    field(:grp_threads, :integer, constructor: &is_integer/1, default: 0)
+    field(:all_threads, :integer, constructor: &is_integer/1, default: 0)
+    field(:url, :string, constructor: &is_string/1, default: "", enforce: true)
+    field(:elapsed, :float, constructor: &is_float/1, default: 0.0)
+    field(:response_code, :integer, constructor: &is_integer/1, default: 0)
+    field(:response_message, :string, constructor: &is_string/1, default: "")
+    field(:data_type, :string, constructor: &is_string/1, default: "")
+    field(:success, :boolean, constructor: &is_boolean/1, default: false)
+    field(:failure_message, :string, constructor: &is_string/1, default: "")
+    field(:bytes, :integer, constructor: &is_integer/1, default: 0)
+    field(:sent_bytes, :integer, constructor: &is_integer/1, default: 0, enforce: true)
+    field(:latency, :float, constructor: &is_float/1, default: 0.0)
+    field(:idle_time, :float, constructor: &is_float/1, default: 0.0)
+    field(:connect, :integer, constructor: &is_integer/1, default: 0, enforce: true)
+    field(:received_bytes, :string, constructor: &is_string/1, default: "")
+    field(:content_type, :string, constructor: &is_string/1, default: "")
+  end
 
-  @type t :: %__MODULE__{
-          start: float(),
-          time_stamp: float(),
-          label: String.t(),
-          thread_name: String.t(),
-          grp_threads: integer(),
-          all_threads: integer(),
-          url: String.t(),
-          elapsed: float(),
-          response_code: integer(),
-          response_message: String.t(),
-          data_type: String.t(),
-          success: boolean(),
-          failure_message: String.t(),
-          bytes: integer(),
-          sent_bytes: integer(),
-          latency: float(),
-          idle_time: float(),
-          connect: integer(),
-          received_bytes: String.t(),
-          content_type: String.t()
+  @impl Constructor
+  def before_construct(%__MODULE__{} = input) do
+    {:ok, input}
+  end
+
+  @impl Constructor
+  def before_construct(
+        input = %{
+          label: label,
+          thread_name: thread_name,
+          url: url,
+          sent_bytes: sent_bytes,
+          connect: connect,
+          concurrency: concurrency
         }
-
-  defstruct start: 0,
-            time_stamp: 0,
-            label: "",
-            thread_name: "",
-            grp_threads: 0,
-            all_threads: 0,
-            url: "",
-            elapsed: 0,
-            response_code: 0,
-            response_message: "",
-            data_type: "",
-            success: false,
-            failure_message: "",
-            bytes: 0,
-            sent_bytes: 0,
-            latency: 0,
-            idle_time: 0,
-            connect: 0,
-            received_bytes: "",
-            content_type: ""
-
-  @spec new(String.t(), String.t(), String.t(), integer(), integer(), integer()) ::
-          RequestResult.t()
-  def new(label, thread_name, url, sent_bytes, connect, concurrency) do
-    %__MODULE__{
-      start: :erlang.monotonic_time(:millisecond),
-      time_stamp: System.os_time(:millisecond),
-      label: label,
-      thread_name: thread_name,
-      grp_threads: concurrency,
-      all_threads: concurrency,
-      url: url,
-      sent_bytes: sent_bytes,
-      connect: connect
-    }
+      )
+      when is_map(input) do
+    {:ok,
+     %{
+       start: :erlang.monotonic_time(:millisecond),
+       time_stamp: System.os_time(:millisecond),
+       label: label,
+       thread_name: thread_name,
+       grp_threads: concurrency,
+       all_threads: concurrency,
+       url: url,
+       sent_bytes: sent_bytes,
+       connect: connect
+     }}
   end
 end

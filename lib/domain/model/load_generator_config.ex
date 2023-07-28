@@ -5,8 +5,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadGeneratorConfig do
   Load Generator Conf
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.Request
-
   constructor do
     field(:method, String.t(), constructor: &is_string/1, enforce: true)
     field(:path, String.t(), constructor: &is_string/1, enforce: true)
