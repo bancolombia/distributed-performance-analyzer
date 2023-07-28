@@ -3,14 +3,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   Load step use case
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, StepModel}
+  alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, Step}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     LoadGeneratorUseCase
   }
 
-  def start_step(step_model = %StepModel{}) do
+  def start_step(step_model = %Step{}) do
     # TODO: Agregar timeout y manejar errores remotos
     node_list = [Node.self() | Node.list()]
     loads = distribute_load(node_list, step_model.concurrency)
@@ -43,7 +43,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   end
 
   def start_step_local(
-        step_model = %StepModel{
+        step_model = %Step{
           execution_model: execution_model,
           name: name,
           step_number: _a

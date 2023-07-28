@@ -2,7 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
   @moduledoc """
   TODO Steps orchestration
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.StepModel
+  alias DistributedPerformanceAnalyzer.Domain.Model.Step
 
   @enforce_keys [:request, :step_name, :end_time]
 
@@ -16,8 +16,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
 
   defstruct [:request, :step_name, :end_time]
 
-  @spec new(StepModel.t()) :: LoadProcess.t()
-  def new(%StepModel{execution_model: execution_model, name: name}) do
+  @spec new(Step.t()) :: LoadProcess.t()
+  def new(%Step{execution_model: execution_model, name: name}) do
     %__MODULE__{
       request: execution_model.request,
       step_name: name,
