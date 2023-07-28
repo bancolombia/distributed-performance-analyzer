@@ -26,8 +26,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Step do
     input = Map.put(input, :name, "Step-#{step_number}")
 
     case constant_load do
-      true -> {:ok, Map.put(input, :concurrency, step_number * increment)}
-      false -> {:ok, Map.put(input, :concurrency, step_number)}
+      true -> {:ok, Map.put(input, :concurrency, increment)}
+      false -> {:ok, Map.put(input, :concurrency, step_number * increment)}
     end
   end
 end
