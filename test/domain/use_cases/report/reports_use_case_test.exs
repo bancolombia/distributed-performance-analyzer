@@ -74,7 +74,7 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Reports.ReportsUseC
   ]
   @header "concurrency, throughput, mean_latency, p90_latency, http_errors"
   @print true
-  @file_csv "config/report.csv"
+  @file_csv "config/result.csv"
 
   test "successful transformation of the sorted_curve" do
     # Arrange
