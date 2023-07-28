@@ -51,7 +51,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
         concurrency
       ) do
     ConnectionPoolUseCase.ensure_capacity(concurrency)
-    launch_config = LoadProcess.new(step_model)
+    {:ok, launch_config} = LoadProcess.new(step_model)
 
     loads =
       1..concurrency

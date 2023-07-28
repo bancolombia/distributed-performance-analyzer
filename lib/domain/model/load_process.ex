@@ -1,27 +1,30 @@
 defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
+  use Constructor
+
   @moduledoc """
   TODO Steps orchestration
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.Step
+  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, Step}
 
-  @enforce_keys [:request, :step_name, :end_time]
+  constructor do
+    field(:request, Request.t(), enforce: true)
+    field(:step_name, :string, constructor: &is_string/1, enforce: true)
+    field(:end_time, :integer, constructor: &is_integer/1, enforce: true)
+  end
 
-  @allowed_keys ["request", "step_name", "end_time"]
+  @impl Constructor
+  def before_construct(%__MODULE__{} = input) do
+    {:ok, input}
+  end
 
-  @type t :: %__MODULE__{
-          request: Request.t(),
-          step_name: String.t(),
-          end_time: float()
-        }
-
-  defstruct [:request, :step_name, :end_time]
-
-  @spec new(Step.t()) :: LoadProcess.t()
-  def new(%Step{execution_model: execution_model, name: name}) do
-    %__MODULE__{
-      request: execution_model.request,
-      step_name: name,
-      end_time: :erlang.system_time(:milli_seconds) + execution_model.duration
-    }
+  @impl Constructor
+  def before_construct(input = %Step{execution_model: execution_model, name: name})
+      when is_map(input) do
+    {:ok,
+     %{
+       request: execution_model.request,
+       step_name: name,
+       end_time: :erlang.system_time(:milli_seconds) + execution_model.duration
+     }}
   end
 end
