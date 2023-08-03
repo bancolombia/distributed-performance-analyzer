@@ -101,7 +101,6 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
-
       {:error, _conn, reason, _responses} ->
         # IO.puts("########ERROR########")
         # IO.inspect(reason)
@@ -249,17 +248,20 @@ defmodule Tesla.HTTP do
       Tesla.HTTP.request("https://httpbin.com/post", "/path/to/file.txt", 5000)
 
   """
-  def request(url, file_path, timeout) when is_binary(url) and is_binary(file_path) and is_integer(timeout) do
+  def request(url, file_path, timeout)
+      when is_binary(url) and is_binary(file_path) and is_integer(timeout) do
     middleware = [
       {Tesla.Middleware.Logger, debug: false},
       {Tesla.Middleware.Timeout, timeout: timeout}
     ]
+
     client = Tesla.client(middleware, Tesla.Adapter.Mint)
     multipart = build_multipart_data(file_path)
 
     case Tesla.post(client, url, multipart) do
       {:ok, response} ->
         {:ok, response.status}
+
       {:error, reason} ->
         {:error, "HTTP request error: #{inspect(reason)}"}
     end
