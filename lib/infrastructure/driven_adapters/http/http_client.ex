@@ -101,6 +101,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
+
       {:error, _conn, reason, _responses} ->
         # IO.puts("########ERROR########")
         # IO.inspect(reason)
@@ -227,5 +228,44 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
 
   defp options(:http) do
     []
+  end
+end
+
+defmodule Tesla.HTTP do
+  use Tesla
+  alias Tesla.Multipart
+
+  @doc """
+  Perform an HTTP request with support for 'multipart' data format.
+
+  ## Parameters
+
+  - `url`: The URL to which the request will be made.
+  - `file_path`: The path of the file to be sent as part of the 'multipart' form.
+  - `timeout`: The timeout for the HTTP request in milliseconds.
+
+  ## Example
+
+      Tesla.HTTP.request("https://httpbin.com/post", "/path/to/file.txt", 5000)
+
+  """
+  def request(url, file_path, timeout) when is_binary(url) and is_binary(file_path) and is_integer(timeout) do
+    middleware = [
+      {Tesla.Middleware.Logger, debug: false},
+      {Tesla.Middleware.Timeout, timeout: timeout}
+    ]
+    client = Tesla.client(middleware, Tesla.Adapter.Mint)
+    multipart = build_multipart_data(file_path)
+
+    case Tesla.post(client, url, multipart) do
+      {:ok, response} ->
+        {:ok, response.status}
+      {:error, reason} ->
+        {:error, "HTTP request error: #{inspect(reason)}"}
+    end
+  end
+
+  defp build_multipart_data(file_path) when is_binary(file_path) do
+    Multipart.new() |> Multipart.add_file(file_path)
   end
 end

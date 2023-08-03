@@ -71,6 +71,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
+      {:tesla, "~> 1.7.0"},
       {:git_hooks, "~> 0.7", only: [:dev], runtime: false}
     ]
   end
