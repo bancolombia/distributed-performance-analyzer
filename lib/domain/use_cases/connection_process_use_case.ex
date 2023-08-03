@@ -183,8 +183,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
          }
        ) do
     # IO.puts("Done request!")
-    received_bytes = DataTypeUtils.extract_header(headers, "content-length")
-    content_type = DataTypeUtils.extract_header(headers, "content-type")
+
+    received_bytes = DataTypeUtils.extract_header!(headers, "content-length")
+    content_type = DataTypeUtils.extract_header!(headers, "content-type")
 
     final_result =
       RequestResultUseCase.complete(response, status, body, received_bytes, content_type, latency)
