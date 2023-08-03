@@ -1,13 +1,13 @@
 defmodule DistributedPerformanceAnalyzer.Application do
   alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry, ConfigHolder}
-  alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry, ConfigParser}
-  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
+  alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     ExecutionUseCase,
     MetricsCollectorUseCase,
-    MetricsAnalyzerUseCase
+    MetricsAnalyzerUseCase,
+    Config.ConfigUseCase
   }
 
   use Application
@@ -29,8 +29,18 @@ defmodule DistributedPerformanceAnalyzer.Application do
     init(env)
   end
 
-  def stop() do
+  def stop({:error, message}) do
+    Logger.error(message)
+    stop(:none)
+  end
+
+  def stop(env) when is_atom(env) do
+    IO.puts("Finishing...")
     Application.stop(:distributed_performance_analyzer)
+
+    if env != :test do
+      System.stop(0)
+    end
   end
 
   def all_env_children() do
@@ -60,46 +70,13 @@ defmodule DistributedPerformanceAnalyzer.Application do
       Logger.configure(level: Application.fetch_env!(:logger, :level))
     end
 
-    url = Application.fetch_env!(:distributed_performance_analyzer, :url)
-
-    %{
-      host: host,
-      path: path,
-      scheme: scheme,
-      port: port,
-      query: query
-    } = ConfigParser.parse(url)
-
-    IO.puts(
-      "JMeter Report enabled: #{Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)}"
-    )
-
-    connection_conf = {scheme, host, port}
-
-    distributed = Application.fetch_env!(:distributed_performance_analyzer, :distributed)
-
-    %{method: method, headers: headers, body: body} =
-      struct(Request, Application.fetch_env!(:distributed_performance_analyzer, :request))
-
-    request =
-      struct(
-        Request,
-        %{
-          method: method,
-          path: ConfigParser.path(path, query),
-          headers: headers,
-          body: body,
-          url: url
-        }
-      )
-
-    execution_conf =
-      struct(
-        ExecutionModel,
-        Application.fetch_env!(:distributed_performance_analyzer, :execution)
-      )
-
-    execution_conf = put_in(execution_conf.request, request)
+    {:ok,
+     %{
+       distributed: distributed,
+       connection_conf: connection_conf,
+       execution_conf: execution_conf
+     }} =
+      ConfigUseCase.parse_config_file(Application.get_all_env(:distributed_performance_analyzer))
 
     children = [
       {ConfigHolder, execution_conf},
@@ -135,12 +112,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     receive do
       {:DOWN, _ref, :process, _pid, :normal} ->
-        IO.puts("Finishing...")
-        Application.stop(:distributed_performance_analyzer)
-
-        if env != :test do
-          System.stop(0)
-        end
+        stop(env)
     end
 
     pid

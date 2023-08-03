@@ -29,11 +29,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.RequestResult do
   end
 
   @impl Constructor
-  def before_construct(%__MODULE__{} = input) do
-    {:ok, input}
-  end
-
-  @impl Constructor
   def before_construct(
         input = %{
           label: label,
