@@ -7,15 +7,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Step do
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
 
   constructor do
-    field(:execution_model, ExecutionModel.t(), enforce: true)
+    field(:execution_model, ExecutionModel.t(), constructor: &ExecutionModel.new/1, enforce: true)
     field(:name, :string, constructor: &is_string/1)
     field(:step_number, :integer, constructor: &is_integer/1, enforce: true)
     field(:concurrency, :integer, constructor: &is_integer/1)
-  end
-
-  @impl Constructor
-  def before_construct(%__MODULE__{} = input) do
-    {:ok, input}
   end
 
   @impl Constructor

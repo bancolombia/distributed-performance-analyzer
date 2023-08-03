@@ -7,14 +7,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, Step}
 
   constructor do
-    field(:request, Request.t(), enforce: true)
+    field(:request, Request.t(), constructor: &Request.new/1, enforce: true)
     field(:step_name, :string, constructor: &is_string/1, enforce: true)
     field(:end_time, :integer, constructor: &is_integer/1, enforce: true)
-  end
-
-  @impl Constructor
-  def before_construct(%__MODULE__{} = input) do
-    {:ok, input}
   end
 
   @impl Constructor

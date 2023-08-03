@@ -70,7 +70,12 @@ defmodule DistributedPerformanceAnalyzer.Application do
       Logger.configure(level: Application.fetch_env!(:logger, :level))
     end
 
+    IO.puts(
+      "JMeter Report enabled: #{Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)}"
+    )
+
     url = Application.fetch_env!(:distributed_performance_analyzer, :url)
+    distributed = Application.fetch_env!(:distributed_performance_analyzer, :distributed)
 
     %{
       host: host,
@@ -80,36 +85,18 @@ defmodule DistributedPerformanceAnalyzer.Application do
       query: query
     } = ConfigParser.parse(url)
 
-    IO.puts(
-      "JMeter Report enabled: #{Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)}"
-    )
-
     connection_conf = {scheme, host, port}
 
-    distributed = Application.fetch_env!(:distributed_performance_analyzer, :distributed)
+    {:ok, request} =
+      Application.fetch_env!(:distributed_performance_analyzer, :request)
+      |> Map.put(:path, ConfigParser.path(path, query))
+      |> Map.put(:url, url)
+      |> Request.new()
 
-    %{method: method, headers: headers, body: body} =
-      struct(Request, Application.fetch_env!(:distributed_performance_analyzer, :request))
-
-    request =
-      struct(
-        Request,
-        %{
-          method: method,
-          path: ConfigParser.path(path, query),
-          headers: headers,
-          body: body,
-          url: url
-        }
-      )
-
-    execution_conf =
-      struct(
-        ExecutionModel,
-        Application.fetch_env!(:distributed_performance_analyzer, :execution)
-      )
-
-    execution_conf = put_in(execution_conf.request, request)
+    {:ok, execution_conf} =
+      Application.fetch_env!(:distributed_performance_analyzer, :execution)
+      |> Map.put(:request, request)
+      |> ExecutionModel.new()
 
     children = [
       {ConfigHolder, execution_conf},
