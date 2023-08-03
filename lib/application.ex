@@ -29,8 +29,18 @@ defmodule DistributedPerformanceAnalyzer.Application do
     init(env)
   end
 
-  def stop() do
+  def stop({:error, message}) do
+    Logger.error(message)
+    stop(:none)
+  end
+
+  def stop(env) do
+    IO.puts("Finishing...")
     Application.stop(:distributed_performance_analyzer)
+
+    if env != :test do
+      System.stop(0)
+    end
   end
 
   def all_env_children() do
@@ -135,12 +145,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     receive do
       {:DOWN, _ref, :process, _pid, :normal} ->
-        IO.puts("Finishing...")
-        Application.stop(:distributed_performance_analyzer)
-
-        if env != :test do
-          System.stop(0)
-        end
+        stop(env)
     end
 
     pid

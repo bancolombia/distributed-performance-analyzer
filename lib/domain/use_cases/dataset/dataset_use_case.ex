@@ -10,19 +10,34 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
   @valid_extensions ["csv"]
 
   def parse(path, separator) do
+    with {:ok, _path} <- file_exists?(path),
+         {:ok, _path} <- has_valid_extension?(path) do
+      parse_file(path, separator)
+    else
+      err -> err
+    end
+  end
+
+  defp parse_file(path, separator) do
     cond do
-      !@dataset_parser.file_exists?(path) ->
-        {:error, "Dataset file #{path} not found"}
-
-      !has_valid_extension?(path) ->
-        {:error, "Dataset file #{path} does not have a valid extension"}
-
       String.ends_with?(path, Enum.at(@valid_extensions, 0)) ->
         @dataset_parser.parse_csv(path, separator)
     end
   end
 
-  defp has_valid_extension?(path), do: String.ends_with?(path, @valid_extensions)
+  defp file_exists?(path) do
+    case @dataset_parser.file_exists?(path) do
+      true -> {:ok, path}
+      _ -> {:error, "Dataset file #{path} not found"}
+    end
+  end
+
+  defp has_valid_extension?(path) do
+    case String.ends_with?(path, @valid_extensions) do
+      true -> {:ok, path}
+      _ -> {:error, "Dataset file #{path} does not have a valid extension"}
+    end
+  end
 
   def get_random_item([]), do: nil
 

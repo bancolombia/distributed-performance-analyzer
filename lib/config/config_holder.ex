@@ -2,6 +2,7 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   use GenServer
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
+  alias DistributedPerformanceAnalyzer.Application
 
   @moduledoc """
   Provides Behaviours for handle app-configs
@@ -24,8 +25,11 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   end
 
   defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
-    {:ok, dataset} = DatasetUseCase.parse(path, separator)
-    dataset
+    with {:ok, dataset} <- DatasetUseCase.parse(path, separator) do
+      dataset
+    else
+      err -> Application.stop(err)
+    end
   end
 
   defp load_dataset(%{dataset: dataset}), do: dataset
