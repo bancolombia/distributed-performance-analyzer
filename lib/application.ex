@@ -34,7 +34,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
     stop(:none)
   end
 
-  def stop(env) do
+  def stop(env) when is_atom(env) do
     IO.puts("Finishing...")
     Application.stop(:distributed_performance_analyzer)
 
