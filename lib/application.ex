@@ -1,13 +1,13 @@
 defmodule DistributedPerformanceAnalyzer.Application do
   alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry, ConfigHolder}
-  alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry, ConfigParser}
-  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
+  alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     ExecutionUseCase,
     MetricsCollectorUseCase,
-    MetricsAnalyzerUseCase
+    MetricsAnalyzerUseCase,
+    Config.ConfigUseCase
   }
 
   use Application
@@ -70,33 +70,13 @@ defmodule DistributedPerformanceAnalyzer.Application do
       Logger.configure(level: Application.fetch_env!(:logger, :level))
     end
 
-    IO.puts(
-      "JMeter Report enabled: #{Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)}"
-    )
-
-    url = Application.fetch_env!(:distributed_performance_analyzer, :url)
-    distributed = Application.fetch_env!(:distributed_performance_analyzer, :distributed)
-
-    %{
-      host: host,
-      path: path,
-      scheme: scheme,
-      port: port,
-      query: query
-    } = ConfigParser.parse(url)
-
-    connection_conf = {scheme, host, port}
-
-    {:ok, request} =
-      Application.fetch_env!(:distributed_performance_analyzer, :request)
-      |> Map.put(:path, ConfigParser.path(path, query))
-      |> Map.put(:url, url)
-      |> Request.new()
-
-    {:ok, execution_conf} =
-      Application.fetch_env!(:distributed_performance_analyzer, :execution)
-      |> Map.put(:request, request)
-      |> ExecutionModel.new()
+    {:ok,
+     %{
+       distributed: distributed,
+       connection_conf: connection_conf,
+       execution_conf: execution_conf
+     }} =
+      ConfigUseCase.parse_config_file(Application.get_all_env(:distributed_performance_analyzer))
 
     children = [
       {ConfigHolder, execution_conf},
