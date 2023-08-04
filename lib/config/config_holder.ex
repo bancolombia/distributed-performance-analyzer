@@ -1,11 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   use GenServer
 
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
-    Dataset.DatasetUseCase,
-    Config.ConfigUseCase
-  }
-
   @moduledoc """
   Provides Behaviours for handle app-configs
   """
@@ -15,9 +10,8 @@ defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   end
 
   def init(conf) do
-    conf_dataset = Map.put(conf, :dataset, ConfigUseCase.load_dataset(conf))
     :ets.new(__MODULE__, [:named_table])
-    :ets.insert(__MODULE__, {:conf, conf_dataset})
+    :ets.insert(__MODULE__, {:conf, conf})
     {:ok, nil}
   end
 
