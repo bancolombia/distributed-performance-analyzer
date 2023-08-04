@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
-  alias DistributedPerformanceAnalyzer.Utils.ConfigParser
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
 
   require Logger
@@ -16,13 +16,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
       scheme: scheme,
       port: port,
       query: query
-    } = ConfigParser.parse(url)
+    } = DataTypeUtils.parse(url)
 
     connection_conf = {scheme, host, port}
 
     {:ok, request} =
       application_envs[:request]
-      |> Map.put(:path, ConfigParser.path(path, query))
+      |> Map.put(:path, DataTypeUtils.path(path, query))
       |> Map.put(:url, url)
       |> Request.new()
 
