@@ -1,4 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
+  alias DistributedPerformanceAnalyzer.Application
   alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
 
@@ -38,4 +39,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
        execution_conf: execution_conf
      }}
   end
+
+  def load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
+    with {:ok, dataset} <- DatasetUseCase.parse(path, separator) do
+      dataset
+    else
+      err -> Application.stop(err)
+    end
+  end
+
+  def load_dataset(%{dataset: dataset}), do: dataset
 end
