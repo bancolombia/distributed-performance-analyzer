@@ -8,6 +8,6 @@ files=$(git diff --diff-filter=d --name-only --cached -- '*.ex' '*.exs')
 
 if [ -n "$files" ]; then
   printMessage "Formatting files: \n\n$files\n"
-  mix format "$files"
-  git add "$files"
+  mix format $files
+  git add $files
 fi
