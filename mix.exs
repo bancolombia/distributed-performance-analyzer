@@ -49,7 +49,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:sobelow, "~> 0.11", only: :dev},
+      {:sobelow, "~> 0.13", only: :dev},
       {:credo_sonarqube, "~> 0.1"},
       {:finch, "~> 0.13"},
       {:opentelemetry_plug,
@@ -65,13 +65,13 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:plug_checkup, "~> 0.6"},
       {:poison, "~> 5.0"},
       {:cors_plug, "~> 3.0"},
-      {:excoveralls, "~> 0.16", only: :test},
+      {:excoveralls, "~> 0.17", only: :test},
       {:ex_unit_sonarqube, "~> 0.1", only: :test},
       {:constructor, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
-      {:tesla, "~> 1.7.0"},
+      {:tesla, "~> 1.7"},
       {:git_hooks, "~> 0.7", only: [:dev], runtime: false}
     ]
   end
