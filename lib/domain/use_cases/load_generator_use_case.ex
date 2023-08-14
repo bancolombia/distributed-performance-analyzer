@@ -16,7 +16,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
 
   ## TODO Add functions to business logic app
   def start(
-        %LoadProcess{request: request, step_name: step_name, end_time: end_time},
+        %LoadProcess{requests: requests, step_name: step_name, end_time: end_time, mode: mode},
         dataset,
         concurrency
       ) do
@@ -24,7 +24,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
       conn = ConnectionPoolUseCase.get_connection()
 
       try do
-        results = generate_load(request, dataset, [], end_time, conn, concurrency)
+        results = generate_load(requests, dataset, [], end_time, conn, concurrency, mode)
         MetricsCollectorUseCase.send_metrics(results, step_name, concurrency)
       after
         ConnectionPoolUseCase.return_connection(conn)
@@ -32,13 +32,54 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
     end)
   end
 
-  defp generate_load(conf, dataset, results, end_time, conn, concurrency) do
+  defp generate_load(requests, dataset, results, end_time, conn, concurrency, :sequential) do
+    result =
+      requests
+      |> Enum.map(fn x ->
+        item = DatasetUseCase.get_random_item(dataset)
+        request(x, item, conn, concurrency)
+      end)
+
+    if actual_time() < end_time do
+      results = result ++ results
+      generate_load(requests, dataset, results, end_time, conn, concurrency, :sequential)
+    else
+      results
+    end
+  end
+
+  defp generate_load(requests, dataset, results, end_time, conn, concurrency, :parallel) do
+    result =
+      requests
+      |> Task.async_stream(
+        fn request ->
+          new_conn = ConnectionPoolUseCase.get_connection()
+          item = DatasetUseCase.get_random_item(dataset)
+          data = request(request, item, new_conn, concurrency)
+          ConnectionPoolUseCase.return_connection(new_conn)
+          data
+        end,
+        max_concurrency: length(requests)
+      )
+      |> Enum.map(fn {:ok, result} -> result end)
+      |> Enum.to_list()
+
+    if actual_time() < end_time do
+      results = result ++ results
+      generate_load(requests, dataset, results, end_time, conn, concurrency, :parallel)
+    else
+      results
+    end
+  end
+
+  defp generate_load(requests, dataset, results, end_time, conn, concurrency, :normal) do
     item = DatasetUseCase.get_random_item(dataset)
-    result = request(conf, item, conn, concurrency)
+    request = Enum.random(requests)
+    result = request(request, item, conn, concurrency)
 
     if actual_time() < end_time do
       results = [result | results]
-      generate_load(conf, dataset, results, end_time, conn, concurrency)
+      generate_load(requests, dataset, results, end_time, conn, concurrency, :normal)
     else
       results
     end

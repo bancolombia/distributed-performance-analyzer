@@ -12,23 +12,23 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
     %{
       host: host,
-      path: path,
       scheme: scheme,
-      port: port,
-      query: query
+      port: port
     } = ConfigParser.parse(url)
 
     connection_conf = {scheme, host, port}
 
-    {:ok, request} =
-      application_envs[:request]
-      |> Map.put(:path, ConfigParser.path(path, query))
-      |> Map.put(:url, url)
-      |> Request.new()
+    requests = ConfigParser.parse_requests(application_envs[:requests], url)
+    request = ConfigParser.parse_requests(application_envs[:request], url)
+
+    requests =
+      (request ++ requests)
+      |> Enum.map(&Request.new/1)
+      |> Enum.map(fn {:ok, result} -> result end)
 
     {:ok, execution_conf} =
       application_envs[:execution]
-      |> Map.put(:request, request)
+      |> Map.put(:requests, requests)
       |> ExecutionModel.new()
 
     {:ok,
