@@ -4,12 +4,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
   @moduledoc """
   TODO Steps orchestration
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, Step}
+  alias DistributedPerformanceAnalyzer.Domain.Model.{Step}
 
   constructor do
-    field(:request, Request.t(), constructor: &Request.new/1, enforce: true)
+    field(:requests, :lists, constructor: &is_list/1, enforce: true)
     field(:step_name, :string, constructor: &is_string/1, enforce: true)
     field(:end_time, :integer, constructor: &is_integer/1, enforce: true)
+    field(:mode, :atomics, constructor: &is_atom/1, default: :normal, enforce: false)
   end
 
   @impl Constructor
@@ -17,8 +18,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
       when is_map(input) do
     {:ok,
      %{
-       request: execution_model.request,
+       requests: execution_model.requests,
        step_name: name,
+       mode: execution_model.mode,
        end_time: :erlang.system_time(:milli_seconds) + execution_model.duration
      }}
   end

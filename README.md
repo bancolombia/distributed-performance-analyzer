@@ -41,7 +41,7 @@ Open and edit config/performance.exs file to configure.
 ```elixir
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://httpbin.org/get",
   request: %{
     method: "GET",
@@ -73,6 +73,7 @@ config :logger,
 |---------------|----------------------------------------------------------------------------------------------------------------------------|
 | url           | The url of the application you want to test. Make sure you have a network connection between two machines                  |
 | request       | Here you need to configure the HTTP verb, headers and the body of the request.                                             |
+| requests      | This option is an array of request structures, and it combines with the modes, which are parallel and sequential. In case you leave it as default ":normal", it randomly selects a request from the array.                                             |
 | steps         | The number of executions for the test. Each step adds the concurrency configured in the increment                          |
 | increment     | Increment in concurrency after each step                                                                                   |
 | duration      | Duration in milliseconds of each step                                                                                      |
@@ -81,6 +82,7 @@ config :logger,
 | separator     | Dataset separator (, ; :)                                                                                                  |
 | distributed   | Indicates if it should be run from a single node or in a distributed way                                                   |
 | jmeter report | Generates jmeter csv style report?                                                                                         |
+| mode | This option is not required as mandatory. By default, it is :normal. There are two more atoms, namely :sequential and :parallel.                                                                                       |
 
 In the example above will be executed a test of 5 steps with an increment of 50:
 

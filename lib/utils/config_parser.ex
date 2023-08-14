@@ -28,4 +28,30 @@ defmodule DistributedPerformanceAnalyzer.Utils.ConfigParser do
 
   defp default_port("http"), do: 80
   defp default_port("https"), do: 443
+
+  def parse_requests(data, url_base) do
+    case data do
+      [request | rest] when is_map(request) ->
+        [parse_request(request, url_base) | parse_requests(rest, url_base)]
+
+      request when is_map(request) ->
+        [parse_request(request, url_base)]
+
+      _ ->
+        []
+    end
+  end
+
+  defp parse_request(request, url_base) do
+    url = if Map.has_key?(request, :url), do: request.url, else: url_base
+
+    %{
+      path: path,
+      query: query
+    } = parse(url)
+
+    request
+    |> Map.put(:path, path(path, query))
+    |> Map.put(:url, url)
+  end
 end

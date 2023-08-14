@@ -50,7 +50,17 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
         },
         concurrency
       ) do
-    ConnectionPoolUseCase.ensure_capacity(concurrency)
+    mode = execution_model.mode
+    requests = execution_model.requests
+    IO.puts("Starting step #{name} with #{mode} mode")
+
+    capacity =
+      if mode == :parallel,
+        do: concurrency * length(requests),
+        else: concurrency
+
+    ConnectionPoolUseCase.ensure_capacity(capacity)
+
     {:ok, launch_config} = LoadProcess.new(step_model)
 
     loads =
