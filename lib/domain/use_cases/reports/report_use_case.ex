@@ -30,7 +30,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
         Task.async(fn -> generate_csv_report(result) end)
       ]
 
-      Task.await_many(tasks)
+      Task.await_many(tasks, :infinity)
     else
       generate_csv_report(result)
     end
