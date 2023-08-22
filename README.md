@@ -41,7 +41,7 @@ Open and edit config/performance.exs file to configure.
 ```elixir
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://httpbin.org/get",
   request: %{
     method: "GET",
