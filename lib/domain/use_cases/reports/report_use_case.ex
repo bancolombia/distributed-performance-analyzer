@@ -49,20 +49,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
      )}
   end
 
-  def resume_total_data(total_data) do
-    total_success_count = Enum.at(total_data, 0)
-    steps_count = Enum.at(total_data, 1)
-    total_duration = Enum.at(total_data, 2)
-
+  def resume_total_data([steps_count, total_success_count, total_duration]) do
     ~s(Total success count: #{total_success_count}\nTotal steps: #{steps_count}\nTotal duration: #{total_duration} seconds)
     |> IO.puts()
   end
 
-  def log_step_result(result_step) do
-    concurrency = Enum.at(result_step, 0)
-    partial = Enum.at(result_step, 1)
-    mean_latency = Enum.at(result_step, 2)
-
+  def log_step_result([concurrency, partial, mean_latency]) do
     IO.puts(
       "#{concurrency}, #{partial.success_count}, #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
     )
