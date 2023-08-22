@@ -33,7 +33,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   end
 
   defp generate_load(conf, dataset, results, end_time, conn, concurrency) do
-    item = DatasetUseCase.get_random_item(dataset)
+    item = DatasetUseCase.get_random_item()
     result = request(conf, item, conn, concurrency)
 
     if actual_time() < end_time do

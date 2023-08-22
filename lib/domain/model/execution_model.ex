@@ -22,7 +22,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel do
     case dataset do
       :none -> {:ok, input}
       value when is_binary(value) -> {:ok, input}
-      value when is_list(value) -> {:ok, input}
       _ -> {:error, {:constructor, %{dataset: "Invalid dataset format!"}}}
     end
   end

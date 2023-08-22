@@ -14,6 +14,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   }
 
   use GenServer
+  require Logger
 
   @spec send_metrics(List.t(), String.t(), integer()) :: {:ok, atom()} | {:error, atom()}
   def send_metrics(results, step, concurrency) do
@@ -34,6 +35,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   end
 
   def start_link(_) do
+    Logger.debug("Starting metrics collector server...")
     GenServer.start_link(__MODULE__, nil, name: {:global, __MODULE__})
   end
 

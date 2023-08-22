@@ -16,8 +16,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.Pars
   end
 
   defp print_file_info(path) do
-    Logger.info("Reading Dataset: #{path}")
     %{size: size} = FileSystem.get_file_stat(path)
-    Logger.info("File Size: #{size}B\n")
+    Logger.info("File size: #{size}B\n")
   end
 end

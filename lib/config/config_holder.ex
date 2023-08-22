@@ -1,11 +1,13 @@
 defmodule DistributedPerformanceAnalyzer.Config.ConfigHolder do
   use GenServer
+  require Logger
 
   @moduledoc """
   Provides Behaviours for handle app-configs
   """
 
   def start_link(conf) do
+    Logger.debug("Starting config server...")
     GenServer.start_link(__MODULE__, conf, name: __MODULE__)
   end
 

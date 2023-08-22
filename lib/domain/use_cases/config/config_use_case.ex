@@ -1,8 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
-  alias DistributedPerformanceAnalyzer.Application
   alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
   require Logger
 
@@ -24,7 +22,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
     } = DataTypeUtils.parse(url)
 
     connection_conf = {scheme, host, port}
-    dataset = load_dataset(execution)
 
     {:ok, request_conf} =
       request
@@ -35,7 +32,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
     {:ok, execution_conf} =
       execution
       |> Map.put(:request, request_conf)
-      |> Map.put(:dataset, dataset)
       |> ExecutionModel.new()
 
     {:ok,
@@ -45,14 +41,4 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
        execution_conf: execution_conf
      }}
   end
-
-  defp load_dataset(%{dataset: path, separator: separator}) when is_binary(path) do
-    with {:ok, dataset} <- DatasetUseCase.parse(path, separator) do
-      dataset
-    else
-      err -> Application.stop(err)
-    end
-  end
-
-  defp load_dataset(%{dataset: dataset}), do: dataset
 end
