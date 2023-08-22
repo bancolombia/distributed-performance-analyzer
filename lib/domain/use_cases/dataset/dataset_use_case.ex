@@ -2,26 +2,55 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
   @moduledoc """
   Use case for handle dataset
   """
+
+  alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
+
+  use GenServer
+  require Logger
+
   @dataset_parser Application.compile_env(
                     :distributed_performance_analyzer,
                     :dataset_parser
                   )
-
   @valid_extensions ["csv"]
 
-  def parse(path, separator) do
-    with {:ok, _path} <- file_exists?(path),
-         {:ok, _path} <- has_valid_extension?(path) do
-      parse_file(path, separator)
+  def start_link(execution_config) do
+    Logger.debug("Starting dataset server...")
+    GenServer.start_link(__MODULE__, execution_config, name: __MODULE__)
+  end
+
+  @impl true
+  def init(%ExecutionModel{dataset: dataset_path, separator: separator}) do
+    :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+
+    if is_binary(dataset_path) do
+      with {:ok, dataset} <- parse_file(dataset_path, separator) do
+        dataset
+        |> Enum.with_index(1)
+        |> Enum.each(fn {value, index} -> :ets.insert(__MODULE__, {index, value}) end)
+
+        :ets.insert(__MODULE__, {:length, length(dataset)})
+
+        {:ok, %{index: 0}}
+      else
+        {:error, message} ->
+          Logger.error(message)
+          {:stop, :dataset_error}
+      end
     else
-      err -> err
+      :ets.insert(__MODULE__, {:length, -1})
+      {:ok, nil}
     end
   end
 
-  defp parse_file(path, separator) do
-    cond do
-      String.ends_with?(path, Enum.at(@valid_extensions, 0)) ->
-        @dataset_parser.parse_csv(path, separator)
+  defp parse_file(path, separator) when is_binary(path) do
+    Logger.info("Reading dataset file: #{path}")
+
+    with {:ok, _path} <- file_exists?(path),
+         {:ok, _path} <- has_valid_extension?(path) do
+      @dataset_parser.parse_csv(path, separator)
+    else
+      err -> err
     end
   end
 
@@ -39,14 +68,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     end
   end
 
-  def get_random_item([]), do: nil
+  #  TODO: Add sequential item request from dataset
 
-  def get_random_item(list) when is_list(list) do
-    # TODO: Improve random to static list
-    Enum.at(list, Enum.random(0..(length(list) - 1)))
+  def get_random_item() do
+    [length: length] = :ets.lookup(__MODULE__, :length)
+
+    if length > 0 do
+      random = Enum.random(1..length)
+      [{^random, value}] = :ets.lookup(__MODULE__, random)
+      value
+    else
+      nil
+    end
   end
-
-  def get_random_item(_opt), do: nil
 
   def replace_value(values, item) when is_list(values) do
     Enum.map(values, fn {key, value} -> {key, replace_value(value, item)} end)

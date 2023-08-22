@@ -7,7 +7,8 @@ defmodule DistributedPerformanceAnalyzer.Application do
     ExecutionUseCase,
     MetricsCollectorUseCase,
     MetricsAnalyzerUseCase,
-    Config.ConfigUseCase
+    Config.ConfigUseCase,
+    Dataset.DatasetUseCase
   }
 
   use Application
@@ -80,6 +81,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     children = [
       {ConfigHolder, execution_conf},
+      {DatasetUseCase, execution_conf},
       {ConnectionPoolUseCase, connection_conf},
       {DynamicSupervisor,
        name: DPA.ConnectionSupervisor,

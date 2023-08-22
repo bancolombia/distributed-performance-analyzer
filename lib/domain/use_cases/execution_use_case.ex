@@ -6,10 +6,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{LoadStepUseCase, MetricsAnalyzerUseCase}
   alias DistributedPerformanceAnalyzer.Config.ConfigHolder
   use GenServer
+  require Logger
 
   defstruct [:request, :steps, :increment, :duration]
 
   def start_link(_) do
+    Logger.debug("Starting executor server...")
     GenServer.start_link(__MODULE__, %{actual_step: -1, steps: 0}, name: __MODULE__)
   end
 

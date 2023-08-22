@@ -3,6 +3,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   Metrics Analyzer use case
   """
   use GenServer
+  require Logger
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
@@ -17,6 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   end
 
   def start_link(conf) do
+    Logger.debug("Starting metrics analyzer server...")
     GenServer.start_link(__MODULE__, conf, name: __MODULE__)
   end
 

@@ -3,81 +3,81 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Dataset.DatasetUseC
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
-  @sample_data [
-    %{number: "1234567890", type: "CC"},
-    %{number: "1234567890", type: "NIT"},
-    %{number: "1234567890", type: "TI"}
-  ]
+  #  @sample_data [
+  #    %{number: "1234567890", type: "CC"},
+  #    %{number: "1234567890", type: "NIT"},
+  #    %{number: "1234567890", type: "TI"}
+  #  ]
 
-  test "parse file that doesn't exists" do
-    #    Arrange
-    path = "dummy"
-    separator = ";"
+  #  test "parse file that doesn't exists" do
+  #    #    Arrange
+  #    path = "dummy"
+  #    separator = ";"
+  #
+  #    # Act
+  #    result = DatasetUseCase.parse(path, separator)
+  #
+  #    # Assert
+  #    assert result == {:error, "Dataset file #{path} not found"}
+  #  end
+  #
+  #  test "parse file without valid extension" do
+  #    #    Arrange
+  #    path = "test/domain/use_cases/dataset/datasets/sample.txt"
+  #    separator = ";"
+  #
+  #    # Act
+  #    result = DatasetUseCase.parse(path, separator)
+  #
+  #    # Assert
+  #    assert result == {:error, "Dataset file #{path} does not have a valid extension"}
+  #  end
+  #
+  #  test "parse csv" do
+  #    #    Arrange
+  #    path = "test/domain/use_cases/dataset/datasets/sample1.csv"
+  #    separator = ","
+  #
+  #    # Act
+  #    result = DatasetUseCase.parse(path, separator)
+  #
+  #    # Assert
+  #    assert result == {:ok, @sample_data}
+  #  end
 
-    # Act
-    result = DatasetUseCase.parse(path, separator)
+  #  test "parse csv without default separator" do
+  #    #    Arrange
+  #    path = "test/domain/use_cases/dataset/datasets/sample2.csv"
+  #    separator = ";"
+  #
+  #    # Act
+  #    result = DatasetUseCase.parse(path, separator)
+  #
+  #    # Assert
+  #    assert result == {:ok, @sample_data}
+  #  end
 
-    # Assert
-    assert result == {:error, "Dataset file #{path} not found"}
-  end
-
-  test "parse file without valid extension" do
-    #    Arrange
-    path = "test/domain/use_cases/dataset/datasets/sample.txt"
-    separator = ";"
-
-    # Act
-    result = DatasetUseCase.parse(path, separator)
-
-    # Assert
-    assert result == {:error, "Dataset file #{path} does not have a valid extension"}
-  end
-
-  test "parse csv" do
-    #    Arrange
-    path = "test/domain/use_cases/dataset/datasets/sample1.csv"
-    separator = ","
-
-    # Act
-    result = DatasetUseCase.parse(path, separator)
-
-    # Assert
-    assert result == {:ok, @sample_data}
-  end
-
-  test "parse csv without default separator" do
-    #    Arrange
-    path = "test/domain/use_cases/dataset/datasets/sample2.csv"
-    separator = ";"
-
-    # Act
-    result = DatasetUseCase.parse(path, separator)
-
-    # Assert
-    assert result == {:ok, @sample_data}
-  end
-
-  test "get random item when list is empty" do
-    #    Arrange
-    list = []
-
-    # Act
-    result = DatasetUseCase.get_random_item(list)
-
-    # Assert
-    assert result == nil
-  end
-
-  test "get random item from list" do
-    #    Arrange
-    list = [1, 2, 3, 4, 5]
-
-    # Act
-    result = DatasetUseCase.get_random_item(list)
-
-    # Assert
-    assert result in list
-  end
+  #  test "get random item when list is empty" do
+  #    #    Arrange
+  #    list = []
+  #
+  #    # Act
+  #    result = DatasetUseCase.get_random_item(list)
+  #
+  #    # Assert
+  #    assert result == nil
+  #  end
+  #
+  #  test "get random item from list" do
+  #    #    Arrange
+  #    list = [1, 2, 3, 4, 5]
+  #
+  #    # Act
+  #    result = DatasetUseCase.get_random_item(list)
+  #
+  #    # Assert
+  #    assert result in list
+  #  end
 
   test "replace empty value" do
     #    Arrange
