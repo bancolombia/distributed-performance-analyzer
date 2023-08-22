@@ -3,11 +3,11 @@ defmodule DistributedPerformanceAnalyzer.Test.Domain.UseCase.Dataset.DatasetUseC
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
-  @sample_data [
-    %{number: "1234567890", type: "CC"},
-    %{number: "1234567890", type: "NIT"},
-    %{number: "1234567890", type: "TI"}
-  ]
+  #  @sample_data [
+  #    %{number: "1234567890", type: "CC"},
+  #    %{number: "1234567890", type: "NIT"},
+  #    %{number: "1234567890", type: "TI"}
+  #  ]
 
   #  test "parse file that doesn't exists" do
   #    #    Arrange

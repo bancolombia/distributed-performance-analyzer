@@ -26,15 +26,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     if is_binary(dataset_path) do
       with {:ok, dataset} <- parse_file(dataset_path, separator) do
         dataset
-        |> Enum.with_index()
+        |> Enum.with_index(1)
         |> Enum.each(fn {value, index} -> :ets.insert(__MODULE__, {index, value}) end)
 
         :ets.insert(__MODULE__, {:length, length(dataset)})
 
         {:ok, %{index: 0}}
       else
-        err ->
-          Logger.error(err)
+        {:error, message} ->
+          Logger.error(message)
           {:stop, :dataset_error}
       end
     else
@@ -74,7 +74,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     [length: length] = :ets.lookup(__MODULE__, :length)
 
     if length > 0 do
-      random = Enum.random(0..(length - 1))
+      random = Enum.random(1..length)
       [{^random, value}] = :ets.lookup(__MODULE__, random)
       value
     else
