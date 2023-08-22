@@ -2,10 +2,12 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.OutputCsv do
   @moduledoc """
   Print outgoing report file in csv format
   """
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
+  require Logger
 
-  @spec save_csv(any(), String.t(), String.t(), boolean(), any()) :: {:ok}
-  def save_csv(data, file, header, print, fun) do
-    {:ok, file} = File.open(file, [:write])
+  @spec save_csv(any(), String.t(), String.t(), boolean()) :: {:ok}
+  def save_csv(data, file_name, header, print) do
+    {:ok, file} = File.open(file_name, [:write])
 
     if print do
       IO.puts("####CSV#######")
@@ -14,16 +16,15 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.OutputCsv do
 
     IO.binwrite(file, header <> "\n")
 
-    Enum.each(
-      data,
-      fn item ->
-        row = fun.(item)
-        IO.binwrite(file, row <> "\n")
-
-        if print do
-          IO.puts(row)
-        end
+    data
+    |> Stream.map(fn row ->
+      if print do
+        IO.puts(row)
       end
-    )
+
+      row <> "\n"
+    end)
+    |> Stream.into(File.stream!(file_name))
+    |> Stream.run()
   end
 end
