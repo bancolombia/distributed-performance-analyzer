@@ -68,12 +68,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     end
   end
 
+  #  TODO: Add sequential item request from dataset
+
   def get_random_item() do
     [length: length] = :ets.lookup(__MODULE__, :length)
 
     if length > 0 do
       random = Enum.random(0..(length - 1))
-      [{random, value}] = :ets.lookup(__MODULE__, random)
+      [{^random, value}] = :ets.lookup(__MODULE__, random)
       value
     else
       nil

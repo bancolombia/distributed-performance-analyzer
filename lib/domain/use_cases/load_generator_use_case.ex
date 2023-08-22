@@ -17,14 +17,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
   ## TODO Add functions to business logic app
   def start(
         %LoadProcess{request: request, step_name: step_name, end_time: end_time},
-        dataset,
+        _dataset,
         concurrency
       ) do
     Task.start(fn ->
       conn = ConnectionPoolUseCase.get_connection()
 
       try do
-        results = generate_load(request, dataset, [], end_time, conn, concurrency)
+        results = generate_load(request, [], end_time, conn, concurrency)
         MetricsCollectorUseCase.send_metrics(results, step_name, concurrency)
       after
         ConnectionPoolUseCase.return_connection(conn)
@@ -32,13 +32,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
     end)
   end
 
-  defp generate_load(conf, dataset, results, end_time, conn, concurrency) do
+  defp generate_load(conf, results, end_time, conn, concurrency) do
     item = DatasetUseCase.get_random_item()
     result = request(conf, item, conn, concurrency)
 
     if actual_time() < end_time do
       results = [result | results]
-      generate_load(conf, dataset, results, end_time, conn, concurrency)
+      generate_load(conf, results, end_time, conn, concurrency)
     else
       results
     end
