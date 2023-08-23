@@ -1,14 +1,17 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
-  alias DistributedPerformanceAnalyzer.Utils.ConfigParser
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
   alias DistributedPerformanceAnalyzer.Domain.Model.{Request, ExecutionModel}
 
   require Logger
 
   def parse_config_file(application_envs) do
-    Logger.info("JMeter Report enabled: #{application_envs[:jmeter_report]}")
-
     url = application_envs[:url]
     distributed = application_envs[:distributed]
+    execution = application_envs[:execution]
+    request = application_envs[:request]
+    jmeter_report = application_envs[:jmeter_report]
+
+    Logger.info("JMeter Report enabled: #{jmeter_report}")
 
     %{
       host: host,
@@ -16,19 +19,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
       scheme: scheme,
       port: port,
       query: query
-    } = ConfigParser.parse(url)
+    } = DataTypeUtils.parse(url)
 
     connection_conf = {scheme, host, port}
 
-    {:ok, request} =
-      application_envs[:request]
-      |> Map.put(:path, ConfigParser.path(path, query))
+    {:ok, request_conf} =
+      request
+      |> Map.put(:path, DataTypeUtils.path(path, query))
       |> Map.put(:url, url)
       |> Request.new()
 
     {:ok, execution_conf} =
-      application_envs[:execution]
-      |> Map.put(:request, request)
+      execution
+      |> Map.put(:request, request_conf)
       |> ExecutionModel.new()
 
     {:ok,

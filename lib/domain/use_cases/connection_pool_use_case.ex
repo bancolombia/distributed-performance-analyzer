@@ -9,6 +9,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   require Logger
 
   def start_link({scheme, host, port}) do
+    Logger.debug("Starting connection pool server...")
     GenServer.start_link(__MODULE__, {scheme, host, port}, name: __MODULE__)
   end
 

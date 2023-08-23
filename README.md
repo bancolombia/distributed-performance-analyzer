@@ -41,7 +41,7 @@ Open and edit config/performance.exs file to configure.
 ```elixir
 import Config
 
-config :perf_analyzer,
+config :distributed_performance_analyzer,
   url: "http://httpbin.org/get",
   request: %{
     method: "GET",
@@ -98,7 +98,7 @@ Docker:
 https://hub.docker.com/r/bancolombia/distributed-performance-analyzer
 
 ```shell
-docker run --rm -v <project_path>/config:/app/config -v <project_path>/dataset:/app/datasets bancolombia/distributed-performance-analyzer:latest
+docker run --rm -v <project_path>/config:/home/dpa/config -v <project_path>/dataset:/home/dpa/datasets bancolombia/distributed-performance-analyzer:latest
 ```
 
 In the shell:
