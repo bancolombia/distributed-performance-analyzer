@@ -38,7 +38,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
       Enum.map(
         steps,
         fn step ->
-          # partial = IO.inspect(Map.get(metrics, step))
           step_num =
             String.split(step, "-")
             |> Enum.at(1)

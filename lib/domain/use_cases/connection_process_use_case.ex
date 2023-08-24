@@ -63,7 +63,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
         concurrency: concurrency
       )
 
-    # IO.puts "Making Request!"
     start = :erlang.monotonic_time(:millisecond)
 
     case Mint.HTTP.request(state.conn, method, path, headers, body) do
@@ -119,8 +118,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @impl true
   def handle_info(message, state) do
-    Logger.debug(inspect(message))
-
     case Mint.HTTP.stream(state.conn, message) do
       :unknown ->
         Logger.warning(fn -> "Received unknown message: " <> inspect(message) end)
@@ -130,13 +127,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
         {:noreply, put_in(state.conn, conn)}
 
       {:ok, conn, responses} ->
+        Logger.debug(responses)
         state = put_in(state.conn, conn)
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
       {:error, _conn, reason, _responses} ->
-        # IO.puts("########ERROR########")
-        # IO.inspect(reason)
+        #        Logger.error(reason)
         case state.request do
           %{from: from, ref: _request_ref} -> GenServer.reply(from, {:protocol_error, reason})
           _ -> nil
@@ -199,7 +196,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
          state = %ConnectionProcess{request: %{from: from, init: _init}}
        ) do
     GenServer.reply(from, {:protocol_error, reason})
-    # IO.puts("Request error")
     Logger.error(reason)
     %{state | request: %{}}
   end
