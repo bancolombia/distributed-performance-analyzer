@@ -61,9 +61,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     |> IO.puts()
   end
 
-  def log_step_result([concurrency, partial, mean_latency]) do
+  def log_step_result({partial, mean_latency, tps, errors}) do
     IO.puts(
-      "#{concurrency}, #{partial.success_count}, #{round(mean_latency)}ms, #{partial.p90}ms, #{partial.fail_http_count}, #{partial.protocol_error_count}, #{partial.error_conn_count}, #{partial.nil_conn_count}"
+      "Users: #{partial.concurrency} | tps: #{tps} | latency: #{round(mean_latency)}ms | p90: #{partial.p90}ms | 2xx: #{partial.success_count} | 4xx: #{partial.bad_request_count} | 5xx: #{partial.server_error_count} | errors: #{errors} | total: #{partial.total_count}"
     )
   end
 

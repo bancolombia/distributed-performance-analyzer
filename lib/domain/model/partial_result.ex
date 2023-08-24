@@ -6,9 +6,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.PartialResult do
   """
   constructor do
     field(:success_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:redirect_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:bad_request_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:server_error_count, :integer, constructor: &is_integer/1, default: 0)
+    field(:fail_http_count, :integer, constructor: &is_integer/1, default: 0)
     field(:http_count, :integer, constructor: &is_integer/1, default: 0)
     field(:total_count, :integer, constructor: &is_integer/1, default: 0)
-    field(:fail_http_count, :integer, constructor: &is_integer/1, default: 0)
     field(:protocol_error_count, :integer, constructor: &is_integer/1, default: 0)
     field(:invocation_error_count, :integer, constructor: &is_integer/1, default: 0)
     field(:error_conn_count, :integer, constructor: &is_integer/1, default: 0)
