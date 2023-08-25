@@ -200,8 +200,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
     %{state | request: %{}}
   end
 
-  defp status_for(status) when status >= 200 and status < 400, do: :ok
-  defp status_for(status), do: {:fail_http, status}
+  defp status_for(status) when status >= 200 and status < 300, do: :ok
+  defp status_for(status) when status >= 300 and status < 400, do: :redirect
+  defp status_for(status) when status >= 400 and status < 500, do: :bad_request
+  defp status_for(status) when status >= 500, do: :server_error
+  defp status_for(_status), do: :fail_http
 
   defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, path, method) do
     "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"

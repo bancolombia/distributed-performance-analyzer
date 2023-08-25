@@ -93,7 +93,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     master_children = [
       {MetricsAnalyzerUseCase, execution_conf},
-      MetricsCollectorUseCase,
+      {MetricsCollectorUseCase, execution_conf},
       ExecutionUseCase
     ]
 

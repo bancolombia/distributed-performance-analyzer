@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="docker run" type="ShConfigurationType" folderName="Docker">
-    <option name="SCRIPT_TEXT" value="docker run --rm --network host -v &quot;$(pwd)&quot;/config:/app/config dpa" />
+    <option name="SCRIPT_TEXT" value="docker run --rm --network host -v &quot;$(pwd)&quot;/config:/home/dpa/config -v &quot;$(pwd)&quot;/datasets:/home/dpa/datasets dpa" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/scripts/run-docker.sh" />
     <option name="SCRIPT_OPTIONS" value="" />

@@ -5,6 +5,10 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
   Provides functions for normalize data
   """
 
+  def round_number(number), do: trunc(number)
+  def round_number(float, precision) when is_float(float), do: Float.round(float, precision)
+  def round_number(number, _precision), do: number
+
   def normalize(%{__struct__: _} = value), do: value
 
   def normalize(%{} = map) do
