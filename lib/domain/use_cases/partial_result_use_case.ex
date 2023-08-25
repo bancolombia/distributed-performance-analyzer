@@ -3,6 +3,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
   TODO Partial Result use case
   """
   alias DistributedPerformanceAnalyzer.Domain.Model.PartialResult
+  alias DistributedPerformanceAnalyzer.Utils.{Statistics, DataTypeUtils}
 
   @spec combine(PartialResult.t(), PartialResult.t()) ::
           {:ok, PartialResult.t()} | {:error, atom()}
@@ -30,6 +31,51 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
       )
 
     partial
+  end
+
+  def consolidate(%PartialResult{success_count: success_count, times: times} = partial, duration) do
+    p90 = (Statistics.percentile(times, 90) || 0) |> DataTypeUtils.round_number()
+    p95 = (Statistics.percentile(times, 95) || 0) |> DataTypeUtils.round_number()
+    p99 = (Statistics.percentile(times, 99) || 0) |> DataTypeUtils.round_number()
+    min = (Statistics.min(times) || 0) |> DataTypeUtils.round_number()
+    max = (Statistics.max(times) || 0) |> DataTypeUtils.round_number()
+    avg = (Statistics.mean(times) || 0) |> DataTypeUtils.round_number()
+    throughput = Statistics.throughput(success_count, duration) |> DataTypeUtils.round_number()
+
+    %{
+      partial
+      | p90: p90,
+        p95: p95,
+        p99: p99,
+        min: min,
+        max: max,
+        avg: avg,
+        tps: throughput,
+        times: []
+    }
+  end
+
+  def print_status(
+        %PartialResult{
+          concurrency: concurrency,
+          tps: throughput,
+          min: min,
+          avg: avg,
+          max: max,
+          p90: p90,
+          success_count: status_200,
+          bad_request_count: status_400,
+          server_error_count: status_500,
+          total_count: total
+        } = partial
+      ) do
+    errors =
+      partial.fail_http_count + partial.protocol_error_count + partial.invocation_error_count +
+        partial.error_conn_count + partial.error_conn_count
+
+    IO.puts(
+      "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} - errors: #{errors} - total: #{total}"
+    )
   end
 
   def calculate(result_list, opts) do
@@ -61,7 +107,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
         :server_error ->
           %{partial | server_error_count: partial.server_error_count + 1}
 
-        :fail_http ->
+        _ ->
           %{partial | fail_http_count: partial.fail_http_count + 1}
       end,
       request_result,
@@ -83,6 +129,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
 
         :protocol_error ->
           %{partial | protocol_error_count: partial.protocol_error_count + 1}
+
+        _ ->
+          %{partial | fail_http_count: partial.fail_http_count + 1}
       end
     )
   end

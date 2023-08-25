@@ -61,12 +61,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
     |> IO.puts()
   end
 
-  def log_step_result({partial, mean_latency, tps, errors}) do
-    IO.puts(
-      "Users: #{partial.concurrency} | tps: #{tps} | latency: #{round(mean_latency)}ms | p90: #{partial.p90}ms | 2xx: #{partial.success_count} | 4xx: #{partial.bad_request_count} | 5xx: #{partial.server_error_count} | errors: #{errors} | total: #{partial.total_count}"
-    )
-  end
-
   def generate_csv_report(result) do
     result
     |> Enum.map(fn {concurrency, throughput, lat_total, p90, p95, p99, max_latency,

@@ -7,12 +7,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   the result row of this step is also printed.
   """
 
+  alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
+
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
-    Reports.ReportUseCase,
     PartialResultUseCase
   }
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
   alias DistributedPerformanceAnalyzer.Utils.Statistics
 
   use GenServer
@@ -61,21 +61,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
     if partial.concurrency == concurrency do
       new_state =
         Map.update(results, step, partial, fn _acc_partial ->
-          p90 = Statistics.percentile(results[step].times, 90) || 0
-          p95 = Statistics.percentile(results[step].times, 95) || 0
-          p99 = Statistics.percentile(results[step].times, 99) || 0
-          %{results[step] | p90: p90, p95: p95, p99: p99, times: []}
+          PartialResultUseCase.consolidate(partial, step_duration)
         end)
 
       partial = new_state[step]
-      mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
-      tps = partial.success_count / step_duration
 
-      errors =
-        partial.protocol_error_count + partial.invocation_error_count + partial.error_conn_count +
-          partial.nil_conn_count
-
-      ReportUseCase.log_step_result({partial, mean_latency, tps, errors})
+      PartialResultUseCase.print_status(partial)
 
       {:reply, :ok, {step_duration, new_state}}
     else
