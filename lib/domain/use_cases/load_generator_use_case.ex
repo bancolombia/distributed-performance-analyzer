@@ -61,7 +61,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadGeneratorUseCase do
           concurrency
         )
       catch
-        _, _error -> {0, :invocation_error}
+        _, _error -> {0, {:invocation_error, "General error"}}
       end
   end
 
