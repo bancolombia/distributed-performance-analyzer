@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="compile deps" type="MixRunConfigurationType" factoryName="Elixir Mix">
+  <configuration default="false" name="deps - compile" type="MixRunConfigurationType" factoryName="Elixir Mix">
     <module name="distributed-performance-analyzer" />
     <mix>
       <argument>do</argument>
