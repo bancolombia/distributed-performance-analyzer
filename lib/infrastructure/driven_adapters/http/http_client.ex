@@ -38,7 +38,9 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     new_state = put_in(state.request[item], value)
 
     # If the value is 0, start latency measurement by setting the latency to the current time
-    if new_state.request.latency == 0, do: put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond)), else: new_state
+    if new_state.request.latency == 0,
+      do: put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond)),
+      else: new_state
   end
 
   # Connect Mint HTTP
@@ -53,7 +55,10 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         {:noreply, new_state}
 
       {:error, err} ->
-        Logger.error("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
+        Logger.error(
+          "Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}"
+        )
+
         {:noreply, state}
     end
   end
@@ -74,12 +79,10 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
-      # Check if the HTTP connection is open using Mint.HTTP.open?/1
-      if Mint.HTTP.open?(state.conn) do
-        {:noreply, state}
-      else
-        {:noreply, put_in(state.conn, nil)}
-      end
+        # Check if the HTTP connection is open using Mint.HTTP.open?/1
+        if Mint.HTTP.open?(state.conn),
+          do: {:noreply, state},
+          else: {:noreply, put_in(state.conn, nil)}
 
       # Notify the originating process with a protocol error message if valid,
       {:error, _conn, reason, _responses} ->
@@ -91,6 +94,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
           from when is_pid(from) -> GenServer.reply(from, {:protocol_error, reason})
           _ -> nil
         end
+
         {:noreply, put_in(state.conn, nil)}
     end
   end
