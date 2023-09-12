@@ -5,6 +5,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
   alias DistributedPerformanceAnalyzer.Domain.Model.PartialResult
   alias DistributedPerformanceAnalyzer.Utils.{Statistics, DataTypeUtils}
 
+  require Logger
+
   @spec combine(PartialResult.t(), PartialResult.t()) ::
           {:ok, PartialResult.t()} | {:error, atom()}
   def combine(partial0, partial1) do
@@ -31,7 +33,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
   def consolidate(
         %PartialResult{
           success_times: success_times,
-          times: times
+          times: times,
+          error_count: error_count,
+          total_count: total_count
         } =
           partial,
         duration
@@ -51,6 +55,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
       partial.redirect_count + partial.bad_request_count + partial.server_error_count +
         partial.fail_http_count
 
+    error_count =
+      if total_count > success_count + error_count,
+        do: total_count - success_count,
+        else: error_count
+
     %{
       partial
       | success_count: success_count,
@@ -61,6 +70,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
         max_latency: max |> DataTypeUtils.round_number(2),
         avg_latency: avg |> DataTypeUtils.round_number(2),
         http_error_count: http_error_count,
+        error_count: error_count,
         http_avg_latency: http_avg |> DataTypeUtils.round_number(2),
         http_max_latency: http_max |> DataTypeUtils.round_number(2),
         throughput: throughput |> DataTypeUtils.round_number(2),
