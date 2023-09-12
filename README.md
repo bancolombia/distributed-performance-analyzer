@@ -127,31 +127,32 @@ _build/prod/rel/distributed_performance_analyzer/bin/distributed_performance_ana
 
 After each step is executed you will get a table of results like the following:
 
-```shell
-####CSV#######
-concurrency, throughput, mean latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), max latency (ms), mean http latency (ms), http_errors, protocol_error, error_conn, nil_conn
-1, 9, 108, 110, 111, 117, 119, 108, 0, 0, 0, 0
-2, 18, 107, 110, 110, 111, 111, 107, 0, 0, 0, 0
-3, 28, 107, 109, 110, 111, 111, 107, 0, 0, 0, 0
-4, 36, 108, 110, 111, 111, 111, 108, 0, 0, 0, 0
-5, 45, 108, 110, 110, 111, 111, 108, 0, 0, 0, 0
+CSV format:
+
+```csv
+concurrency, throughput, min latency (ms), mean latency (ms), max latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), http_mean_latency, http_max_latency, 2xx requests, 3xx requests, 4xx requests, 5xx requests, http_errors, total_errors, total_requests
+1, 4.0, 27, 49.0, 71, 66.6, 68.8, 70.56, 49.0, 71, 2, 0, 0, 0, 0, 0, 2
+2, 116.0, 12, 17.0, 33, 22.3, 24.0, 33.0, 17.0, 33, 58, 0, 0, 0, 0, 0, 58
+3, 156.0, 12, 18.44, 28, 24.3, 25.15, 27.23, 18.44, 28, 78, 0, 0, 0, 0, 0, 78
+4, 178.0, 12, 21.39, 50, 27.2, 47.0, 49.12, 21.39, 50, 89, 0, 0, 0, 0, 0, 89
+5, 294.0, 12, 16.52, 32, 22.0, 24.4, 31.54, 16.52, 32, 147, 0, 0, 0, 0, 0, 147
+
 ```
 
 JMeter format:
 
-```shell
+```csv
 timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
-1684342000805,87,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,85,0,55
-1684342000892,19,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,19,0,4
-1684342000911,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,0
-1684342000928,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,0
-1684342000945,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
-1684342000963,16,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,16,0,0
-1684342000979,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
-1684342000997,16,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,16,0,0
-1684342001013,18,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,18,0,0
-1684342001032,19,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,19,0,0
-1684342001051,17,sample,200,OK,#PID<0.447.0>,TEXT,true,,24,2,0,0,GET -> http://localhost:8080/wait/10,17,0,1
+1694523851175,71,sample,200,OK,#PID<0.443.0>,,true,,24,0,1,1,GET -> http://localhost:8080/wait/10,70,0.0,400
+1694523851246,27,sample,200,OK,#PID<0.443.0>,,true,,24,0,1,1,GET -> http://localhost:8080/wait/10,27,0.0,2
+1694523851317,15,sample,200,OK,#PID<0.443.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,15,0.0,0
+1694523851317,15,sample,200,OK,#PID<0.444.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,15,0.0,400
+1694523851332,22,sample,200,OK,#PID<0.443.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,22,0.0,0
+1694523851332,22,sample,200,OK,#PID<0.444.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,22,0.0,0
+1694523851354,17,sample,200,OK,#PID<0.443.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,17,0.0,0
+1694523851354,17,sample,200,OK,#PID<0.444.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,17,0.0,0
+1694523851371,20,sample,200,OK,#PID<0.443.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,20,0.0,0
+1694523851371,20,sample,200,OK,#PID<0.444.0>,,true,,24,0,2,2,GET -> http://localhost:8080/wait/10,20,0.0,0
 ```
 
 Then, you can compare the attributes that are interesting for you. For example concurrency vs Throughput or Concurrency
