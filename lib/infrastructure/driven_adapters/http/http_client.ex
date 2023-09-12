@@ -33,18 +33,12 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     end)
   end
 
-  @impl true
-  def handle_info(:ping, state = %{conn: conn} = state) do
-    start = :erlang.monotonic_time(:millisecond)
+  # Latency HTTP
+  defp set_latency(state, item, value) do
+    new_state = put_in(state.request[item], value)
 
-    case Mint.HTTP.request(conn, "GET", "/", [], "") do
-      {:ok, conn, _request_ref} ->
-        conn_time = :erlang.monotonic_time(:millisecond) - start
-        {:noreply, %{state | conn: conn, conn_time: conn_time}}
-
-      {:error, conn, _reason} ->
-        {:noreply, %{state | conn: conn}}
-    end
+    # If the value is 0, start latency measurement by setting the latency to the current time
+    if new_state.request.latency == 0, do: put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond)), else: new_state
   end
 
   # Connect Mint HTTP
@@ -54,36 +48,15 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
 
     case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
       {:ok, conn} ->
-        {:noreply, %{state | conn: conn, conn_time: :erlang.monotonic_time(:millisecond) - start}}
+        conn_time = :erlang.monotonic_time(:millisecond) - start
+        new_state = %{state | conn: conn, conn_time: conn_time}
+        {:noreply, new_state}
 
       {:error, err} ->
-        Logger.warning(
-          "Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}"
-        )
-
+        Logger.error("Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}")
         {:noreply, state}
     end
   end
-
-  # Latency HTTP
-  defp set_latency(state, item, value) do
-    new_state = put_in(state.request[item], value)
-
-    if new_state.request.latency == 0 do
-      put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond))
-    else
-      new_state
-    end
-  end
-
-  @doc """
-    MINT HTTP CONNECT TEST
-    @impl true
-    def handle_info(message, state = %__MODULE__{conn: nil}) do
-      Logger.warning(fn -> "Received message with null conn: " <> inspect(message) end)
-      {:noreply, state}
-    end
-  """
 
   # Stream Mint HTTP
   @impl true
@@ -101,27 +74,26 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         state = Enum.reduce(responses, state, process_response_fn(state))
         {:noreply, state}
 
+      # Check if the HTTP connection is open using Mint.HTTP.open?/1
+      if Mint.HTTP.open?(state.conn) do
+        {:noreply, state}
+      else
+        {:noreply, put_in(state.conn, nil)}
+      end
+
+      # Notify the originating process with a protocol error message if valid,
       {:error, _conn, reason, _responses} ->
-        # IO.puts("########ERROR########")
-        # IO.inspect(reason)
-        case state.request do
-          %{from: from, ref: _request_ref} -> GenServer.reply(from, {:protocol_error, reason})
+        Logger.error(
+          "Encountered error when streaming responses, reason: " <> Exception.message(reason)
+        )
+
+        case Map.get(state.request, :from) do
+          from when is_pid(from) -> GenServer.reply(from, {:protocol_error, reason})
           _ -> nil
         end
-
         {:noreply, put_in(state.conn, nil)}
     end
   end
-
-  @doc """
-    MINT HTTP REQUEST TEST
-      @impl true
-      def handle_call({:request, _, _, _, _}, _, state = %__MODULE__{conn: nil}) do
-        send(self(), :late_init)
-        Process.sleep(200)
-        {:reply, {:nil_conn, "Invalid connection state: nil"}, state}
-      end
-  """
 
   # Request Mint HTTP
   @impl true
