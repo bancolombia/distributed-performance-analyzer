@@ -80,11 +80,9 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
         {:noreply, state}
 
         # Check if the HTTP connection is open using Mint.HTTP.open?/1
-        if Mint.HTTP.open?(state.conn) do
-          {:noreply, state}
-        else
-          {:noreply, put_in(state.conn, nil)}
-        end
+        if Mint.HTTP.open?(state.conn),
+          do: {:noreply, state},
+          else: {:noreply, put_in(state.conn, nil)}
 
       # Notify the originating process with a protocol error message if valid,
       {:error, _conn, reason, _responses} ->
