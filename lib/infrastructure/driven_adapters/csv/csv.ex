@@ -7,6 +7,8 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
   Provides functions for your csv dataset
   """
 
+  require Logger
+
   def read_csv(path, separator) do
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
 
@@ -28,5 +30,28 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
       |> Enum.to_list()
 
     {:ok, result}
+  end
+
+  @spec save_csv(any(), String.t(), String.t(), boolean()) :: {:ok}
+  def save_csv(data, file_name, header, print) do
+    if print do
+      IO.puts("\n####CSV#####")
+      IO.puts(header)
+    end
+
+    rows =
+      data
+      |> Stream.map(fn row ->
+        if print do
+          IO.puts(row)
+        end
+
+        row <> "\n"
+      end)
+
+    [header <> "\n"]
+    |> Stream.concat(rows)
+    |> Stream.into(File.stream!(file_name))
+    |> Stream.run()
   end
 end
