@@ -71,13 +71,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
       Logger.configure(level: Application.fetch_env!(:logger, :level))
     end
 
-    {:ok,
-     %{
-       distributed: distributed,
-       connection_conf: connection_conf,
-       execution_conf: execution_conf
-     }} =
-      ConfigUseCase.parse_config_file(Application.get_all_env(:distributed_performance_analyzer))
+    distributed = Application.get_env(:distributed_performance_analyzer, :distributed)
 
     children = [
       {ConfigUseCase, Application.get_all_env(:distributed_performance_analyzer)},
@@ -92,12 +86,10 @@ defmodule DistributedPerformanceAnalyzer.Application do
     ]
 
     master_children = [
-      {MetricsAnalyzerUseCase, execution_conf},
-      {MetricsCollectorUseCase, execution_conf},
+      MetricsAnalyzerUseCase,
+      MetricsCollectorUseCase,
       ExecutionUseCase
     ]
-
-    distributed = ConfigUseCase.get(:distributed)
 
     children =
       if distributed == :none || distributed == :master do
