@@ -6,8 +6,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Config.Request do
   """
 
   constructor do
-    field(:url, :string, constructor: &is_string/1)
-    field(:method, :string, constructor: &is_string/1)
+    field(:url, String.t(), constructor: &is_string/1)
+    field(:method, String.t(), constructor: &is_string/1)
     field(:headers, :lists, constructor: &is_list/1)
     field(:body, :any)
     field(:params, :lists, constructor: &is_list/1, default: [], enforce: false)

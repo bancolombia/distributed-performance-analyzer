@@ -8,7 +8,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
 
   constructor do
     field(:request, Request.t(), constructor: &Request.new/1, enforce: true)
-    field(:step_name, :string, constructor: &is_string/1, enforce: true)
+    field(:step_name, String.t(), constructor: &is_string/1, enforce: true)
     field(:end_time, :integer, constructor: &is_integer/1, enforce: true)
   end
 

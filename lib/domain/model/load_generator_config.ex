@@ -6,8 +6,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadGeneratorConfig do
   """
 
   constructor do
-    field(:method, :string, constructor: &is_string/1, enforce: true)
-    field(:path, :string, constructor: &is_string/1, enforce: true)
+    field(:method, String.t(), constructor: &is_string/1, enforce: true)
+    field(:path, String.t(), constructor: &is_string/1, enforce: true)
     field(:headers, :lists, constructor: &is_list/1, default: "")
     field(:body, :any, default: "")
   end

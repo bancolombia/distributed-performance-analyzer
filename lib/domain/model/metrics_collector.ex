@@ -7,8 +7,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.MetricsCollector do
   """
 
   constructor do
-    field(:results, :string, constructor: &is_string/1)
-    field(:step, :string, constructor: &is_string/1)
+    field(:results, String.t(), constructor: &is_string/1)
+    field(:step, String.t(), constructor: &is_string/1)
     field(:concurrency, :integer, constructor: &is_integer/1)
   end
 end

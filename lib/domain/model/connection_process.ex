@@ -11,7 +11,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.ConnectionProcess do
   """
 
   constructor do
-    field(:conn, :string, constructor: &is_string/1)
+    field(:conn, String.t(), constructor: &is_string/1)
     field(:params, :tuple, constructor: &is_tuple/1)
     field(:conn_time, :integer, constructor: &is_integer/1)
     field(:request, :maps, constructor: &is_map/1)

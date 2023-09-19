@@ -8,6 +8,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.User do
 
   constructor do
     field(:request, Request.t(), constructor: &Request.new/1)
-    field(:dataset_name, :atomics | :string)
+    field(:dataset_name, :atomics | String.t())
   end
 end

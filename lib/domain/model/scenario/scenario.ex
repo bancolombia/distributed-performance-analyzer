@@ -8,7 +8,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Scenario do
 
   constructor do
     field(:request, Request.t(), constructor: &Request.new/1)
-    field(:dataset_name, :atomics | :string)
+    field(:dataset_name, :atomics | String.t())
     field(:strategy, Strategy.t(), constructor: &Strategy.new/1)
     field(:depends, :atomics | :lists)
     #    TODO: Validate depends type
