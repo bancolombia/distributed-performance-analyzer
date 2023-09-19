@@ -1,5 +1,5 @@
 defmodule DistributedPerformanceAnalyzer.Application do
-  alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry, ConfigHolder}
+  alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry}
   alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
@@ -100,7 +100,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     pid = Supervisor.start_link(children, strategy: :one_for_one)
 
-    if execution_conf.steps > 0 && distributed == :none do
+    if distributed == :none do
       ExecutionUseCase.launch_execution()
     end
 

@@ -32,7 +32,6 @@ config :distributed_performance_analyzer,
   ],
   scenarios: [
     load: %{
-      auth: "auth",
       request: "wait",
       dataset: "data1",
       strategy: "short_constant",
