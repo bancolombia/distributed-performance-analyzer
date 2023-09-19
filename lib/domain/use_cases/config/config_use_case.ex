@@ -105,6 +105,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
       {:ok, scenario} =
         %{value | request: request_model, strategy: strategy_model}
         |> Map.put(:dataset_name, dataset)
+        |> Map.put(:name, Atom.to_string(key))
         |> Scenario.new()
 
       {key, scenario}
