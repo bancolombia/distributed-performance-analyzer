@@ -86,7 +86,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
 
     if length > 0 do
       random = Enum.random(1..length)
-      [{^random, value}] = :ets.lookup(__MODULE__, random)
+      [{^random, value}] = :ets.lookup(table_name, random)
       value
     else
       nil
