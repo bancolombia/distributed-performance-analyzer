@@ -3,17 +3,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   Load step use case
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, Step}
+  alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, Config.Step}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
-    LoadGeneratorUseCase
+    LoadGeneratorUseCase,
+    Step.StepUseCase
   }
 
   def start_step(step_model = %Step{}) do
     # TODO: Agregar timeout y manejar errores remotos
     node_list = [Node.self() | Node.list()]
-    loads = distribute_load(node_list, step_model.concurrency)
+
+    loads = distribute_load(node_list, StepUseCase.get_concurrency(step_model))
     node_count = Enum.count(node_list)
     IO.puts("Starting with #{inspect(node_count)} nodes")
 
@@ -42,32 +44,25 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
     end
   end
 
-  def start_step_local(
-        step_model = %Step{
-          execution_model: execution_model,
-          name: name,
-          step_number: _a
-        },
-        concurrency
-      ) do
+  def start_step_local(%Step{scenario: scenario} = step, concurrency) do
     ConnectionPoolUseCase.ensure_capacity(concurrency)
-    {:ok, launch_config} = LoadProcess.new(step_model)
+    {:ok, launch_config} = LoadProcess.new(step)
 
     loads =
       1..concurrency
-      |> Enum.map(fn _ -> start_load(launch_config, execution_model.dataset, concurrency) end)
-      |> Enum.map(fn ref -> wait_for(ref, execution_model.duration + 1000) end)
+      |> Enum.map(fn _ -> start_load(launch_config, scenario, concurrency) end)
+      |> Enum.map(fn ref -> wait_for(ref, scenario.strategy.duration + 1000) end)
 
     ended_loads = Enum.filter(loads, fn x -> x == :load_end end) |> Enum.count()
     timeout_loads = Enum.filter(loads, fn x -> x == :load_timeout end) |> Enum.count()
 
     IO.puts(
-      "#{ended_loads} Processes completed, and #{timeout_loads} Processes timeout for step: #{name}"
+      "#{ended_loads} Processes completed, and #{timeout_loads} Processes timeout for step: #{StepUseCase.get_name(step)}"
     )
   end
 
-  defp start_load(launch_config, dataset, concurrency) do
-    {:ok, pid} = LoadGeneratorUseCase.start(launch_config, dataset, concurrency)
+  defp start_load(launch_config, scenario, concurrency) do
+    {:ok, pid} = LoadGeneratorUseCase.start(launch_config, scenario, concurrency)
     Process.monitor(pid)
   end
 

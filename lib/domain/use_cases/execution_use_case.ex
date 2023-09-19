@@ -2,9 +2,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @moduledoc """
   Execution use case
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.Step
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.{LoadStepUseCase, MetricsAnalyzerUseCase}
-  alias DistributedPerformanceAnalyzer.Config.ConfigHolder
+  alias DistributedPerformanceAnalyzer.Domain.Model.Config.Step
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    LoadStepUseCase,
+    MetricsAnalyzerUseCase,
+    Config.ConfigUseCase,
+    Step.StepUseCase
+  }
+
   use GenServer
   require Logger
 
@@ -22,8 +28,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @impl true
   def init(state) do
     IO.puts("Initializing Distributed Performance Analyzer...")
-    %{steps: steps} = ConfigHolder.get()
-    {:ok, %{state | steps: steps}}
+    #    TODO: do parallel
+    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
+    {:ok, %{state | steps: scenario.strategy.steps}}
   end
 
   @impl true
@@ -42,10 +49,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   @impl true
   def handle_cast(:continue_execution, state = %{actual_step: actual_step, steps: steps})
       when actual_step <= steps do
-    execution_model = ConfigHolder.get()
+    #    TODO: parallel
+    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
 
-    Step.new(execution_model: execution_model, step_number: state.actual_step)
-    |> start_step()
+    {:ok, step_conf} = Step.new(scenario: scenario, number: state.actual_step)
+    start_step(step_conf)
 
     {:noreply, %{state | actual_step: state.actual_step + 1}}
   end
@@ -57,8 +65,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
     {:noreply, %{state | actual_step: -1}}
   end
 
-  defp start_step({:ok, step_conf}) do
-    IO.puts("Initiating #{step_conf.name}, with #{step_conf.concurrency} actors")
+  defp start_step(step_conf) do
+    IO.puts(
+      "Initiating #{StepUseCase.get_name(step_conf)}, with #{StepUseCase.get_concurrency(step_conf)} actors"
+    )
 
     Task.start_link(fn ->
       LoadStepUseCase.start_step(step_conf)

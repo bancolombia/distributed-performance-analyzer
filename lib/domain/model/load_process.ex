@@ -4,7 +4,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
   @moduledoc """
   TODO Steps orchestration
   """
-  alias DistributedPerformanceAnalyzer.Domain.Model.{Request, Step}
+  alias DistributedPerformanceAnalyzer.Domain.Model.Config.{Step, Request}
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase
 
   constructor do
     field(:request, Request.t(), constructor: &Request.new/1, enforce: true)
@@ -13,13 +14,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.LoadProcess do
   end
 
   @impl Constructor
-  def before_construct(input = %Step{execution_model: execution_model, name: name})
-      when is_map(input) do
+  def before_construct(%Step{scenario: scenario} = step) do
     {:ok,
      %{
-       request: execution_model.request,
-       step_name: name,
-       end_time: :erlang.system_time(:milli_seconds) + execution_model.duration
+       request: scenario.request,
+       step_name: StepUseCase.get_name(step),
+       end_time: :erlang.system_time(:milli_seconds) + scenario.strategy.duration
      }}
   end
 end

@@ -25,7 +25,7 @@ config :distributed_performance_analyzer,
   strategies: [
     short_constant: %{
       steps: 5,
-      increment: 100,
+      increment: 1,
       duration: 1000,
       constant_load: true
     }
