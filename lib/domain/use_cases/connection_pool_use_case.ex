@@ -2,15 +2,25 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   @moduledoc """
   ConnectionPoolUseCase is module manages the connection pool
   """
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
+
+  alias DistributedPerformanceAnalyzer.Domain.Model.Config.Request
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    ConnectionProcessUseCase,
+    Config.ConfigUseCase
+  }
+
   alias DistributedPerformanceAnalyzer.Config.AppRegistry
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
 
   use GenServer
   require Logger
 
-  def start_link({scheme, host, port}) do
+  def start_link(_) do
     Logger.debug("Starting connection pool server...")
-    GenServer.start_link(__MODULE__, {scheme, host, port}, name: __MODULE__)
+    #    TODO: do parallel
+    %{request: request} = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
+    GenServer.start_link(__MODULE__, request, name: __MODULE__)
   end
 
   def ensure_capacity(capacity) do
@@ -26,7 +36,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   end
 
   @impl true
-  def init({scheme, host, port}) do
+  def init(%Request{url: url}) do
+    %{
+      host: host,
+      scheme: scheme,
+      port: port
+    } = DataTypeUtils.parse_url(url)
+
     {:ok, {scheme, host, port, [], 0}}
   end
 

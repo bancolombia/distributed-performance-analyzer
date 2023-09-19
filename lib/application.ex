@@ -80,9 +80,9 @@ defmodule DistributedPerformanceAnalyzer.Application do
       ConfigUseCase.parse_config_file(Application.get_all_env(:distributed_performance_analyzer))
 
     children = [
-      {ConfigHolder, execution_conf},
-      {DatasetUseCase, execution_conf},
-      {ConnectionPoolUseCase, connection_conf},
+      {ConfigUseCase, Application.get_all_env(:distributed_performance_analyzer)},
+      DatasetUseCase,
+      ConnectionPoolUseCase,
       {DynamicSupervisor,
        name: DPA.ConnectionSupervisor,
        strategy: :one_for_one,
@@ -96,6 +96,8 @@ defmodule DistributedPerformanceAnalyzer.Application do
       {MetricsCollectorUseCase, execution_conf},
       ExecutionUseCase
     ]
+
+    distributed = ConfigUseCase.get(:distributed)
 
     children =
       if distributed == :none || distributed == :master do
