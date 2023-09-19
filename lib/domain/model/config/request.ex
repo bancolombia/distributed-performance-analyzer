@@ -6,12 +6,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Config.Request do
   """
 
   constructor do
-    field(:name, :string, constructor: &is_string/1)
     field(:url, :string, constructor: &is_string/1)
     field(:method, :string, constructor: &is_string/1)
     field(:headers, :lists, constructor: &is_list/1)
     field(:body, :any)
-    field(:params, :lists, constructor: &is_list/1)
-    field(:timeout, :integer, constructor: &is_integer/1)
+    field(:params, :lists, constructor: &is_list/1, default: [], enforce: false)
+    field(:timeout, :integer, constructor: &is_integer/1, default: 30, enforce: false)
   end
 end

@@ -7,7 +7,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Scenario do
   """
 
   constructor do
-    field(:name, :string, constructor: &is_string/1)
     field(:request, Request.t(), constructor: &Request.new/1)
     field(:dataset_name, :atomics | :string)
     field(:strategy, Strategy.t(), constructor: &Strategy.new/1)

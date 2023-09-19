@@ -6,7 +6,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Config.Strategy do
   """
 
   constructor do
-    field(:name, :string, constructor: &is_string/1)
     field(:steps, :integer, constructor: &is_integer/1)
     field(:duration, :integer, constructor: &is_integer/1)
     field(:increment, :integer, constructor: &is_integer/1)
