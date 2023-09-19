@@ -63,15 +63,21 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
     {:ok, strategy} = Strategy.new(execution)
 
-    {:ok, dataset} =
-      execution
-      |> Map.put(:path, dataset_path)
-      |> Dataset.new()
+    dataset_name = if dataset_path == :none, do: :none, else: "default"
 
-    datasets = [default: dataset]
+    datasets =
+      with {:ok, dataset} <-
+             execution
+             |> Map.put(:path, dataset_path)
+             |> Dataset.new() do
+        [default: dataset]
+      else
+        {:error, _} ->
+          []
+      end
 
     scenarios =
-      [default: %{request: "default", dataset: "default", strategy: "default", depends: :none}]
+      [default: %{request: "default", dataset: dataset_name, strategy: "default", depends: :none}]
       |> Enum.map(&create_scenario(&1, [default: request], [default: strategy], datasets))
 
     %{scenarios: scenarios, datasets: datasets}
@@ -99,13 +105,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
     request_model = requests[String.to_atom(request)]
     strategy_model = strategies[String.to_atom(strategy)]
-    dataset_model = datasets[String.to_atom(dataset)]
+    dataset_model = unless dataset == :none, do: datasets[String.to_atom(dataset)], else: :none
 
     if request_model && strategy_model && dataset_model do
       {:ok, scenario} =
         %{value | request: request_model, strategy: strategy_model}
-        |> Map.put(:dataset_name, dataset)
         |> Map.put(:name, Atom.to_string(key))
+        |> Map.put(:dataset_name, dataset)
         |> Scenario.new()
 
       {key, scenario}

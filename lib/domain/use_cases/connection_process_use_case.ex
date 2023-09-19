@@ -220,6 +220,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   defp parse_headers(headers_list) when is_list(headers_list) do
-    headers_list |> Enum.map(fn {key, value} -> {Atom.to_string(key), value} end)
+    headers_list
+    |> Enum.map(fn {key, value} ->
+      if is_atom(key), do: {Atom.to_string(key), value}
+    end)
   end
 end

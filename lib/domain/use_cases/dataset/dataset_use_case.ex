@@ -82,12 +82,16 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     do: get_random_item(String.to_atom(table_name))
 
   def get_random_item(table_name) when is_atom(table_name) do
-    [length: length] = :ets.lookup(table_name, :length)
+    unless table_name == :none do
+      [length: length] = :ets.lookup(table_name, :length)
 
-    if length > 0 do
-      random = Enum.random(1..length)
-      [{^random, value}] = :ets.lookup(table_name, random)
-      value
+      if length > 0 do
+        random = Enum.random(1..length)
+        [{^random, value}] = :ets.lookup(table_name, random)
+        value
+      else
+        nil
+      end
     else
       nil
     end
