@@ -65,7 +65,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
     start = :erlang.monotonic_time(:millisecond)
 
-    case Mint.HTTP.request(state.conn, method, path, headers, body) do
+    case Mint.HTTP.request(state.conn, method, path, parse_headers(headers), body) do
       {:ok, conn, request_ref} ->
         conn_time = :erlang.monotonic_time(:millisecond) - start
 
@@ -206,11 +206,20 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   defp status_for(status) when status >= 500, do: :server_error
   defp status_for(_status), do: :fail_http
 
-  defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, path, method) do
-    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+  defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, url, method) do
+    "#{method} -> #{scheme}://#{hostname}:#{port}#{get_path(url)}"
   end
 
-  defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, path, method) do
-    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+  defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, url, method) do
+    "#{method} -> #{scheme}://#{hostname}:#{port}#{get_path(url)}"
+  end
+
+  defp get_path(url) do
+    %{path: path} = DataTypeUtils.parse_url(url)
+    path
+  end
+
+  defp parse_headers(headers_list) when is_list(headers_list) do
+    headers_list |> Enum.map(fn {key, value} -> {Atom.to_string(key), value} end)
   end
 end
