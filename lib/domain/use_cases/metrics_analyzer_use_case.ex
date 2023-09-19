@@ -17,14 +17,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
     GenServer.cast(__MODULE__, :compute)
   end
 
-  def start_link(conf) do
+  def start_link(_) do
     Logger.debug("Starting metrics analyzer server...")
-    GenServer.start_link(__MODULE__, conf, name: __MODULE__)
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   @impl true
-  def init(conf) do
-    {:ok, conf}
+  def init(_) do
+    {:ok, nil}
   end
 
   @impl true
