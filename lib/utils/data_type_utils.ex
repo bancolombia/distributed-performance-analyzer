@@ -87,7 +87,7 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
     String.replace(body, ",", ".")
   end
 
-  def parse(url),
+  def parse_url(url),
     do:
       :uri_string.parse(url)
       |> compose_url_parts()
