@@ -3,7 +3,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
   Use case for handle dataset
   """
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
+  alias DistributedPerformanceAnalyzer.Domain.Model.Config.Dataset
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase
 
   use GenServer
   require Logger
@@ -14,31 +15,38 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
                   )
   @valid_extensions ["csv"]
 
-  def start_link(execution_config) do
+  def start_link(_) do
     Logger.debug("Starting dataset server...")
-    GenServer.start_link(__MODULE__, execution_config, name: __MODULE__)
+    GenServer.start_link(__MODULE__, ConfigUseCase.get(:datasets), name: __MODULE__)
   end
 
   @impl true
-  def init(%ExecutionModel{dataset: dataset_path, separator: separator}) do
-    :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+  def init(datasets) when is_list(datasets) do
+    datasets |> Enum.map(&persists_dataset(&1))
+    {:ok, nil}
+  end
 
-    if is_binary(dataset_path) do
-      with {:ok, dataset} <- parse_file(dataset_path, separator) do
+  defp persists_dataset({table_name, %Dataset{path: path, separator: separator, ordered: _}})
+       when is_atom(table_name) do
+    #    TODO: use ordered config
+    :ets.new(table_name, [:named_table])
+
+    if is_binary(path) do
+      with {:ok, dataset} <- parse_file(path, separator) do
         dataset
         |> Enum.with_index(1)
-        |> Enum.each(fn {value, index} -> :ets.insert(__MODULE__, {index, value}) end)
+        |> Enum.each(fn {value, index} -> :ets.insert(table_name, {index, value}) end)
 
-        :ets.insert(__MODULE__, {:length, length(dataset)})
+        :ets.insert(table_name, {:length, length(dataset)})
 
-        {:ok, %{index: 0}}
+        {:ok, %{table_name: table_name, index: 0}}
       else
         {:error, message} ->
           Logger.error(message)
           {:stop, :dataset_error}
       end
     else
-      :ets.insert(__MODULE__, {:length, -1})
+      :ets.insert(table_name, {:length, -1})
       {:ok, nil}
     end
   end
@@ -70,8 +78,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
 
   #  TODO: Add sequential item request from dataset
 
-  def get_random_item() do
-    [length: length] = :ets.lookup(__MODULE__, :length)
+  def get_random_item(table_name) when is_binary(table_name),
+    do: get_random_item(String.to_atom(table_name))
+
+  def get_random_item(table_name) when is_atom(table_name) do
+    [length: length] = :ets.lookup(table_name, :length)
 
     if length > 0 do
       random = Enum.random(1..length)
