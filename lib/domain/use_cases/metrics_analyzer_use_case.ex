@@ -29,50 +29,22 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
 
   @impl true
   def handle_cast(:compute, %ExecutionModel{duration: duration}) do
-    duration_secs = Statistics.millis_to_seconds(duration)
+    step_duration = Statistics.millis_to_seconds(duration)
     metrics = MetricsCollectorUseCase.get_metrics()
-    steps = Map.keys(metrics)
-    steps_count = Enum.count(steps)
 
-    curve =
-      Enum.map(
-        steps,
-        fn step ->
-          # partial = IO.inspect(Map.get(metrics, step))
-          step_num =
-            String.split(step, "-")
-            |> Enum.at(1)
-            |> String.to_integer()
+    steps_count = Map.keys(metrics) |> Enum.count()
+    steps = Map.values(metrics) |> Enum.sort(&(&1.concurrency <= &2.concurrency))
 
-          partial = Map.get(metrics, step)
-          throughput = Statistics.throughput(partial.success_count, duration_secs)
+    success_request_count =
+      Enum.reduce(steps, 0, &(&1.success_count + &2))
 
-          mean_latency = Statistics.mean(partial.success_mean_latency, partial.success_count)
+    failed_request_count =
+      Enum.reduce(steps, 0, &(&1.error_count + &2))
 
-          mean_latency_http = Statistics.mean(partial.http_mean_latency, partial.http_count)
+    total_duration = Statistics.duration(steps_count, step_duration)
+    total_data = [steps_count, success_request_count, failed_request_count, total_duration]
 
-          {
-            step_num,
-            throughput,
-            partial.concurrency,
-            mean_latency,
-            partial.success_max_latency,
-            mean_latency_http,
-            partial
-          }
-        end
-      )
-
-    total_success_count =
-      Enum.reduce(steps, 0, fn step, acc -> Map.get(metrics, step).success_count + acc end)
-
-    sorted_curve = Enum.sort(curve, &(elem(&1, 0) <= elem(&2, 0)))
-    total_duration = Statistics.duration(steps_count, duration_secs)
-
-    total_data = [steps_count, total_success_count, total_duration]
-
-    ReportUseCase.init(sorted_curve, total_data)
-
+    ReportUseCase.init(steps, total_data)
     MetricsCollectorUseCase.clean_metrics()
 
     {:stop, :normal, nil}

@@ -72,7 +72,9 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
       {:tesla, "~> 1.7"},
-      {:git_hooks, "~> 0.7", only: [:dev], runtime: false}
+      {:git_hooks, "~> 0.7", only: [:dev], runtime: false},
+      {:benchee, "~> 1.0", only: [:dev, :test]},
+      {:benchee_html, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end

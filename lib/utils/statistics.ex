@@ -4,6 +4,48 @@ defmodule DistributedPerformanceAnalyzer.Utils.Statistics do
   """
 
   @doc """
+  Get the minimum value from a list
+
+  ## Examples
+      iex> alias DistributedPerformanceAnalyzer.Utils.Statistics
+      iex> Statistics.min([])
+      nil
+      iex> Statistics.min([1, 2, 3])
+      1
+  """
+  def min([]), do: nil
+  def min(list) when is_list(list), do: Enum.min(list)
+
+  @doc """
+  Get the maximum value from a list
+
+  ## Examples
+      iex> alias DistributedPerformanceAnalyzer.Utils.Statistics
+      iex> Statistics.max([])
+      nil
+      iex> Statistics.max([1, 2, 3])
+      3
+  """
+  def max([]), do: nil
+  def max(list) when is_list(list), do: Enum.max(list)
+
+  @doc """
+  Calculate the mean from a list of numbers
+
+  ## Examples
+      iex> alias DistributedPerformanceAnalyzer.Utils.Statistics
+      iex> Statistics.mean([])
+      nil
+      iex> Statistics.mean([1,2,3])
+      2.0
+
+  """
+  def mean(list) when is_list(list), do: do_mean(list, 0, 0)
+  defp do_mean([], 0, 0), do: nil
+  defp do_mean([], t, l), do: t / l
+  defp do_mean([x | xs], t, l), do: do_mean(xs, t + x, l + 1)
+
+  @doc """
   Get the nth percentile from a list
 
   ## Examples

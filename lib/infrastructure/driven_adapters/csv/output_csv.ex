@@ -7,7 +7,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.OutputCsv do
   @spec save_csv(any(), String.t(), String.t(), boolean()) :: {:ok}
   def save_csv(data, file_name, header, print) do
     if print do
-      IO.puts("####CSV#######")
+      IO.puts("\n####CSV#####")
       IO.puts(header)
     end
 

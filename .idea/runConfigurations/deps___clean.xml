@@ -1,8 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="hex.outdated" type="MixRunConfigurationType" factoryName="Elixir Mix">
+  <configuration default="false" name="deps - clean" type="MixRunConfigurationType" factoryName="Elixir Mix">
     <module name="distributed-performance-analyzer" />
     <mix>
-      <argument>hex.outdated</argument>
+      <argument>deps.clean</argument>
+      <argument>--unused</argument>
     </mix>
     <module name="distributed-performance-analyzer" />
     <module-filters inherit-application-module-filters="true" />
