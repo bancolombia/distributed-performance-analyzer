@@ -89,11 +89,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
         success_count: status_200,
         bad_request_count: status_400,
         server_error_count: status_500,
+        nil_conn_count: nil_conn_errors,
+        invocation_error_count: invocation_errors,
+        protocol_error_count: protocol_errors,
+        error_conn_count: conn_errors,
         error_count: errors,
         total_count: total
       }) do
     IO.puts(
-      "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} - errors: #{errors} - total: #{total}"
+      "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} - nil_connections_errors: #{nil_conn_errors} - invocation_errors: #{invocation_errors} - protocol_errors: #{protocol_errors} - conn_errors: #{conn_errors} | total_errors: #{errors} - total_request: #{total}"
     )
   end
 
