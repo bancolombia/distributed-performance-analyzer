@@ -1,0 +1,88 @@
+name: E2E_Version
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RESULT_FILE: result-${{ github.run_id }}.csv
+
+defaults:
+  run:
+    working-directory: .github/workflows
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        latency: [10]
+        dataset: ['none']
+        body: ['random', '']
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Create base result file
+        run: |
+          touch ./results/base-result.csv
+
+      - name: Move to workflow & setup env
+        run: |
+          hostname
+          docker pull bancolombia/latency-simulator:latest
+          docker pull bancolombia/distributed-performance-analyzer:0.4.0
+          docker container rm -f latency_simulator || true
+
+      - name: Start latency simulator
+        run: |
+          docker run --rm -d --name latency_simulator -p 8080:8080 bancolombia/latency-simulator:latest
+
+      - name: Configure performance
+        run: |
+          if [ "${{ matrix.body }}" = "random" ] && [ "${{ matrix.dataset }}" != "sample.csv" ]; then
+            cp ./stage/randomStage.exs ./config/performance.exs
+            sed -i "s/body: \".*\"/body: \"#{Enum.random(0..100000)}\"/" ./config/performance.exs
+          else
+            cp ./stage/normalStage.exs ./config/performance.exs
+            sed -i "s/body: \".*\"/body: \"\"/" ./config/performance.exs
+          fi
+          sed -i "s/wait\/\d+/wait/${{ matrix.latency }}/" ./config/performance.exs
+          sed -i "s/^dataset: .*/dataset: '${{ matrix.dataset }}'/" ./config/performance.exs
+
+      - name: Run tests
+        run: |
+          docker run --rm --network=host -v $(pwd)/config:/app/config -v $(pwd)/datasets/:/app/datasets bancolombia/distributed-performance-analyzer:0.4.0 | sed -n '/CSV/,/Finishing/p' | tee -a ./results/result-${{ matrix.body }}.csv
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined-results-${{ github.run_id }}
+          path: /home/runner/work/distributed-performance-analyzer/distributed-performance-analyzer/.github/workflows/results/result-*.csv
+
+      - name: Descargar artefactos del job 1
+        uses: actions/download-artifact@v2
+        with:
+          name: combined-results-${{ github.run_id }}
+          path: archivos-consolidados
+
+      - name: Combine results
+        run: |
+          cat /home/runner/work/distributed-performance-analyzer/distributed-performance-analyzer/archivos-consolidados/result-*.csv > /home/runner/work/distributed-performance-analyzer/distributed-performance-analyzer/archivos-consolidados/$RESULT_FILE
+
+      - name: Upload Results - 2
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined-results
+          path: /home/runner/work/distributed-performance-analyzer/distributed-performance-analyzer/archivos-consolidados/result-*.csv
+
+      - name: Clean up
+        run: |
+          docker container ls -a
+          docker container rm -f latency_simulator || true
+          rm -rf ./config
