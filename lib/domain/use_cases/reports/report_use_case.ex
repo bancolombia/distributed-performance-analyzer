@@ -54,11 +54,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   def generate_csv_report(sorted_curve) do
     sorted_curve
     |> Enum.map(
-      &"#{&1.concurrency}, #{&1.throughput}, #{&1.min_latency}, #{&1.avg_latency}, #{&1.max_latency}, #{&1.p90_latency}, #{&1.p95_latency}, #{&1.p99_latency}, #{&1.http_avg_latency}, #{&1.http_max_latency}, #{&1.success_count}, #{&1.redirect_count}, #{&1.bad_request_count}, #{&1.server_error_count}, #{&1.http_error_count}, #{&1.error_count}, #{&1.total_count}"
+      &"#{&1.concurrency}, #{&1.throughput}, #{&1.min_latency}, #{&1.avg_latency}, #{&1.max_latency}, #{&1.p90_latency}, #{&1.p95_latency}, #{&1.p99_latency}, #{&1.http_avg_latency}, #{&1.http_max_latency}, #{&1.success_count}, #{&1.redirect_count}, #{&1.bad_request_count}, #{&1.server_error_count}, #{&1.http_error_count}, #{&1.protocol_error_count}, #{&1.invocation_error_count}, #{&1.nil_conn_count},  #{&1.error_conn_count}, #{&1.error_count}, #{&1.total_count}"
     )
     |> export_report(
       @path_csv_report,
-      "concurrency, throughput, min latency (ms), mean latency (ms), max latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), http_mean_latency, http_max_latency, 2xx requests, 3xx requests, 4xx requests, 5xx requests, http_errors, total_errors, total_requests",
+      "concurrency, throughput, min latency (ms), mean latency (ms), max latency (ms), p90 latency (ms), p95 latency (ms), p99 latency (ms), http_mean_latency, http_max_latency, 2xx requests, 3xx requests, 4xx requests, 5xx requests, http_errors, protocol_errors, invocation_errors, nil_connection_errors, connection_errors, total_errors, total_requests",
       true
     )
   end
