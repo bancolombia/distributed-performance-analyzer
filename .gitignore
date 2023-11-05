@@ -246,3 +246,6 @@ generic_test_execution_sonarqube.xml
 
 # Others
 /benchmarks/
+/assets/fontello/
+/assets/javascripts/
+/assets/stylesheets/
