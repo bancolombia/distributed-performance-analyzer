@@ -89,28 +89,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
         success_count: status_200,
         bad_request_count: status_400,
         server_error_count: status_500,
-        nil_conn_count: nil_conn_errors,
-        invocation_error_count: invocation_errors,
-        protocol_error_count: protocol_errors,
-        error_conn_count: conn_errors,
         error_count: errors,
         total_count: total
       }) do
-
-    cond do
-      nil_conn_errors > 0 ->
-        Logger.warning("There are #{nil_conn_errors} nil connections errors")
-      invocation_errors > 0 ->
-        Logger.warning("There are #{invocation_errors} invocation errors")
-      protocol_errors > 0 ->
-        Logger.warning("There are #{protocol_errors} protocol errors")
-      conn_errors > 0 ->
-        Logger.warning("There are #{conn_errors} connection errors")
-    end
-
-
     IO.puts(
-      "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx_successful: #{status_200} - 4xx_errors: #{status_400} - 5xx_errors: #{status_500} | others_errors: #{nil_conn_errors + invocation_errors + protocol_errors + conn_errors} | total_errors: #{errors} - total_request: #{total}"
+      "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} | total_errors: #{errors} - total_request: #{total}"
     )
   end
 
@@ -148,7 +131,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
     )
   end
 
-  defp calculate(partial, {_time, {reason, _detail}}, _keep_responses) do
+  defp calculate(partial, {_time, {reason, detail}}, _keep_responses) do
+    Logger.warning("Request error: #{reason}, #{detail}")
+
     add_failed_request(
       case reason do
         :invocation_error ->
