@@ -41,7 +41,16 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :opentelemetry_exporter, :opentelemetry],
+      extra_applications: [
+        :logger,
+        :opentelemetry_exporter,
+        :opentelemetry,
+        :eex,
+        :wx,
+        :observer,
+        :runtime_tools
+      ],
+      included_applications: [:mnesia],
       mod: {DistributedPerformanceAnalyzer.Application, [Mix.env()]}
     ]
   end
@@ -65,15 +74,15 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:plug_checkup, "~> 0.6"},
       {:poison, "~> 5.0"},
       {:cors_plug, "~> 3.0"},
-      {:excoveralls, "~> 0.17", only: :test},
+      {:excoveralls, "~> 0.18", only: :test},
       {:ex_unit_sonarqube, "~> 0.1", only: :test},
       {:constructor, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
       {:file_size, "~> 3.0"},
       {:mint, "~> 1.5"},
-      {:tesla, "~> 1.7"},
+      {:tesla, "~> 1.8"},
       {:git_hooks, "~> 0.7", only: [:dev], runtime: false},
-      {:benchee, "~> 1.0", only: [:dev, :test]},
+      {:benchee, "~> 1.1", only: [:dev, :test]},
       {:benchee_html, "~> 1.0", only: [:dev, :test]}
     ]
   end

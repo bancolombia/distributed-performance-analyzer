@@ -37,11 +37,11 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
   def stop(env) when is_atom(env) do
     IO.puts("Finishing...")
-    Application.stop(:distributed_performance_analyzer)
-
-    if env != :test do
-      System.stop(0)
-    end
+    #    Application.stop(:distributed_performance_analyzer)
+    #
+    #    if env != :test do
+    #      System.stop(0)
+    #    end
   end
 
   def all_env_children() do
@@ -71,10 +71,11 @@ defmodule DistributedPerformanceAnalyzer.Application do
       Logger.configure(level: Application.fetch_env!(:logger, :level))
     end
 
+    config_envs = Application.get_all_env(:distributed_performance_analyzer)
     distributed = Application.get_env(:distributed_performance_analyzer, :distributed)
 
     children = [
-      {ConfigUseCase, Application.get_all_env(:distributed_performance_analyzer)},
+      {ConfigUseCase, config_envs},
       DatasetUseCase,
       ConnectionPoolUseCase,
       {DynamicSupervisor,
