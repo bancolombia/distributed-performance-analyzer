@@ -57,63 +57,60 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
 
     error_count =
       if total_count > success_count + error_count,
-         do: total_count - success_count,
-         else: error_count
+        do: total_count - success_count,
+        else: error_count
 
     %{
       partial
-    | success_count: success_count,
-      p90_latency: p90 |> DataTypeUtils.round_number(2),
-      p95_latency: p95 |> DataTypeUtils.round_number(2),
-      p99_latency: p99 |> DataTypeUtils.round_number(2),
-      min_latency: min |> DataTypeUtils.round_number(2),
-      max_latency: max |> DataTypeUtils.round_number(2),
-      avg_latency: avg |> DataTypeUtils.round_number(2),
-      http_error_count: http_error_count,
-      error_count: error_count,
-      http_avg_latency: http_avg |> DataTypeUtils.round_number(2),
-      http_max_latency: http_max |> DataTypeUtils.round_number(2),
-      throughput: throughput |> DataTypeUtils.round_number(2),
-      times: [],
-      success_times: []
+      | success_count: success_count,
+        p90_latency: p90 |> DataTypeUtils.round_number(2),
+        p95_latency: p95 |> DataTypeUtils.round_number(2),
+        p99_latency: p99 |> DataTypeUtils.round_number(2),
+        min_latency: min |> DataTypeUtils.round_number(2),
+        max_latency: max |> DataTypeUtils.round_number(2),
+        avg_latency: avg |> DataTypeUtils.round_number(2),
+        http_error_count: http_error_count,
+        error_count: error_count,
+        http_avg_latency: http_avg |> DataTypeUtils.round_number(2),
+        http_max_latency: http_max |> DataTypeUtils.round_number(2),
+        throughput: throughput |> DataTypeUtils.round_number(2),
+        times: [],
+        success_times: []
     }
   end
 
   def print_status(%PartialResult{
-    concurrency: concurrency,
-    throughput: throughput,
-    min_latency: min,
-    avg_latency: avg,
-    max_latency: max,
-    p90_latency: p90,
-    success_count: status_200,
-    bad_request_count: status_400,
-    server_error_count: status_500,
-    nil_conn_count: nil_conn_errors,
-    invocation_error_count: invocation_errors,
-    protocol_error_count: protocol_errors,
-    error_conn_count: conn_errors,
-    error_count: errors,
-    total_count: total
-  }) do
-
-    cond do
-      nil_conn_errors > 0 ->
-        Logger.warning("There are #{nil_conn_errors} nil connections errors")
-    end
-    cond do
-      invocation_errors > 0 ->
-        Logger.warning("There are #{invocation_errors} invocation errors")
-    end
-    cond do
-      protocol_errors > 0 ->
-        Logger.warning("There are #{protocol_errors} protocol errors")
-    end
-    cond do
-      conn_errors > 0 ->
-        Logger.warning("There are #{conn_errors} connection errors")
+        concurrency: concurrency,
+        throughput: throughput,
+        min_latency: min,
+        avg_latency: avg,
+        max_latency: max,
+        p90_latency: p90,
+        success_count: status_200,
+        bad_request_count: status_400,
+        server_error_count: status_500,
+        nil_conn_count: nil_conn_errors,
+        invocation_error_count: invocation_errors,
+        protocol_error_count: protocol_errors,
+        error_conn_count: conn_errors,
+        error_count: errors,
+        total_count: total
+      }) do
+    if nil_conn_errors > 0 do
+      Logger.warning("There are #{nil_conn_errors} nil connections errors")
     end
 
+    if invocation_errors > 0 do
+      Logger.warning("There are #{invocation_errors} invocation errors")
+    end
+
+    if protocol_errors > 0 do
+      Logger.warning("There are #{protocol_errors} protocol errors")
+    end
+
+    if conn_errors > 0 do
+      Logger.warning("There are #{conn_errors} connection errors")
+    end
 
     IO.puts(
       "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} | others_errors: #{nil_conn_errors + invocation_errors + protocol_errors + conn_errors} | total_errors: #{errors} - total_request: #{total}"
@@ -122,7 +119,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
 
   def calculate(result_list, opts) do
     {:ok, partial} = PartialResult.new(concurrency: 1)
-
+    # IO.puts(result_list)
     Enum.reduce(result_list, partial, fn item, acc ->
       calculate(acc, item, opts[:keep_responses])
     end)
@@ -134,7 +131,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
         :ok ->
           %{
             partial
-          | success_times: [elapsed | partial.success_times]
+            | success_times: [elapsed | partial.success_times]
           }
 
         :redirect ->
@@ -182,17 +179,17 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
        ) do
     %{
       partial
-    | total_count: partial.total_count + 1,
-      times: [elapsed | partial.times],
-      requests: combine_requests(request_result, partial.requests, keep_responses)
+      | total_count: partial.total_count + 1,
+        times: [elapsed | partial.times],
+        requests: combine_requests(request_result, partial.requests, keep_responses)
     }
   end
 
   defp add_failed_request(partial) do
     %{
       partial
-    | error_count: partial.error_count + 1,
-      total_count: partial.total_count + 1
+      | error_count: partial.error_count + 1,
+        total_count: partial.total_count + 1
     }
   end
 
