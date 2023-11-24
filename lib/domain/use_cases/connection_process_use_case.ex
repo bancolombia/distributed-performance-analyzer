@@ -23,7 +23,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
     Logger.debug(%{method: method, path: path, headers: headers, body: body})
 
     :timer.tc(fn ->
-      GenServer.call(pid, {:request, method, path, headers, body, concurrency}, 15_000)
+      GenServer.call(pid, {:request, method, path, headers, body, concurrency}, 60_000)
     end)
   end
 
@@ -37,11 +37,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @compile {:inline, options: 1}
   defp options(:https) do
-    [transport_opts: [verify: :verify_none]]
+    [transport_opts: [verify: :verify_none, timeout: 60000]]
   end
 
   defp options(:http) do
-    []
+    [transport_opts: [timeout: 60000]]
   end
 
   @impl true
