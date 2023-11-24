@@ -21,7 +21,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase d
   def start_link(_) do
     Logger.debug("Starting metrics analyzer server...")
     #    TODO: do parallel
-    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
+    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0)
     GenServer.start_link(__MODULE__, scenario, name: __MODULE__)
   end
 

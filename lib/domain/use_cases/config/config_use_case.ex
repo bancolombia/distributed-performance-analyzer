@@ -114,7 +114,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
         |> Map.put(:dataset_name, dataset)
         |> Scenario.new()
 
-      {key, scenario}
+      scenario
     else
       unless request_model,
         do:

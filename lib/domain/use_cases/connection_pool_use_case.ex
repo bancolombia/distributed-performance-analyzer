@@ -19,7 +19,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   def start_link(_) do
     Logger.debug("Starting connection pool server...")
     #    TODO: do parallel
-    %{request: request} = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
+    %{request: request} = ConfigUseCase.get(:scenarios) |> Enum.at(0)
     GenServer.start_link(__MODULE__, request, name: __MODULE__)
   end
 
