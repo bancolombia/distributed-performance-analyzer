@@ -47,7 +47,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     Logger.info("Reading dataset file: #{path}")
 
     with {:ok, _path} <- file_exists?(path),
-         {:ok, _path} <- has_valid_extension?(path) do
+         {:ok, _path} <- has_valid_extension?(path),
+         {:ok, _path} <- is_utf8_encoded?(path) do
       @dataset_parser.parse_csv(path, separator)
     else
       err -> err
@@ -65,6 +66,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     case String.ends_with?(path, @valid_extensions) do
       true -> {:ok, path}
       _ -> {:error, "Dataset file #{path} does not have a valid extension"}
+    end
+  end
+
+  defp is_utf8_encoded?(path) do
+    case File.read(path) do
+      {:ok, content} ->
+        if :unicode_util.valid(content) do
+          {:ok, path}
+        else
+          {:error, "Dataset file #{path} is not UTF-8 encoded"}
+        end
+      {:error, reason} ->
+        {:error, "Failed to read dataset file #{path}: #{reason}"}
     end
   end
 
