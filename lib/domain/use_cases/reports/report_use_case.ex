@@ -19,7 +19,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   use Task
   require Logger
 
-  @report_csv Application.compile_env!(AppConfig.get_app_name(), :report_csv)
+  @report_exporter Application.compile_env!(AppConfig.get_app_name(), :report_exporter)
 
   @valid_extensions ["csv"]
   @path_report_jmeter "config/jmeter.csv"
@@ -103,7 +103,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
     case report_format do
       true ->
-        @report_csv.save_csv(data, file, header, print)
+        @report_exporter.save_csv(data, file, header, print)
 
       false ->
         {:error, "invalid report extensions type"}

@@ -4,12 +4,15 @@ end
 
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
   @moduledoc """
-  Provides functions for your csv dataset
+  Provides functions for your csv operations
   """
 
   require Logger
+  alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem
 
-  def read_csv(path, separator) do
+  @spec parse_csv(String.t(), String.t()) :: {:ok, list}
+  def parse_csv(path, separator) do
+    FileSystem.print_file_info(path)
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
 
     data_stream =
