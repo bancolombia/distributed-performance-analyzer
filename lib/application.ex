@@ -14,14 +14,13 @@ defmodule DistributedPerformanceAnalyzer.Application do
   use Application
   require Logger
 
-  @app_name :distributed_performance_analyzer
   @default_runtime_config "config/performance.exs"
 
   def start(_type, [env]) do
     load_config(env)
     CertificatesAdmin.setup()
 
-    distributed = AppConfig.load(:distributed)
+    distributed = AppConfig.load!(:distributed)
     children = all_env_children() ++ env_children(Mix.env(), distributed)
 
     # CustomTelemetry.custom_telemetry_events()
@@ -72,7 +71,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
         |> AppConfig.set()
       end
 
-      Logger.configure(level: AppConfig.load(:logger, :level))
+      Logger.configure(level: AppConfig.load!(:logger, :level))
     end
   end
 
@@ -100,7 +99,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
   def stop(env) when is_atom(env) do
     IO.puts("Finishing...")
-    Application.stop(@app_name)
+    Application.stop(AppConfig.get_app_name())
 
     if env != :test do
       System.stop(0)

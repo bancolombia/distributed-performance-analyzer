@@ -3,16 +3,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
   Use case for handle dataset
   """
 
+  alias DistributedPerformanceAnalyzer.Config.AppConfig
   alias DistributedPerformanceAnalyzer.Domain.Model.Config.Dataset
   alias DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase
 
   use GenServer
   require Logger
 
-  @dataset_parser Application.compile_env(
-                    :distributed_performance_analyzer,
-                    :dataset_parser
-                  )
+  @dataset_parser Application.compile_env!(AppConfig.get_app_name(), :dataset_parser)
   @valid_extensions ["csv"]
 
   def start_link(_) do

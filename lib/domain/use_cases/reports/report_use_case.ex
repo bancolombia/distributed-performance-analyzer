@@ -6,17 +6,20 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   to print information to outgoing files or logs
   """
 
+  alias DistributedPerformanceAnalyzer.Config.AppConfig
   alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
-  alias DistributedPerformanceAnalyzer.Domain.UseCase.MetricsAnalyzerUseCase
+
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.{
+    Config.ConfigUseCase,
+    MetricsAnalyzerUseCase
+  }
+
   alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
 
   use Task
   require Logger
 
-  @report_csv Application.compile_env(
-                :distributed_performance_analyzer,
-                :report_csv
-              )
+  @report_csv Application.compile_env!(AppConfig.get_app_name(), :report_csv)
 
   @valid_extensions ["csv"]
   @path_report_jmeter "config/jmeter.csv"
@@ -28,7 +31,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
     resume_total_data(total_data)
 
-    if Application.get_env(:distributed_performance_analyzer, :jmeter_report, true) do
+    if ConfigUseCase.get(:jmeter_report, true) do
       tasks = [
         Task.async(fn -> generate_jmeter_report(sorted_curve) end),
         Task.async(fn -> generate_csv_report(sorted_curve) end)

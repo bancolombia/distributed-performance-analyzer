@@ -30,8 +30,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   def send_metrics(results, step, concurrency) do
     partial =
       PartialResultUseCase.calculate(results,
-        keep_responses:
-          Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)
+        keep_responses: ConfigUseCase.get(:jmeter_report, true)
       )
 
     GenServer.call({:global, __MODULE__}, {:results, partial, step, concurrency})
