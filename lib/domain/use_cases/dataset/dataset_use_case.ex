@@ -8,11 +8,16 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
   use GenServer
   require Logger
 
+  @file_system Application.compile_env(
+                 :distributed_performance_analyzer,
+                 :file_system
+               )
   @dataset_parser Application.compile_env(
                     :distributed_performance_analyzer,
                     :dataset_parser
                   )
-  @valid_extensions ["csv"]
+
+  @valid_extensions [".csv"]
 
   def start_link(execution_config) do
     Logger.debug("Starting dataset server...")
@@ -51,34 +56,28 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
          {:ok, _path} <- is_utf8_encoded?(path) do
       @dataset_parser.parse_csv(path, separator)
     else
-      err -> err
+      {:error, reason} -> Logger.error("Error reading dataset file: #{inspect(reason)}")
     end
   end
 
   defp file_exists?(path) do
-    case @dataset_parser.file_exists?(path) do
+    case @file_system.file_exists?(path) do
       true -> {:ok, path}
       _ -> {:error, "Dataset file #{path} not found"}
     end
   end
 
   defp has_valid_extension?(path) do
-    case String.ends_with?(path, @valid_extensions) do
+    case @file_system.has_valid_extension?(path, @valid_extensions) do
       true -> {:ok, path}
       _ -> {:error, "Dataset file #{path} does not have a valid extension"}
     end
   end
 
   defp is_utf8_encoded?(path) do
-    case File.read(path) do
-      {:ok, content} ->
-        if :unicode_util.valid(content) do
-          {:ok, path}
-        else
-          {:error, "Dataset file #{path} is not UTF-8 encoded"}
-        end
-      {:error, reason} ->
-        {:error, "Failed to read dataset file #{path}: #{reason}"}
+    case @file_system.has_utf8_encoding?(path) do
+      true -> {:ok, path}
+      _ -> {:error, "Dataset file #{path} is not UTF-8 encoded"}
     end
   end
 

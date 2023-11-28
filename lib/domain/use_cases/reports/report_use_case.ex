@@ -15,7 +15,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   @report_csv Application.compile_env(
                 :distributed_performance_analyzer,
-                :report_csv
+                :report_exporter
               )
 
   @valid_extensions ["csv"]

@@ -4,10 +4,15 @@ end
 
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
   @moduledoc """
-  Provides functions for your csv dataset
+  Provides functions for your csv operations
   """
 
-  def read_csv(path, separator) do
+  require Logger
+  alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem
+
+  @spec parse_csv(String.t(), String.t()) :: {:ok, list}
+  def parse_csv(path, separator) do
+    FileSystem.print_file_info(path)
     NimbleCSV.define(MyParser, separator: separator, escape: "\'")
 
     data_stream =
@@ -28,5 +33,28 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv do
       |> Enum.to_list()
 
     {:ok, result}
+  end
+
+  @spec save_csv(any(), String.t(), String.t(), boolean()) :: {:ok}
+  def save_csv(data, file_name, header, print) do
+    if print do
+      IO.puts("\n####CSV#####")
+      IO.puts(header)
+    end
+
+    rows =
+      data
+      |> Stream.map(fn row ->
+        if print do
+          IO.puts(row)
+        end
+
+        row <> "\n"
+      end)
+
+    [header <> "\n"]
+    |> Stream.concat(rows)
+    |> Stream.into(File.stream!(file_name))
+    |> Stream.run()
   end
 end
