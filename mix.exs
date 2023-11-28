@@ -6,7 +6,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       app: :distributed_performance_analyzer,
       version: "0.1.0",
       elixir: "~> 1.15",
-      start_permanent: Mix.env() == :prod,
+      start_permanent: false,
       test_coverage: [
         tool: ExCoveralls,
         summary: [threshold: 90]

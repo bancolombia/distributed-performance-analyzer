@@ -4,7 +4,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
-    ExecutionUseCase,
+    Execution.ExecutionUseCase,
     MetricsCollectorUseCase,
     MetricsAnalyzerUseCase,
     Config.ConfigUseCase,
@@ -14,67 +14,34 @@ defmodule DistributedPerformanceAnalyzer.Application do
   use Application
   require Logger
 
+  @app_name :distributed_performance_analyzer
   @default_runtime_config "config/performance.exs"
 
   def start(_type, [env]) do
-    # config = AppConfig.load_config()
-
+    load_config(env)
     CertificatesAdmin.setup()
 
-    # children = all_env_children() ++ env_children(Mix.env())
+    distributed = AppConfig.load(:distributed)
+    children = all_env_children() ++ env_children(Mix.env(), distributed)
 
     # CustomTelemetry.custom_telemetry_events()
-    # opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
-    # Supervisor.start_link(children, opts)
-
-    init(env)
-  end
-
-  def stop({:error, message}) do
-    Logger.error(message)
-    stop(:none)
-  end
-
-  def stop(env) when is_atom(env) do
-    IO.puts("Finishing...")
-    Application.stop(:distributed_performance_analyzer)
-
-    if env != :test do
-      System.stop(0)
-    end
+    opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
+    Supervisor.start_link(children, opts) |> init(env, distributed)
   end
 
   def all_env_children() do
     [
-      {ConfigHolder, AppConfig.load_config()},
-      {TelemetryMetricsPrometheus, [metrics: CustomTelemetry.metrics()]}
+      #      {TelemetryMetricsPrometheus, [metrics: CustomTelemetry.metrics()]},
+      {ConfigUseCase, AppConfig.load()}
     ]
   end
 
-  def env_children(:test) do
+  def env_children(:test, _distributed) do
     []
   end
 
-  def env_children(_other_env) do
-    [
-      {Finch, name: HttpFinch, pools: %{:default => [size: 500]}}
-    ]
-  end
-
-  defp init(env) do
-    if env != :test do
-      with {:ok, _} <- File.stat(@default_runtime_config) do
-        Config.Reader.read!(@default_runtime_config)
-        |> Application.put_all_env()
-      end
-
-      Logger.configure(level: Application.fetch_env!(:logger, :level))
-    end
-
-    distributed = Application.get_env(:distributed_performance_analyzer, :distributed)
-
+  def env_children(_other_env, distributed) do
     children = [
-      {ConfigUseCase, Application.get_all_env(:distributed_performance_analyzer)},
       DatasetUseCase,
       ConnectionPoolUseCase,
       {DynamicSupervisor,
@@ -91,15 +58,27 @@ defmodule DistributedPerformanceAnalyzer.Application do
       ExecutionUseCase
     ]
 
-    children =
-      if distributed == :none || distributed == :master do
-        children ++ master_children
-      else
-        children
+    if distributed == :none || distributed == :master do
+      children ++ master_children
+    else
+      children
+    end
+  end
+
+  defp load_config(env) do
+    if env != :test do
+      with {:ok, _} <- File.stat(@default_runtime_config) do
+        Config.Reader.read!(@default_runtime_config)
+        |> AppConfig.set()
       end
 
-    pid = Supervisor.start_link(children, strategy: :one_for_one)
+      Logger.configure(level: AppConfig.load(:logger, :level))
+    end
+  end
 
+  defp init(pid, :test, _distributed), do: pid
+
+  defp init(pid, env, distributed) do
     if distributed == :none do
       ExecutionUseCase.launch_execution()
     end
@@ -112,5 +91,19 @@ defmodule DistributedPerformanceAnalyzer.Application do
     end
 
     pid
+  end
+
+  def stop({:error, message}) do
+    Logger.error(message)
+    stop(:none)
+  end
+
+  def stop(env) when is_atom(env) do
+    IO.puts("Finishing...")
+    Application.stop(@app_name)
+
+    if env != :test do
+      System.stop(0)
+    end
   end
 end
