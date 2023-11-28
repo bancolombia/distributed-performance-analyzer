@@ -9,8 +9,9 @@ config :distributed_performance_analyzer,
   version: "0.0.1",
   in_test: false,
   custom_metrics_prefix_name: "distributed_performance_analyzer_local",
-  dataset_parser: DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.Parser,
-  report_csv: DistributedPerformanceAnalyzer.Infrastructure.Adapters.OutputCsv
+  dataset_parser: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv,
+  file_system: DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem,
+  report_exporter: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv
 
 if Mix.env() == :dev do
   config :git_hooks,
