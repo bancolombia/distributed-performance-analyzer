@@ -10,7 +10,8 @@ config :distributed_performance_analyzer,
   in_test: false,
   custom_metrics_prefix_name: "distributed_performance_analyzer_local",
   dataset_parser: DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem.Parser,
-  report_csv: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv
+  report_csv: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Csv,
+  http_client: DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
 
 if Mix.env() == :dev do
   config :git_hooks,
