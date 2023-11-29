@@ -5,6 +5,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   the report use case is called by all modules that need
   to print information to outgoing files or logs
   """
+  use Task
+  require Logger
 
   alias DistributedPerformanceAnalyzer.Config.AppConfig
   alias DistributedPerformanceAnalyzer.Domain.Model.RequestResult
@@ -16,11 +18,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
 
-  use Task
-  require Logger
-
   @report_exporter Application.compile_env!(AppConfig.get_app_name(), :report_exporter)
-
   @valid_extensions ["csv"]
   @path_report_jmeter "config/jmeter.csv"
   @path_csv_report "config/result.csv"

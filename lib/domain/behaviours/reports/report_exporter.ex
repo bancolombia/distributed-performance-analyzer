@@ -3,6 +3,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.Behaviours.Reports.Report do
   Definitions of operations reports
   """
 
-  @callback save_csv(data :: term, path :: term, header :: term, print :: term, print :: fun) ::
-              {:ok, result :: term} | {:error, reason :: term}
+  @type data :: String.t()
+  @type file_name :: String.t()
+  @type header :: String.t()
+  @type print :: boolean
+  @type result :: String.t()
+  @type reason :: String.t()
+
+  @callback save_csv(data, file_name, header, print) :: {:ok, result} | {:error, reason}
 end

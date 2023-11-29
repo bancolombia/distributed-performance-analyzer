@@ -1,20 +1,27 @@
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem do
   require Logger
 
+  alias DistributedPerformanceAnalyzer.Domain.Behaviours.FileSystem
+
+  @behaviour FileSystem
+
   @moduledoc """
   Provides functions for handle file system operations
   """
 
-  @spec file_exists?(String.t()) :: boolean
+  @impl FileSystem
+  @spec file_exists?(path :: String.t()) :: boolean
   def file_exists?(path), do: File.exists?(path)
 
-  @spec has_valid_extension?(String.t(), List.t()) :: boolean
+  @impl FileSystem
+  @spec has_valid_extension?(path :: String.t(), extensions :: [String.t()]) :: boolean
   def has_valid_extension?(path, extensions) do
     ext = Path.extname(path) |> String.downcase()
     Enum.map(extensions, &String.downcase/1) |> Enum.member?(ext)
   end
 
-  @spec has_utf8_encoding?(String.t()) :: boolean
+  @impl FileSystem
+  @spec has_utf8_encoding?(path :: String.t()) :: boolean
   def has_utf8_encoding?(path) do
     case File.read(path) do
       {:ok, content} ->

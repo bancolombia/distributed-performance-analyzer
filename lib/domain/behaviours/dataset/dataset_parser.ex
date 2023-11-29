@@ -3,6 +3,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.Behaviours.Dataset.DatasetParser
   Definitions of operations on datasets
   """
 
-  @callback parse_csv(path :: term, args :: term) ::
-              {:ok, result :: term} | {:error, reason :: term}
+  @type path :: String.t()
+  @type separator :: String.t()
+  @type result :: List.t()
+  @type reason :: String.t()
+
+  @callback parse_csv(path, separator) :: {:ok, result} | {:error, reason}
 end
