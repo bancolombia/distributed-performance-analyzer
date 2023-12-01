@@ -25,7 +25,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     # CustomTelemetry.custom_telemetry_events()
     opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
-    Supervisor.start_link(children, opts) |> init(env, distributed)
+    Supervisor.start_link(children, opts)
   end
 
   def all_env_children() do
@@ -35,9 +35,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
     ]
   end
 
-  def env_children(:test, _distributed) do
-    []
-  end
+  def env_children(:test, _distributed), do: []
 
   def env_children(_other_env, distributed) do
     children = [
@@ -75,34 +73,13 @@ defmodule DistributedPerformanceAnalyzer.Application do
     end
   end
 
-  defp init(pid, :test, _distributed), do: pid
-
-  defp init(pid, env, distributed) do
-    if distributed == :none do
-      ExecutionUseCase.launch_execution()
-    end
-
-    Process.monitor(Process.whereis(MetricsAnalyzerUseCase))
-
-    receive do
-      {:DOWN, _ref, :process, _pid, :normal} ->
-        stop(env)
-    end
-
-    pid
-  end
-
   def stop({:error, message}) do
     Logger.error(message)
-    stop(:none)
+    stop()
   end
 
-  def stop(env) when is_atom(env) do
+  def stop() do
     IO.puts("Finishing...")
     Application.stop(AppConfig.get_app_name())
-
-    if env != :test do
-      System.stop(0)
-    end
   end
 end

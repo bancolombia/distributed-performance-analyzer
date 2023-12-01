@@ -13,6 +13,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionSuper
     DynamicSupervisor.start_link(name: __MODULE__, strategy: :one_for_one)
   end
 
+  @impl true
+  def init(_), do: {:ok, nil}
+
   def child_spec(_arg) do
     %{
       id: __MODULE__,

@@ -6,11 +6,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
   use GenServer
   require Logger
 
-  alias DistributedPerformanceAnalyzer.Domain.Model.Scenario
+  alias DistributedPerformanceAnalyzer.Application
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     Config.ConfigUseCase,
-    Step.StepUseCase,
     Execution.ExecutionSupervisor
   }
 
@@ -19,10 +18,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
   def start_link(_) do
     Logger.debug("Starting executor server...")
     GenServer.start_link(__MODULE__, ConfigUseCase.get(:scenarios), name: __MODULE__)
-  end
-
-  def launch_execution() do
-    GenServer.call(__MODULE__, :launch_execution)
   end
 
   def continue_execution(done_scenario) do
@@ -37,14 +32,23 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
 
     case state.ready do
       [] -> {:error, :no_scenarios_to_execute_at_first}
-      _ -> {:ok, state}
+      _ -> {:ok, state, {:continue, :launch_execution}}
     end
   end
 
   @impl true
-  def handle_call(:launch_execution, _from, state) do
+  def handle_continue(:launch_execution, state) do
     state.ready |> start_scenarios()
-    {:reply, :ok, %{state | in_progress: state.in_progress ++ state.ready, ready: []}}
+
+    # TODO: Improve app stop
+    #    Process.monitor(Process.whereis(MetricsAnalyzerUseCase))
+    #
+    #    receive do
+    #      {:DOWN, _ref, :process, _pid, :normal} ->
+    #        Application.stop()
+    #    end
+
+    {:noreply, %{state | in_progress: state.in_progress ++ state.ready, ready: []}}
   end
 
   @impl true
@@ -85,7 +89,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
     }
   end
 
-  defp start_scenarios([]), do: {:error, :no_scenarios_to_execute}
+  defp start_scenarios([]), do: Logger.error("No scenarios to execute")
 
   defp start_scenarios(scenarios) when is_list(scenarios) do
     scenarios
