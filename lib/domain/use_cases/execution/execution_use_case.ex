@@ -6,8 +6,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
   use GenServer
   require Logger
 
-  alias DistributedPerformanceAnalyzer.Application
-
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     Config.ConfigUseCase,
     Execution.ExecutionSupervisor

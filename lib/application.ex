@@ -1,6 +1,6 @@
 defmodule DistributedPerformanceAnalyzer.Application do
   alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry}
-  alias DistributedPerformanceAnalyzer.Utils.{CertificatesAdmin, CustomTelemetry}
+  alias DistributedPerformanceAnalyzer.Utils.CertificatesAdmin
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
