@@ -35,7 +35,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
       with {:ok, dataset} <- parse_file(path, separator) do
         dataset
         |> Enum.with_index(1)
-        |> Enum.each(fn {value, index} -> :ets.insert(table_name, {index, value}) end)
+        |> Enum.each(&insert_into_table(table_name, &1))
 
         :ets.insert(table_name, {:length, length(dataset)})
 
@@ -49,6 +49,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
       :ets.insert(table_name, {:length, -1})
       {:ok, nil}
     end
+  end
+
+  defp insert_into_table(table_name, {value, index}) do
+    :ets.insert(table_name, {index, value})
   end
 
   defp parse_file(path, separator) when is_binary(path) do
@@ -90,15 +94,17 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     do: get_random_item(String.to_atom(table_name))
 
   def get_random_item(table_name) when is_atom(table_name) do
-    unless table_name == :none do
+    if table_name != :none do
       [length: length] = :ets.lookup(table_name, :length)
 
-      if length > 0 do
-        random = Enum.random(1..length)
-        [{^random, value}] = :ets.lookup(table_name, random)
-        value
-      else
-        nil
+      case :ets.lookup(table_name, :length) do
+        [{_, length}] when length > 0 ->
+          random = Enum.random(1..length)
+          [{_, value}] = :ets.lookup(table_name, random)
+          value
+
+        _ ->
+          nil
       end
     else
       nil
@@ -115,7 +121,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     item = Map.put(item, "random", "#{Enum.random(1..10)}")
 
     Regex.replace(~r/{([a-z A-Z _-]+)?}/, value, fn _, match ->
-      item[match]
+      Map.get(item, match)
     end)
   end
 
