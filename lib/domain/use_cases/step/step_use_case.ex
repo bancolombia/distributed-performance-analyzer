@@ -8,11 +8,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
   use GenServer
   require Logger
 
-  @supervisor_name Step.Supervisor
-
-  def start_link(%Step{} = step) do
-    Logger.debug("Scenario #{step.scenario.name} - starting step #{step.number}...")
-    GenServer.start_link(__MODULE__, step, name: __MODULE__)
+  def start_link(%Step{scenario: scenario, number: step_number} = step) do
+    Logger.debug("Scenario #{scenario.name} - Starting step #{step_number}...")
+    GenServer.start_link(__MODULE__, step, name: get_process_name(scenario.name, step_number))
   end
 
   @impl true
@@ -21,8 +19,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
       {:ok, nil}
     else
       {:error, reason} ->
-        Logger.error(reason)
-        {:stop, reason}
+        Logger.error(inspect(reason))
+        {:stop, "Error starting step #{step_number} for scenario #{scenario.name}"}
     end
   end
 
@@ -33,18 +31,22 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
     user_config = get_user_config(scenario)
 
     Logger.info(
-      "Scenario #{scenario.name} - starting step #{step_number} with #{concurrency} users..."
+      "Scenario #{scenario.name} - Starting step #{step_number} with #{concurrency} users..."
     )
 
-    children = [
-      :poolboy.child_spec(
-        :worker,
-        get_pool_config(concurrency),
-        user_config
-      )
-    ]
+    children =
+      [
+        :poolboy.child_spec(
+          :worker,
+          get_pool_config(scenario.name, concurrency),
+          user_config
+        )
+      ]
+      |> IO.inspect()
 
-    opts = [strategy: :one_for_one, name: @supervisor_name]
+    opts =
+      [strategy: :one_for_one, name: get_pool_name(scenario.name, step_number)]
+
     Supervisor.start_link(children, opts)
   end
 
@@ -58,15 +60,24 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
     end
   end
 
-  defp get_user_config(%Scenario{} = step), do: User.new(step)
+  defp get_user_config(%Scenario{} = step) do
+    {:ok, user} = User.new(step)
+    user
+  end
 
-  defp get_pool_config(concurrency),
+  defp get_pool_config(scenario_name, concurrency),
     do: [
-      name: {:local, :worker},
+      name: {:local, String.to_atom("#{scenario_name}_worker")},
       worker_module: UserUseCase,
       size: concurrency,
       max_overflow: 0
     ]
+
+  defp get_pool_name(scenario_name, step_number),
+    do: String.to_atom("#{get_process_name(scenario_name, step_number)}_pool")
+
+  defp get_process_name(scenario_name, step_number),
+    do: String.to_atom("#{scenario_name}_scenario_step_#{step_number}")
 
   #  TODO: remove
   def get_concurrency(%Step{number: number, scenario: scenario}) do
