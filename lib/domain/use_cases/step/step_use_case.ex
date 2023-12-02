@@ -42,7 +42,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
           user_config
         )
       ]
-      |> IO.inspect()
 
     opts =
       [strategy: :one_for_one, name: get_pool_name(scenario.name, step_number)]
