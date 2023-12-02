@@ -18,13 +18,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
     GenServer.start_link(__MODULE__, ConfigUseCase.get(:scenarios), name: __MODULE__)
   end
 
-  def continue_execution(done_scenario) do
-    GenServer.call(__MODULE__, {:continue_execution, done_scenario})
-  end
-
   @impl true
   def init(scenarios) do
-    IO.puts("Initializing Distributed Performance Analyzer...")
+    Logger.info("Initializing Distributed Performance Analyzer...")
     Supervisor.start_link([ExecutionSupervisor], strategy: :one_for_one)
     state = order_scenarios(scenarios)
 
@@ -49,18 +45,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
     {:noreply, %{state | in_progress: state.in_progress ++ state.ready, ready: []}}
   end
 
-  @impl true
-  def handle_call({:continue_execution, done_scenario}, _from, state) do
-    new_state = order_scenarios(state, done_scenario)
-
-    {ready_scenarios, waiting} =
-      new_state.waiting
-
-    start_scenarios(ready_scenarios)
-
-    {:reply, :ok,
-     %{new_state | waiting: waiting, in_progress: new_state.in_progress ++ ready_scenarios}}
-  end
+  def continue_execution(done_scenario),
+    do: GenServer.call(__MODULE__, {:continue_execution, done_scenario})
 
   defp order_scenarios(scenarios) when is_list(scenarios) do
     {ready, waiting} = scenarios |> Enum.split_with(&(&1.depends == :none || &1.depends == []))
@@ -93,5 +79,18 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
     scenarios
     |> Enum.map(&Task.async(fn -> ExecutionSupervisor.start_scenario(&1) end))
     |> Task.await_many()
+  end
+
+  @impl true
+  def handle_call({:continue_execution, done_scenario}, _from, state) do
+    new_state = order_scenarios(state, done_scenario)
+
+    {ready_scenarios, waiting} =
+      new_state.waiting
+
+    start_scenarios(ready_scenarios)
+
+    {:reply, :ok,
+     %{new_state | waiting: waiting, in_progress: new_state.in_progress ++ ready_scenarios}}
   end
 end

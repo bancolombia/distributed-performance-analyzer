@@ -31,7 +31,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionSuper
     end
   end
 
-  defp start_child(scenario) do
-    DynamicSupervisor.start_child(__MODULE__, {ScenarioUseCase, scenario})
-  end
+  defp start_child(scenario),
+    do: DynamicSupervisor.start_child(__MODULE__, {ScenarioUseCase, scenario})
 end
