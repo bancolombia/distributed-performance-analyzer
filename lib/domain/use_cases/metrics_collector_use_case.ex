@@ -30,7 +30,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   end
 
   def get_metrics do
-    GenServer.call({:global, __MODULE__}, :get_metrics)
+    GenServer.call({:global, __MODULE__}, :get_metrics, 30_000)
   end
 
   def clean_metrics do
