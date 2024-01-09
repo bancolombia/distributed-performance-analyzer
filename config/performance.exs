@@ -3,7 +3,7 @@ import Config
 config :distributed_performance_analyzer,
   requests: [
     wait: %{
-      url: "http://localhost:8080/wait/10",
+      url: "http://localhost:8080/wait/100",
       method: "GET",
       headers: ["Content-Type": "application/json"],
       body: ""
@@ -20,14 +20,26 @@ config :distributed_performance_analyzer,
       path: "./datasets/data_performance.csv",
       separator: ",",
       ordered: false
+    },
+    data2: %{
+      path: "./datasets/data_performance.csv",
+      separator: ",",
+      ordered: false
     }
   ],
   strategies: [
     short_constant: %{
-      steps: 5,
+      steps: 10,
+      initial: 5,
       increment: 1,
-      duration: 1000,
+      duration: 2000,
       constant_load: true
+    },
+    large_increment: %{
+      steps: 10,
+      increment: 10,
+      duration: 3000,
+      constant_load: false
     }
   ],
   scenarios: [
@@ -36,10 +48,22 @@ config :distributed_performance_analyzer,
       dataset: "data1",
       strategy: "short_constant",
       depends: :none
+    },
+    load2: %{
+      request: "real_time",
+      dataset: "data2",
+      strategy: "large_increment",
+      depends: "load"
+    },
+    load3: %{
+      request: "real_time",
+      dataset: "data2",
+      strategy: "large_increment",
+      depends: :none
     }
   ],
   distributed: :none,
   jmeter_report: true
 
 config :logger,
-  level: :info
+  level: :debug

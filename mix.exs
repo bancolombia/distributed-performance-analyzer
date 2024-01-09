@@ -5,8 +5,8 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
     [
       app: :distributed_performance_analyzer,
       version: "0.1.0",
-      elixir: "~> 1.15",
-      start_permanent: Mix.env() == :prod,
+      elixir: "~> 1.16",
+      start_permanent: false,
       test_coverage: [
         tool: ExCoveralls,
         summary: [threshold: 90]
@@ -60,7 +60,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
     [
       {:sobelow, "~> 0.13", only: :dev},
       {:credo_sonarqube, "~> 0.1"},
-      {:finch, "~> 0.13"},
+      {:finch, "~> 0.17"},
       {:opentelemetry_plug,
        git: "https://github.com/juancgalvis/opentelemetry_plug.git", tag: "master"},
       {:opentelemetry_api, "~> 1.2"},
@@ -82,8 +82,9 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:mint, "~> 1.5"},
       {:tesla, "~> 1.8"},
       {:git_hooks, "~> 0.7", only: [:dev], runtime: false},
-      {:benchee, "~> 1.1", only: [:dev, :test]},
-      {:benchee_html, "~> 1.0", only: [:dev, :test]}
+      {:benchee, "~> 1.0", only: [:dev, :test]},
+      {:benchee_html, "~> 1.0", only: [:dev, :test]},
+      {:poolboy, "~> 1.5"}
     ]
   end
 end

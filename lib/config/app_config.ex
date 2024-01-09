@@ -3,20 +3,11 @@ defmodule DistributedPerformanceAnalyzer.Config.AppConfig do
    Provides struct for app-config
   """
 
-  defstruct [
-    :api_rest_url,
-    :enable_server,
-    :http_port
-  ]
+  @app_name :distributed_performance_analyzer
 
-  def load_config do
-    %__MODULE__{
-      api_rest_url: load(:api_rest_url),
-      enable_server: load(:enable_server),
-      http_port: load(:http_port)
-    }
-  end
-
-  defp load(property_name),
-    do: Application.fetch_env!(:distributed_performance_analyzer, property_name)
+  def get_app_name(), do: @app_name
+  def load(), do: Application.get_all_env(@app_name)
+  def load!(property_name), do: Application.fetch_env!(@app_name, property_name)
+  def load!(app_name, property_name), do: Application.fetch_env!(app_name, property_name)
+  def set(config), do: Application.put_all_env(config)
 end

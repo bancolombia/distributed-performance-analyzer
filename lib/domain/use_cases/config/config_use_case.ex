@@ -26,6 +26,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
     conf
   end
 
+  def get(config_key, default), do: get(config_key) || default
+
   def load_config(application_envs) do
     distributed = application_envs[:distributed]
     jmeter_report = application_envs[:jmeter_report]
@@ -114,7 +116,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
         |> Map.put(:dataset_name, dataset)
         |> Scenario.new()
 
-      {key, scenario}
+      scenario
     else
       unless request_model,
         do:

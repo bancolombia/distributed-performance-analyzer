@@ -22,7 +22,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   def start_link(_) do
     Logger.debug("Starting metrics collector server...")
     #    TODO: do parallel
-    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0) |> elem(1)
+    scenario = ConfigUseCase.get(:scenarios) |> Enum.at(0)
     GenServer.start_link(__MODULE__, scenario.strategy, name: {:global, __MODULE__})
   end
 
@@ -30,8 +30,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   def send_metrics(results, step, concurrency) do
     partial =
       PartialResultUseCase.calculate(results,
-        keep_responses:
-          Application.get_env(:distributed_performance_analyzer, :jmeter_report, true)
+        keep_responses: ConfigUseCase.get(:jmeter_report, true)
       )
 
     GenServer.call({:global, __MODULE__}, {:results, partial, step, concurrency})
