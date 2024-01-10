@@ -1,245 +1,212 @@
 defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient do
-  use GenServer
-
   require Logger
 
-  defstruct [:conn, :params, :conn_time, request: %{}]
-
   @moduledoc """
-  Provides functions for making HTTP requests and GenServer Process.
+  Provides functions for making HTTP requests
   """
 
-  alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
+  use Tesla
 
-  @doc """
-    GenServer
-  """
+  @client Tesla.client([], Tesla.Adapter.Mint)
+  @adapter Tesla.Adapter.Mint
+  @http_methods %{
+    get: &Httpclient.get_request/4,
+    post: &Httpclient.post_request/4,
+    put: &Httpclient.put_request/4,
+    delete: &Httpclient.delete_request/4,
+    patch: &Httpclient.patch_request/4,
+    options: &Httpclient.options_request/4,
+    head: &Httpclient.head_request/4,
+    trace: &Httpclient.trace_request/4
+  }
 
-  def start_link({scheme, host, port, id}) do
-    {:ok, pid} = GenServer.start_link(__MODULE__, {scheme, host, port}, name: id)
-    send(pid, :late_init)
-    {:ok, pid}
-  end
+  def init(url, method, body \\ "", headers \\ "", conn_reuse) do
+    Utils.CertificatesAdmin.setup()
 
-  @impl true
-  def init({scheme, host, port}) do
-    state = %__MODULE__{conn: nil, params: {scheme, host, port}}
-    {:ok, state}
-  end
-
-  def request(pid, method, path, headers, body) do
-    :timer.tc(fn ->
-      GenServer.call(pid, {:request, method, path, headers, body}, 15_000)
-    end)
-  end
-
-  # Latency HTTP
-  defp set_latency(state, item, value) do
-    new_state = put_in(state.request[item], value)
-
-    # If the value is 0, start latency measurement by setting the latency to the current time
-    if new_state.request.latency == 0,
-      do: put_in(new_state.request.latency, :erlang.monotonic_time(:millisecond)),
-      else: new_state
-  end
-
-  # Connect Mint HTTP
-  @impl true
-  def handle_info(:late_init, state = %__MODULE__{params: {scheme, host, port}}) do
     start = :erlang.monotonic_time(:millisecond)
 
-    case Mint.HTTP.connect(scheme, host, port, options(scheme)) do
+    %{
+      host: host,
+      path: path,
+      port: port,
+      query: query,
+      scheme: scheme
+    } = DataTypeUtils.parse(url)
+
+    body_json = Jason.encode!(body)
+    params = [method, url, body_json, headers]
+
+    case connect(%{host: host, path: path, port: port, query: query, scheme: scheme}) do
       {:ok, conn} ->
         conn_time = :erlang.monotonic_time(:millisecond) - start
-        new_state = %{state | conn: conn, conn_time: conn_time}
-        {:noreply, new_state}
+        time = [start, conn_time]
+        handle_http_method(method, params, time, conn)
+
+      {:error, _} = error ->
+        Logger.warning("Error creating connection with #{url}}")
+        error
+    end
+  end
+
+  defp connect(%{host: host, path: path, port: port, scheme: scheme}) do
+    Mint.HTTP.connect(scheme, host, port, options_mint(scheme))
+  end
+
+  defp handle_http_method(method, params, time, conn) do
+    case Map.fetch(@http_methods, method) do
+      {:ok, func} -> apply(func, [@client, params, time, conn])
+      :error -> {:error, "Unsupported HTTP method"}
+    end
+  end
+
+  ### definition of http methods
+
+  def get_request(client, params, time, conn) do
+    [method, url, body, headers] = params
+
+    case Tesla.get(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
 
       {:error, err} ->
-        Logger.error(
-          "Error creating connection with #{inspect({scheme, host, port})}: #{inspect(err)}"
-        )
-
-        {:noreply, state}
+        response_fail(err)
     end
   end
 
-  # Stream Mint HTTP
-  @impl true
-  def handle_info(message, state) do
-    case Mint.HTTP.stream(state.conn, message) do
-      :unknown ->
-        Logger.warning(fn -> "Received unknown message: " <> inspect(message) end)
-        {:noreply, state}
+  def post_request(client, params, time, conn) do
+    [method, url, body, headers] = params
 
-      {:ok, conn, []} ->
-        {:noreply, put_in(state.conn, conn)}
+    case Map.get(headers, "Content-Type") do
+      "multipart/form-data" ->
+        file_path = Enum.find_value(body, fn {_, v} -> if File.exists?(v), do: v, else: nil end)
 
-      {:ok, conn, responses} ->
-        state = put_in(state.conn, conn)
-        state = Enum.reduce(responses, state, process_response_fn(state))
-        {:noreply, state}
-
-        # Check if the HTTP connection is open using Mint.HTTP.open?/1
-        if Mint.HTTP.open?(state.conn),
-          do: {:noreply, state},
-          else: {:noreply, put_in(state.conn, nil)}
-
-      # Notify the originating process with a protocol error message if valid,
-      {:error, _conn, reason, _responses} ->
-        Logger.error(
-          "Encountered error when streaming responses, reason: " <> Exception.message(reason)
-        )
-
-        case Map.get(state.request, :from) do
-          from when is_pid(from) -> GenServer.reply(from, {:protocol_error, reason})
-          _ -> nil
+        if file_path do
+          multipart_data = build_multipart_data(file_path)
+          # Tesla.post(client, url, multipart_data)
+          Tesla.post(client, url, multipart_data, conn: conn)
+        else
+          Tesla.post(client, url, body, conn: conn)
         end
 
-        {:noreply, put_in(state.conn, nil)}
+      "application/x-www-form-urlencoded" ->
+        encoded_body = Tesla.encode_query(body)
+        Tesla.post(client, url, encoded_body, conn: conn)
+
+      _ ->
+        Tesla.post(client, url, body, conn: conn)
+    end
+    |> handle_post_response(url, time)
+  end
+
+  def put_request(client, params, time, conn) do
+    [method, url, body, headers] = params
+
+    case Tesla.put(client, url, body, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
+
+      {:error, err} ->
+        response_fail(err)
     end
   end
 
-  # Request Mint HTTP
-  @impl true
-  def handle_call({:request, method, path, headers, body}, from, state) do
-    response =
-      RequestResult.new(
-        "sample",
-        "#{inspect(self())}",
-        get_endpoint(state.conn, path, method),
-        String.length(body),
-        state.conn_time
-      )
+  def delete_request(client, params, time, conn) do
+    [method, url, body, headers] = params
 
-    # IO.puts "Making Request!"
-    start = :erlang.monotonic_time(:millisecond)
+    case Tesla.delete(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
 
-    case Mint.HTTP.request(state.conn, method, path, headers, body) do
-      {:ok, conn, request_ref} ->
-        conn_time = :erlang.monotonic_time(:millisecond) - start
-
-        state = %{
-          state
-          | conn: conn,
-            conn_time: conn_time,
-            request: %{
-              from: from,
-              response: response,
-              ref: request_ref,
-              status: nil,
-              headers: [],
-              body: "",
-              latency: 0
-            }
-        }
-
-        {:noreply, state}
-
-      {:error, conn, reason} ->
-        state = put_in(state.conn, conn)
-        send(self(), :late_init)
-        {:reply, {:error_conn, reason}, state}
+      {:error, err} ->
+        response_fail(err)
     end
   end
 
-  # Process GenServer
-  defp process_response_fn(%__MODULE__{request: %{ref: original_ref}}) do
-    fn message, state ->
-      case message do
-        {:status, ^original_ref, status} -> set_latency(state, :status, status)
-        {:done, ^original_ref} -> process_response(message, state)
-        {:headers, ^original_ref, headers} -> set_latency(state, :headers, headers)
-        {:data, ^original_ref, data} -> set_latency(state, :body, data <> state.request.body)
-        {:error, ^original_ref, _reason} -> process_response(message, state)
-        _ -> state
-      end
+  def patch_request(client, params, time, conn) do
+    [method, url, body, headers] = params
+
+    case Tesla.delete(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
+
+      {:error, err} ->
+        response_fail(err)
     end
   end
 
-  defp process_response(
-         {:done, _request_ref},
-         state = %__MODULE__{
-           request: %{
-             from: from,
-             status: status,
-             body: body,
-             headers: headers,
-             latency: latency,
-             response: response
-           }
-         }
-       ) do
-    # IO.puts("Done request!")
-    final_result = RequestResult.complete(response, status, body, headers, latency)
-    GenServer.reply(from, {status_for(status), final_result})
-    %{state | request: %{}}
+  def options_request(client, params, time, conn) do
+    [method, url, body, headers] = params
+
+    case Tesla.options(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
+
+      {:error, err} ->
+        response_fail(err)
+    end
   end
 
-  defp process_response(
-         {:error, _request_ref, reason},
-         state = %__MODULE__{request: %{from: from, init: _init}}
-       ) do
-    GenServer.reply(from, {:protocol_error, reason})
-    # IO.puts("Request error")
-    IO.inspect(reason)
-    %{state | request: %{}}
+  def head_request(client, params, time, conn) do
+    [method, url, body, headers] = params
+
+    case Tesla.head(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
+
+      {:error, err} ->
+        response_fail(err)
+    end
   end
 
-  defp status_for(status) when status >= 200 and status < 400, do: :ok
-  defp status_for(status), do: {:fail_http, status}
+  def trace_request(client, params, time, conn) do
+    [method, url, body, headers] = params
 
-  defp get_endpoint(%{hostname: hostname, scheme: scheme, port: port}, path, method) do
-    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+    case Tesla.trace(client, url, conn: conn) do
+      {:ok, res} ->
+        response_to_map(res, url, time) |> IO.inspect()
+
+      {:error, err} ->
+        response_fail(err)
+    end
   end
 
-  defp get_endpoint(%{host: hostname, scheme_as_string: scheme, port: port}, path, method) do
-    "#{method} -> #{scheme}://#{hostname}:#{port}#{path}"
+  ### common functions
+
+  defp handle_post_response({:ok, res}, url, time) do
+    response_to_map(res, url, time) |> IO.inspect()
+  rescue
+    err ->
+      Logger.error("Error: #{inspect(err)}")
+      response_fail(err)
   end
 
-  @compile {:inline, options: 1}
-  defp options(:https) do
-    [transport_opts: [verify: :verify_none]]
+  defp response_to_map(response, url, time) do
+    [start, conn_time] = time
+
+    %{
+      status: response.status,
+      headers: response.headers,
+      body: response.body,
+      label: "sample",
+      thread_name: "#{inspect(self())}",
+      url: url,
+      sent_bytes: String.length(response.body),
+      connect: conn_time
+      # concurrency: concurrency
+    }
   end
 
-  defp options(:http) do
-    []
+  defp response_fail(res) do
+    IO.puts("Hubo un error en la petición, el error fue #{res}")
+    IO.inspect(System.stacktrace())
   end
-end
 
-defmodule Tesla.HTTP do
-  use Tesla
-  alias Tesla.Multipart
-
-  @doc """
-  Perform an HTTP request with support for 'multipart' data format.
-
-  ## Parameters
-
-  - `url`: The URL to which the request will be made.
-  - `file_path`: The path of the file to be sent as part of the 'multipart' form.
-  - `timeout`: The timeout for the HTTP request in milliseconds.
-
-  ## Example
-
-      Tesla.HTTP.request("https://httpbin.com/post", "/path/to/file.txt", 5000)
-
-  """
-  def request(url, file_path, timeout)
-      when is_binary(url) and is_binary(file_path) and is_integer(timeout) do
-    middleware = [
-      {Tesla.Middleware.Logger, debug: false},
-      {Tesla.Middleware.Timeout, timeout: timeout}
-    ]
-
-    client = Tesla.client(middleware, Tesla.Adapter.Mint)
-    multipart = build_multipart_data(file_path)
-
-    case Tesla.post(client, url, multipart) do
-      {:ok, response} ->
-        {:ok, response.status}
-
-      {:error, reason} ->
-        {:error, "HTTP request error: #{inspect(reason)}"}
+  defp options_mint(scheme) do
+    case scheme do
+      :https -> [transport_opts: [verify: :verify_none, timeout: 60000]]
+      :http -> [transport_opts: [timeout: 60000]]
+      _ -> []
     end
   end
 
