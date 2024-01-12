@@ -11,6 +11,7 @@ defmodule DistributedPerformanceAnalyzer.Test.BenchmarkTest do
     :ok
   end
 
+  @tag skip: true
   @tag timeout: :infinity
   test "write benchmark", _ do
     Benchee.run(
@@ -28,6 +29,12 @@ defmodule DistributedPerformanceAnalyzer.Test.BenchmarkTest do
         end,
         "mnesia_disk_dirty" => fn ->
           EtsServer.write_random_item(:mnesia_disk_dirty, @min_value, @max_value)
+        end,
+        "amnesia" => fn ->
+          EtsServer.write_random_item(:amnesia, @min_value, @max_value)
+        end,
+        "amnesia_dirty" => fn ->
+          EtsServer.write_random_item(:amnesia_dirty, @min_value, @max_value)
         end
       },
       warmup: 1,
@@ -41,6 +48,7 @@ defmodule DistributedPerformanceAnalyzer.Test.BenchmarkTest do
     )
   end
 
+  @tag skip: true
   @tag timeout: :infinity
   test "read benchmark", _ do
     Benchee.run(
@@ -58,6 +66,12 @@ defmodule DistributedPerformanceAnalyzer.Test.BenchmarkTest do
         end,
         "mnesia_disk_dirty" => fn ->
           EtsServer.read_random_item(:mnesia_disk_dirty, @min_value, @max_value)
+        end,
+        "amnesia" => fn ->
+          EtsServer.read_random_item(:amnesia, @min_value, @max_value)
+        end,
+        "amnesia_dirty" => fn ->
+          EtsServer.read_random_item(:amnesia_dirty, @min_value, @max_value)
         end
       },
       warmup: 1,

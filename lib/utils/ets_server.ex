@@ -1,9 +1,11 @@
 defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
   use GenServer
+  use Amnesia
 
   alias :ets, as: Ets
   alias :dets, as: Dets
   alias :mnesia, as: Mnesia
+  alias DistributedPerformanceAnalyzer.Utils.EtsServer.Database.Message
 
   @ets :dataset_ets
   @ets_r_concurrency :dataset_ets_r_concurrency
@@ -13,9 +15,7 @@ defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
   @mnesia :dataset_mnesia
   @disk_mnesia :dataset_disk_mnesia
 
-  def start() do
-    GenServer.start(__MODULE__, nil, name: __MODULE__)
-  end
+  def start(), do: GenServer.start(__MODULE__, nil, name: __MODULE__)
 
   @impl true
   def init(nil) do
@@ -51,7 +51,14 @@ defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
     #    dets
     {:ok, _} = Dets.open_file(@dets, type: :set) |> IO.inspect()
 
-    #    mnesia
+    init_amnesia()
+    init_mnesia()
+
+    {:ok, nil}
+  end
+
+  #    mnesia
+  def init_mnesia() do
     Mnesia.create_schema([node()])
     Mnesia.start()
 
@@ -63,15 +70,29 @@ defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
       {:ram_copies, []}
     ])
     |> IO.inspect()
-
-    {:ok, nil}
   end
 
-  defp clean() do
+  #  amnesia
+  defdatabase Database do
+    deftable Message, [:index, :message] do
+    end
+  end
+
+  def init_amnesia() do
+    Amnesia.Schema.create([node()])
+    Amnesia.Database
+    Amnesia.start()
+
+    Database.create()
+  end
+
+  def clean() do
     File.rm_rf("Mnesia.#{node()}")
     File.rm_rf(Atom.to_string(@dets))
     Mnesia.stop()
     Mnesia.delete_schema([node()])
+    Amnesia.stop()
+    Amnesia.Schema.destroy([node()])
   end
 
   @impl true
@@ -86,15 +107,42 @@ defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
     index = Enum.random(minValue..maxValue)
 
     case dataset_type do
-      :ets -> Ets.lookup(@ets, index)
-      :ets_r_concurrency -> Ets.lookup(@ets_r_concurrency, index)
-      :ets_w_concurrency -> Ets.lookup(@ets_w_concurrency, index)
-      :ets_concurrency -> Ets.lookup(@ets_concurrency, index)
-      :dets -> Dets.lookup(@dets, index)
-      :mnesia -> Mnesia.transaction(fn -> Mnesia.read({@mnesia, index}) end)
-      :mnesia_dirty -> Mnesia.dirty_read({@mnesia, index})
-      :mnesia_disk -> Mnesia.transaction(fn -> Mnesia.read({@disk_mnesia, index}) end)
-      :mnesia_disk_dirty -> Mnesia.dirty_read({@disk_mnesia, index})
+      :ets ->
+        Ets.lookup(@ets, index)
+
+      :ets_r_concurrency ->
+        Ets.lookup(@ets_r_concurrency, index)
+
+      :ets_w_concurrency ->
+        Ets.lookup(@ets_w_concurrency, index)
+
+      :ets_concurrency ->
+        Ets.lookup(@ets_concurrency, index)
+
+      :dets ->
+        Dets.lookup(@dets, index)
+
+      :mnesia ->
+        Mnesia.transaction(fn -> Mnesia.read({@mnesia, index}) end)
+
+      :mnesia_dirty ->
+        Mnesia.dirty_read({@mnesia, index})
+
+      :mnesia_disk ->
+        Mnesia.transaction(fn -> Mnesia.read({@disk_mnesia, index}) end)
+
+      :mnesia_disk_dirty ->
+        Mnesia.dirty_read({@disk_mnesia, index})
+
+      :amnesia ->
+        Amnesia.transaction do
+          Message.read(index)
+        end
+
+      :amnesia_dirty ->
+        Amnesia.transaction do
+          Message.read!(index)
+        end
     end
   end
 
@@ -131,6 +179,16 @@ defmodule DistributedPerformanceAnalyzer.Utils.EtsServer do
 
       :mnesia_disk_dirty ->
         Mnesia.dirty_write({@disk_mnesia, index, message})
+
+      :amnesia ->
+        Amnesia.transaction do
+          Message.write(%Message{index: index, message: message})
+        end
+
+      :amnesia_dirty ->
+        Amnesia.transaction do
+          Message.write!(%Message{index: index, message: message})
+        end
     end
   end
 end

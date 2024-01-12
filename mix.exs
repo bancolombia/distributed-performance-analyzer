@@ -84,6 +84,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:git_hooks, "~> 0.7", only: [:dev], runtime: false},
       {:benchee, "~> 1.0", only: [:dev, :test]},
       {:benchee_html, "~> 1.0", only: [:dev, :test]},
+      {:amnesia, "~> 0.2.8", only: [:dev, :test]},
       {:poolboy, "~> 1.5"}
     ]
   end
