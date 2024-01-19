@@ -25,6 +25,13 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
     value
   end
 
+  def extract_headers(headers, names)
+      when is_list(headers)
+      when is_list(names) do
+    downcase_names = names |> Enum.map(&String.downcase/1)
+    Enum.filter(headers, fn {k, _} -> Enum.member?(downcase_names, String.downcase(k)) end)
+  end
+
   def extract_header!(headers, name) when is_list(headers) do
     case extract_header(headers, name) do
       {:ok, value} when value != nil -> value
