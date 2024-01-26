@@ -24,6 +24,22 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.JMeter.Parser d
       received_bytes: received_bytes
     } = response
 
+    label = ""
+    response_code = ""
+    response_message = ""
+    thread_name = ""
+    data_type = ""
+    success = ""
+    failure_message = ""
+    bytes = ""
+    sent_bytes = ""
+    grp_threads = ""
+    all_threads = ""
+    url = ""
+    latency = ""
+    idle_time = ""
+    connect = ""
+
     #    TODO: complete info
     result =
       ~s|#{elapsed},#{label},#{response_code},#{sanitize(response_message)},#{thread_name},#{data_type},#{success},#{sanitize(failure_message)},#{bytes},#{sent_bytes},#{grp_threads},#{all_threads},#{url},#{latency},#{idle_time},#{connect}|
