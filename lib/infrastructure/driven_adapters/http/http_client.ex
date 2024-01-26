@@ -74,16 +74,32 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     end
   end
 
-  def post_request(client, params, time, conn) do
-    [method, url, body, headers] = params
+  """
+    Example of request function
 
+    request(client, :post, params, time, conn)
+    request(client, :put, params, time, conn)
+    request(client, :delete, params, time, conn)
+    request(client, :patch, params, time, conn)
+  """
+
+  def request(client, method, params, time, conn) do
+    [_, url, body, headers] = params
+
+    case method do
+      :post -> handle_post(client, url, body, headers, conn)
+      _ -> handle_request(method, client, url, body, conn)
+    end
+    |> handle_response(url, time)
+  end
+
+  defp handle_post(client, url, body, headers, conn) do
     case Map.get(headers, "Content-Type") do
       "multipart/form-data" ->
         file_path = Enum.find_value(body, fn {_, v} -> if File.exists?(v), do: v, else: nil end)
 
         if file_path do
           multipart_data = build_multipart_data(file_path)
-          # Tesla.post(client, url, multipart_data)
           Tesla.post(client, url, multipart_data, conn: conn)
         else
           Tesla.post(client, url, body, conn: conn)
@@ -96,90 +112,21 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
       _ ->
         Tesla.post(client, url, body, conn: conn)
     end
-    |> handle_post_response(url, time)
   end
 
-  def put_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.put(client, url, body, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
+  defp handle_request(method, client, url, body, conn) do
+    Tesla.request(client, method, url, body, conn: conn)
   end
 
-  def delete_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.delete(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
+  defp handle_response({:ok, res}, url, time) do
+    response_to_map(res, url, time) |> IO.inspect()
   end
 
-  def patch_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.delete(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
-  end
-
-  def options_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.options(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
-  end
-
-  def head_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.head(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
-  end
-
-  def trace_request(client, params, time, conn) do
-    [method, url, body, headers] = params
-
-    case Tesla.trace(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
-
-      {:error, err} ->
-        response_fail(err)
-    end
+  defp handle_response({:error, err}, _, _) do
+    response_fail(err)
   end
 
   ### common functions
-
-  defp handle_post_response({:ok, res}, url, time) do
-    response_to_map(res, url, time) |> IO.inspect()
-  rescue
-    err ->
-      Logger.error("Error: #{inspect(err)}")
-      response_fail(err)
-  end
 
   defp response_to_map(response, url, time) do
     [start, conn_time] = time
