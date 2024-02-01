@@ -60,7 +60,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
       {:castore, "~> 1.0"},
-      {:plug_cowboy, "~> 2.6"},
+      {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"},
       {:plug_checkup, "~> 0.6"},
       {:poison, "~> 5.0"},
