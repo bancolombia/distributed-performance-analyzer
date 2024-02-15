@@ -5,6 +5,13 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
   Provides functions for normalize data
   """
 
+  def parse_to_int(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {number, _} -> number
+      _ -> nil
+    end
+  end
+
   def round_number(number), do: trunc(number)
   def round_number(float, precision) when is_float(float), do: Float.round(float, precision)
   def round_number(number, _precision), do: number
@@ -72,6 +79,8 @@ defmodule DistributedPerformanceAnalyzer.Utils.DataTypeUtils do
   end
 
   def format(value, _type), do: value
+
+  def timestamp(), do: System.system_time() |> system_time_to_milliseconds()
 
   def system_time_to_milliseconds(system_time) do
     (system_time / 1.0e6) |> round()
