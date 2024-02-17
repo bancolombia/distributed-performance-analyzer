@@ -22,24 +22,36 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Config.Request do
   def before_construct(%__MODULE__{} = input), do: {:ok, input}
 
   @impl Constructor
-  def before_construct(%{method: method} = input) when is_binary(method) do
-    case method do
-      method when method in @string_allowed_methods ->
-        {:ok, %{input | method: String.downcase(method) |> String.to_atom()}}
-
-      _ ->
-        {:error, {:constructor, %{method: "Invalid HTTP #{inspect(method)} method!"}}}
+  def before_construct(%{method: method, headers: headers} = input) do
+    with {:ok, fix_method} <- parse_method(method),
+         {:ok, fix_headers} <- parse_headers(headers) do
+      {:ok, %{input | method: fix_method, headers: fix_headers}}
+    else
+      {:error, reason} -> {:error, {:constructor, %{method: reason}}}
     end
   end
 
-  @impl Constructor
-  def before_construct(%{method: method} = input) when is_atom(method) do
+  defp parse_method(method) do
     case method do
-      method when method in @atoms_allowed_methods ->
-        {:ok, input} |> IO.inspect(label: "before_construct")
+      method when is_binary(method) and method in @string_allowed_methods ->
+        {:ok, String.downcase(method) |> String.to_atom()}
+
+      method when is_atom(method) and method in @atoms_allowed_methods ->
+        {:ok, method}
 
       _ ->
-        {:error, {:constructor, %{method: "Invalid HTTP #{inspect(method)} method!"}}}
+        {:error, "Invalid HTTP #{inspect(method)} method!"}
     end
+  end
+
+  defp parse_headers(headers) when is_list(headers) do
+    {:ok,
+     headers
+     |> Enum.map(fn {key, value} ->
+       case key do
+         key when is_binary(key) -> {String.downcase(key), value}
+         key when is_atom(key) -> {Atom.to_string(key) |> String.downcase(), value}
+       end
+     end)}
   end
 end
