@@ -38,9 +38,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   end
 
   @impl true
-  def handle_info(:loop, state) do
+  def handle_info(:loop, %{config: config} = state) do
+    Logger.debug("Sending request #{inspect(config.request)}...")
     {:ok, %{response: response, connection: connection}} = send_request(state)
-    IO.inspect(response)
+    Logger.debug(inspect(response))
     loop()
     #    TODO: send metrics
     {:noreply, %{state | connection: connection}}
@@ -51,13 +52,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   defp get_connection(%Request{} = request), do: @http_client.open_connection(request)
   defp close_connection(connection), do: @http_client.close_connection(connection)
 
-  defp send_request(%{connection: connection, config: config} = state),
+  defp send_request(%{connection: connection, config: config}),
     do: @http_client.do_request(connection, config.request)
 
   @impl true
   def terminate(reason, state) do
     Logger.debug("Terminating user due to #{inspect(reason)}")
-    close_connection(state.connection)
+    if state && state.connection, do: close_connection(state.connection)
     :ok
   end
 

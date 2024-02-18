@@ -9,8 +9,6 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
   Provides functions for making HTTP requests and GenServer Process.
   """
 
-  alias DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClientOld
-
   @doc """
     GenServer
   """
