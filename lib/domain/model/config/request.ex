@@ -46,12 +46,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Config.Request do
 
   defp parse_headers(headers) when is_list(headers) do
     {:ok,
-     headers
-     |> Enum.map(fn {key, value} ->
-       case key do
-         key when is_binary(key) -> {String.downcase(key), value}
-         key when is_atom(key) -> {Atom.to_string(key) |> String.downcase(), value}
-       end
+     Enum.map(headers, fn
+       {key, value} when is_binary(key) -> {key, value}
+       {key, value} when is_atom(key) -> {Atom.to_string(key), value}
      end)}
   end
 end
