@@ -4,160 +4,125 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
   @moduledoc """
   Provides functions for making HTTP requests
   """
-
-  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
   use Tesla
+  adapter(Tesla.Adapter.Mint)
+
+  alias Tesla.Multipart
+  alias DistributedPerformanceAnalyzer.Domain.Behaviours.Request.HttpClient
+  alias DistributedPerformanceAnalyzer.Domain.Model.{Config.Request, Config.Response}
+  alias DistributedPerformanceAnalyzer.Utils.DataTypeUtils
+
+  @behaviour HttpClient
 
   @client Tesla.client([], Tesla.Adapter.Mint)
-  @adapter Tesla.Adapter.Mint
-  @http_methods %{
-    get: &Httpclient.get_request/4,
-    post: &Httpclient.post_request/4,
-    put: &Httpclient.put_request/4,
-    delete: &Httpclient.delete_request/4,
-    patch: &Httpclient.patch_request/4,
-    options: &Httpclient.options_request/4,
-    head: &Httpclient.head_request/4,
-    trace: &Httpclient.trace_request/4
-  }
+  @content_type "content-type"
+  @content_length "content-length"
+  @form_data "multipart/form-data"
+  @form_urlencoded "application/x-www-form-urlencoded"
 
-  def init(url, method, body \\ "", headers \\ "", conn_reuse) do
-    Utils.CertificatesAdmin.setup()
+  @impl true
+  def open_connection(%Request{url: url, timeout: timeout, ssl: ssl}) do
+    start_time = DataTypeUtils.start_time()
+    %{host: host, port: port, scheme: scheme} = DataTypeUtils.parse_url(url)
 
-    start = :erlang.monotonic_time(:millisecond)
-
-    %{
-      host: host,
-      path: path,
-      port: port,
-      query: query,
-      scheme: scheme
-    } = DataTypeUtils.parse(url)
-
-    body_json = Jason.encode!(body)
-    params = [method, url, body_json, headers]
-
-    case connect(%{host: host, path: path, port: port, query: query, scheme: scheme}) do
-      {:ok, conn} ->
-        conn_time = :erlang.monotonic_time(:millisecond) - start
-        time = [start, conn_time]
-        handle_http_method(method, params, time, conn)
-
-      {:error, _} = error ->
-        Logger.warning("Error creating connection with #{url}}")
-        error
+    with {:ok, connection} <-
+           Mint.HTTP.connect(scheme, host, port, mint_opts(scheme, ssl, timeout)) do
+      {:ok,
+       connection |> Map.merge(%{time: DataTypeUtils.duration_time(start_time), reused: false})}
+    else
+      error -> error
     end
   end
 
-  defp connect(%{host: host, path: path, port: port, scheme: scheme}) do
-    Mint.HTTP.connect(scheme, host, port, options_mint(scheme))
+  @impl true
+  def close_connection(connection) do
+    Mint.HTTP.close(connection)
+    :ok
   end
 
-  defp handle_http_method(method, params, time, conn) do
-    case Map.fetch(@http_methods, method) do
-      {:ok, func} -> apply(func, [@client, params, time, conn])
-      :error -> {:error, "Unsupported HTTP method"}
-    end
+  @impl true
+  def do_request(
+        connection,
+        %Request{
+          method: method,
+          url: url,
+          body: body,
+          headers: headers
+        } = request
+      ) do
+    start_time = DataTypeUtils.start_time()
+
+    response =
+      handle_request(@client, method, url, headers, body, connection)
+      |> handle_response(request, connection, start_time)
+
+    {:ok,
+     %{
+       response: response,
+       connection: update_connection_state(connection)
+     }}
   end
 
-  ### definition of http methods
+  defp handle_request(client, :post, url, headers, body, conn) do
+    request_body =
+      case DataTypeUtils.extract_header(headers, @content_type) do
+        {:ok, @form_data} ->
+          file_path = Enum.find_value(body, fn {_, v} -> if File.exists?(v), do: v, else: nil end)
+          if file_path, do: build_multipart_data(file_path), else: body
 
-  def get_request(client, params, time, conn) do
-    [method, url, body, headers] = params
+        {:ok, @form_urlencoded} ->
+          Tesla.encode_query(body)
 
-    case Tesla.get(client, url, conn: conn) do
-      {:ok, res} ->
-        response_to_map(res, url, time) |> IO.inspect()
+        _ ->
+          body
+      end
 
-      {:error, err} ->
-        response_fail(err)
-    end
+    Tesla.post(client, url, request_body, headers: headers, conn: conn)
   end
 
-  """
-    Example of request function
+  defp handle_request(client, method, url, headers, body, conn),
+    do: Tesla.request(client, method: method, url: url, headers: headers, body: body, conn: conn)
 
-    request(client, :post, params, time, conn)
-    request(client, :put, params, time, conn)
-    request(client, :delete, params, time, conn)
-    request(client, :patch, params, time, conn)
-  """
+  defp handle_response({:ok, res}, %Request{} = request, connection, start_time),
+    do: parse_response(res, request, connection, start_time)
 
-  def request(client, method, params, time, conn) do
-    [_, url, body, headers] = params
+  defp handle_response({:error, err}, _, _, _), do: fail_response(err)
 
-    case method do
-      :post -> handle_post(client, url, body, headers, conn)
-      _ -> handle_request(method, client, url, body, conn)
-    end
-    |> handle_response(url, time)
+  defp parse_response(
+         %Tesla.Env{status: status, headers: headers, body: body},
+         %Request{} = _request,
+         %{time: time, reused: reused} = _connection,
+         start_time
+       ) do
+    Response.new(%{
+      status: status,
+      message: body,
+      elapsed: DataTypeUtils.duration_time(start_time),
+      timestamp: DataTypeUtils.timestamp(),
+      connection_time: unless(reused, do: time, else: 0),
+      content_type: DataTypeUtils.extract_header!(headers, @content_type),
+      received_bytes:
+        DataTypeUtils.extract_header!(headers, @content_length) |> DataTypeUtils.parse_to_int()
+    })
   end
 
-  defp handle_post(client, url, body, headers, conn) do
-    case Map.get(headers, "Content-Type") do
-      "multipart/form-data" ->
-        file_path = Enum.find_value(body, fn {_, v} -> if File.exists?(v), do: v, else: nil end)
+  #  TODO: Send error reason
+  defp fail_response(res), do: Logger.warning("Request error: #{res}")
 
-        if file_path do
-          multipart_data = build_multipart_data(file_path)
-          Tesla.post(client, url, multipart_data, conn: conn)
-        else
-          Tesla.post(client, url, body, conn: conn)
-        end
+  defp mint_opts(scheme, ssl_validation, timeout) do
+    #    TODO: enable cacerts https://hexdocs.pm/mint/Mint.HTTP.html#module-ssl-certificates
+    verify = if ssl_validation, do: :verify_peer, else: :verify_none
 
-      "application/x-www-form-urlencoded" ->
-        encoded_body = Tesla.encode_query(body)
-        Tesla.post(client, url, encoded_body, conn: conn)
-
-      _ ->
-        Tesla.post(client, url, body, conn: conn)
-    end
-  end
-
-  defp handle_request(method, client, url, body, conn) do
-    Tesla.request(client, method, url, body, conn: conn)
-  end
-
-  defp handle_response({:ok, res}, url, time) do
-    response_to_map(res, url, time) |> IO.inspect()
-  end
-
-  defp handle_response({:error, err}, _, _) do
-    response_fail(err)
-  end
-
-  ### common functions
-
-  defp response_to_map(response, url, time) do
-    [start, conn_time] = time
-
-    %{
-      status: response.status,
-      headers: response.headers,
-      body: response.body,
-      label: "sample",
-      thread_name: "#{inspect(self())}",
-      url: url,
-      sent_bytes: String.length(response.body),
-      connect: conn_time
-      # concurrency: concurrency
-    }
-  end
-
-  defp response_fail(res) do
-    IO.puts("Hubo un error en la petición, el error fue #{res}")
-    IO.inspect(System.stacktrace())
-  end
-
-  defp options_mint(scheme) do
     case scheme do
-      :https -> [transport_opts: [verify: :verify_none, timeout: 60000]]
-      :http -> [transport_opts: [timeout: 60000]]
+      :https -> [transport_opts: [verify: verify, timeout: timeout]]
+      :http -> [transport_opts: [timeout: timeout]]
       _ -> []
     end
   end
 
-  defp build_multipart_data(file_path) when is_binary(file_path) do
-    Multipart.new() |> Multipart.add_file(file_path)
-  end
+  defp build_multipart_data(file_path) when is_binary(file_path),
+    do: Multipart.new() |> Multipart.add_file(file_path)
+
+  defp update_connection_state(%{reused: reused} = connection),
+    do: unless(reused, do: Map.put(connection, :reused, true), else: connection)
 end
