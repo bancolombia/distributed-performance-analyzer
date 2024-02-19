@@ -42,8 +42,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   def handle_info(:loop, %{config: config, connection: connection} = state) do
     request = replace_from_dataset(config.request, config.dataset_name)
     Logger.debug("Sending request #{inspect(request)}")
+
     {:ok, %{response: response, connection: connection}} = send_request(connection, request)
     Logger.debug(inspect(response))
+
     loop()
     #    TODO: send metrics
     {:noreply, %{state | connection: connection}}
@@ -59,19 +61,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
 
   defp replace_from_dataset(%Request{} = request, nil), do: request
 
-  defp replace_from_dataset(%Request{body: body, headers: headers} = request, dataset_name)
-       when is_binary(dataset_name) do
-    if(is_function(body) || is_function(headers)) do
-      item = DatasetUseCase.get_random_item(dataset_name)
+  defp replace_from_dataset(%Request{} = request, dataset_name) when is_binary(dataset_name) do
+    item = DatasetUseCase.get_random_item(dataset_name)
+    replace_value = &(DatasetUseCase.replace_value(&1, item) || &1)
 
-      %{
-        request
-        | body: DatasetUseCase.replace_value(body, item),
-          headers: DatasetUseCase.replace_value(headers, item)
-      }
-    else
-      request
-    end
+    %{request | body: replace_value.(request.body), headers: replace_value.(request.headers)}
   end
 
   @impl true
