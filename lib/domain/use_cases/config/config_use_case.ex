@@ -44,11 +44,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   defp parse_v2_config(env) do
     requests = parse_config_to_model(env[:requests], &Request.new/1)
+    strategies = parse_config_to_model(env[:strategies], &Strategy.new/1)
 
     datasets =
       if env[:datasets], do: parse_config_to_model(env[:datasets], &Dataset.new/1), else: nil
-
-    strategies = parse_config_to_model(env[:strategies], &Strategy.new/1)
 
     scenarios =
       env[:scenarios]
@@ -67,7 +66,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
     dataset_value = Map.get(execution_map, :dataset)
     dataset_path = if dataset_value == :none, do: nil, else: dataset_value
-    dataset_name = if dataset_path, do: "default", else: nil
+    dataset_name = (dataset_path && "default") || nil
 
     datasets =
       if dataset_path do
@@ -105,7 +104,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   defp create_scenario({scenario_name, scenario_map}, requests, strategies, datasets) do
     %{request: request, strategy: strategy} = scenario_map
-    dataset_name = Map.get(scenario_map, :dataset)
+    dataset_value = Map.get(scenario_map, :dataset)
+    dataset_name = if dataset_value == :none, do: nil, else: dataset_value
 
     request_model = requests[String.to_atom(request)]
     strategy_model = strategies[String.to_atom(strategy)]
