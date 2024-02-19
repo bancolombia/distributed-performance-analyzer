@@ -44,7 +44,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   defp parse_v2_config(env) do
     requests = parse_config_to_model(env[:requests], &Request.new/1)
-    datasets = parse_config_to_model(env[:datasets], &Dataset.new/1)
+
+    datasets =
+      if env[:datasets], do: parse_config_to_model(env[:datasets], &Dataset.new/1), else: nil
+
     strategies = parse_config_to_model(env[:strategies], &Strategy.new/1)
 
     scenarios =
@@ -56,30 +59,29 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   defp parse_v1_config(env) do
     url = env[:url]
-    %{dataset: dataset_path} = execution = env[:execution]
+    execution_map = env[:execution]
+    request_map = env[:request]
 
-    {:ok, request} =
-      env[:request]
-      |> Map.put(:url, url)
-      |> Request.new()
+    {:ok, request} = request_map |> Map.put(:url, url) |> Request.new()
+    {:ok, strategy} = Strategy.new(execution_map)
 
-    {:ok, strategy} = Strategy.new(execution)
-
-    dataset_name = if dataset_path == :none, do: :none, else: "default"
+    dataset_value = Map.get(execution_map, :dataset)
+    dataset_path = if dataset_value == :none, do: nil, else: dataset_value
+    dataset_name = if dataset_path, do: "default", else: nil
 
     datasets =
-      with {:ok, dataset} <-
-             execution
-             |> Map.put(:path, dataset_path)
-             |> Dataset.new() do
-        [default: dataset]
-      else
-        {:error, _} ->
-          []
+      if dataset_path do
+        case execution_map |> Map.put(:path, dataset_path) |> Dataset.new() do
+          {:ok, dataset} ->
+            [default: dataset]
+
+          {:error, reason} ->
+            raise(ConfigError, message: "Error with dataset, " <> inspect(reason))
+        end
       end
 
     scenarios =
-      [default: %{request: "default", dataset: dataset_name, strategy: "default", depends: :none}]
+      [default: %{request: "default", dataset: dataset_name, strategy: "default", depends: nil}]
       |> Enum.map(&create_scenario(&1, [default: request], [default: strategy], datasets))
 
     %{scenarios: scenarios, datasets: datasets}
@@ -87,7 +89,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   defp identify_config_file_version(env) do
     if env[:requests] &&
-         env[:datasets] &&
          env[:strategies] &&
          env[:scenarios],
        do: 2,
@@ -102,39 +103,37 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
     end)
   end
 
-  defp create_scenario({key, value}, requests, strategies, datasets) do
-    %{request: request, strategy: strategy, dataset: dataset} = value
+  defp create_scenario({scenario_name, scenario_map}, requests, strategies, datasets) do
+    %{request: request, strategy: strategy} = scenario_map
+    dataset_name = Map.get(scenario_map, :dataset)
 
     request_model = requests[String.to_atom(request)]
     strategy_model = strategies[String.to_atom(strategy)]
-    dataset_model = unless dataset == :none, do: datasets[String.to_atom(dataset)], else: :none
 
-    if request_model && strategy_model && dataset_model do
+    dataset_model = if dataset_name, do: datasets[String.to_atom(dataset_name)]
+
+    if request_model && strategy_model && (!dataset_name or is_map(dataset_model)) do
       {:ok, scenario} =
-        %{value | request: request_model, strategy: strategy_model}
-        |> Map.put(:name, Atom.to_string(key))
-        |> Map.put(:dataset_name, dataset)
+        scenario_map
+        |> Map.put(:request, request_model)
+        |> Map.put(:strategy, strategy_model)
+        |> Map.put(:name, Atom.to_string(scenario_name))
+        |> Map.put(:dataset_name, dataset_name)
         |> Scenario.new()
 
       scenario
     else
-      unless request_model,
-        do:
-          raise(ConfigError,
-            message: "request #{inspect(request)} on #{inspect(key)} scenario doesn't exists"
-          )
+      raise(ConfigError,
+        message: error_message(request_model, strategy_model, dataset_model, scenario_name)
+      )
+    end
+  end
 
-      unless strategy_model,
-        do:
-          raise(ConfigError,
-            message: "strategy #{inspect(strategy)} on #{inspect(key)} scenario doesn't exists"
-          )
-
-      unless dataset_model,
-        do:
-          raise(ConfigError,
-            message: "dataset #{inspect(dataset)} on #{inspect(key)} scenario doesn't exists"
-          )
+  defp error_message(request_model, strategy_model, dataset_model, key) do
+    cond do
+      !request_model -> "request on #{inspect(key)} scenario doesn't exists"
+      !strategy_model -> "strategy on #{inspect(key)} scenario doesn't exists"
+      !dataset_model -> "dataset on #{inspect(key)} scenario doesn't exists"
     end
   end
 end

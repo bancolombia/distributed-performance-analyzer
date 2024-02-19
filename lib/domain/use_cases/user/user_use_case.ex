@@ -7,6 +7,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   require Logger
   alias DistributedPerformanceAnalyzer.Config.AppConfig
   alias DistributedPerformanceAnalyzer.Domain.Model.{User, Config.Request}
+  alias DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase
 
   defstruct [:connection, :config]
 
@@ -38,9 +39,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   end
 
   @impl true
-  def handle_info(:loop, %{config: config} = state) do
-    Logger.debug("Sending request #{inspect(config.request)}...")
-    {:ok, %{response: response, connection: connection}} = send_request(state)
+  def handle_info(:loop, %{config: config, connection: connection} = state) do
+    request = replace_from_dataset(config.request, config.dataset_name)
+    Logger.debug("Sending request #{inspect(request)}")
+    {:ok, %{response: response, connection: connection}} = send_request(connection, request)
     Logger.debug(inspect(response))
     loop()
     #    TODO: send metrics
@@ -52,8 +54,25 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   defp get_connection(%Request{} = request), do: @http_client.open_connection(request)
   defp close_connection(connection), do: @http_client.close_connection(connection)
 
-  defp send_request(%{connection: connection, config: config}),
-    do: @http_client.do_request(connection, config.request)
+  defp send_request(connection, %Request{} = request),
+    do: @http_client.do_request(connection, request)
+
+  defp replace_from_dataset(%Request{} = request, nil), do: request
+
+  defp replace_from_dataset(%Request{body: body, headers: headers} = request, dataset_name)
+       when is_binary(dataset_name) do
+    if(is_function(body) || is_function(headers)) do
+      item = DatasetUseCase.get_random_item(dataset_name)
+
+      %{
+        request
+        | body: DatasetUseCase.replace_value(body, item),
+          headers: DatasetUseCase.replace_value(headers, item)
+      }
+    else
+      request
+    end
+  end
 
   @impl true
   def terminate(reason, state) do

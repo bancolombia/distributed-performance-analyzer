@@ -49,7 +49,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Execution.ExecutionUseCa
     do: GenServer.call(__MODULE__, {:continue_execution, done_scenario})
 
   defp order_scenarios(scenarios) when is_list(scenarios) do
-    {ready, waiting} = scenarios |> Enum.split_with(&(&1.depends == :none || &1.depends == []))
+    {ready, waiting} = scenarios |> Enum.split_with(&(&1.depends == nil || &1.depends == []))
 
     %{waiting: waiting, ready: ready, in_progress: [], done: []}
   end
