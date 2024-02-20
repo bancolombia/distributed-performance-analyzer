@@ -1,7 +1,7 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.AnalyzerUseCase do
   @moduledoc """
   """
-
+  alias :mnesia, as: Mnesia
   alias DistributedPerformanceAnalyzer.Utils.Statistics
   require Logger
 
@@ -37,8 +37,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.AnalyzerUseCase 
   # Functions for records calculations in mnesia tables
 
   def response_time_calculations(table_name) do
-    :mnesia.transaction(fn ->
-      records = :mnesia.all_keys(table_name)
+    Mnesia.transaction(fn ->
+      records = Mnesia.all_keys(table_name)
       response_times = Enum.map(records, fn {:response_time, time} -> time end)
       response_times_list = Map.values(response_times)
       min_time = Statistics.min(response_times_list)
@@ -56,19 +56,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.AnalyzerUseCase 
   end
 
   def count_table_records(table_name) do
-    :mnesia.transaction(fn ->
-      table_data = :mnesia.all_keys(table_name)
+    Mnesia.transaction(fn ->
+      table_data = Mnesia.all_keys(table_name)
       length(table_data)
     end)
   end
 
   def count_table_records_by_response_code(table_name, response_code) do
-    :mnesia.transaction(fn ->
+    Mnesia.transaction(fn ->
       pattern =
         {:errors_request, :_, response_code, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_, :_,
          :_}
 
-      records = :mnesia.match_object(pattern)
+      records = Mnesia.match_object(pattern)
       count = length(records)
       count
     end)
@@ -76,12 +76,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.AnalyzerUseCase 
 
   ## Functions for mnesia tables
   def read_from_table(table_name, key) do
-    :mnesia.transaction(fn ->
-      :mnesia.read({table_name, key})
+    Mnesia.transaction(fn ->
+      Mnesia.read({table_name, key})
     end)
   end
 
   def delete_table(table_name) do
-    :mnesia.delete_table(table_name)
+    Mnesia.delete_table(table_name)
   end
 end

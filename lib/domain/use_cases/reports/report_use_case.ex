@@ -2,13 +2,14 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
   @moduledoc """
   Provides functions for generating reports, based on the results of the step
   """
+  alias :mnesia, as: Mnesia
 
   #  TODO: init, create tables (step results)
   alias DistributedPerformanceAnalyzer.Domain.UseCase.CollectorUseCase
 
   def init do
-    :mnesia.start()
-    :mnesia.create_schema([node()])
+    Mnesia.start()
+    Mnesia.create_schema([node()])
   end
 
   def start_step_collector(id) do
@@ -48,7 +49,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Reports.ReportUseCase do
 
   defp create_table(table_name, attributes) do
     # TODO: table ordered_set
-    :mnesia.create_table(table_name, [
+    Mnesia.create_table(table_name, [
       {:type, :duplicate_bag},
       {:attributes, attributes}
     ])

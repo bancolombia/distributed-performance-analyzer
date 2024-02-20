@@ -1,6 +1,7 @@
 defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.CollectorUseCase do
   @moduledoc """
   """
+  alias :mnesia, as: Mnesia
   use Task
 
   def consolidate_step(id) do
@@ -24,7 +25,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.CollectorUseCase
   # TODO: fix %Response{}
   # def save_success_response(id, %Response{} = response) do
   def save_success_response(id, response) do
-    :mnesia.transaction(fn ->
+    Mnesia.transaction(fn ->
       record = %{
         timeStamp: response.timeStamp,
         responseCode: response.responseCode,
@@ -32,13 +33,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.CollectorUseCase
         concurrency: response.concurrency
       }
 
-      :mnesia.write(record)
+      Mnesia.write(record)
     end)
   end
 
   # def save_error_response(id, %Response{} = response) do
-  def save_error_response(id, response) do
-    :mnesia.transaction(fn ->
+  def save_error_response(_id, response) do
+    Mnesia.transaction(fn ->
       record = %{
         timeStamp: response.timeStamp,
         response_code: response.response_code,
@@ -47,13 +48,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.CollectorUseCase
         concurrency: response.concurrency
       }
 
-      :mnesia.write(record)
+      Mnesia.write(record)
     end)
   end
 
   # def save_consolidated_response(id, %Response{} = response) do
   def save_consolidated_response(id, response) do
-    :mnesia.transaction(fn ->
+    Mnesia.transaction(fn ->
       record = %{
         timestamp: response.timestamp,
         elapsed: response.elapsed,
@@ -74,7 +75,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Metrics.CollectorUseCase
         connect: response.connect
       }
 
-      :mnesia.write(record)
+      Mnesia.write(record)
     end)
   end
 end
