@@ -44,8 +44,8 @@ jobs:
         name: Compile
 
       - run: |
-          mix credo --sonarqube-base-folder ./ --sonarqube-file credo_sonarqube.json --mute-exit-status
-          mix sobelow
+          mix credo --all --sonarqube-base-folder ./ --sonarqube-file credo_sonarqube.json --mute-exit-status
+          mix sobelow --config
           mix sobelow -f json --out sobelow.json
         name: Static Code Analysis
 

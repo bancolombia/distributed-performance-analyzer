@@ -3,6 +3,7 @@
     <module name="distributed-performance-analyzer" />
     <mix>
       <argument>sobelow</argument>
+      <argument>--config</argument>
     </mix>
     <module name="distributed-performance-analyzer" />
     <module-filters inherit-application-module-filters="true" />
