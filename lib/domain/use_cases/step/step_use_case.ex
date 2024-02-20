@@ -15,9 +15,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
 
   @impl true
   def init(%Step{scenario: scenario, number: step_number}) do
-    with {:ok, _} <- start_step(scenario, step_number) do
-      {:ok, nil}
-    else
+    case start_step(scenario, step_number) do
+      {:ok, _} ->
+        {:ok, nil}
+
       {:error, reason} ->
         Logger.error(inspect(reason))
         {:stop, "Error starting step #{step_number} for scenario #{scenario.name}"}

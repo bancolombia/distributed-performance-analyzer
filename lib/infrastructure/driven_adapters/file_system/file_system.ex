@@ -14,15 +14,15 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.FileSystem do
   def file_exists?(path), do: File.exists?(path)
 
   @impl FileSystem
-  @spec has_valid_extension?(path :: String.t(), extensions :: [String.t()]) :: boolean
-  def has_valid_extension?(path, extensions) do
+  @spec valid_extension?(path :: String.t(), extensions :: [String.t()]) :: boolean
+  def valid_extension?(path, extensions) do
     ext = Path.extname(path) |> String.downcase()
     Enum.map(extensions, &String.downcase/1) |> Enum.member?(ext)
   end
 
   @impl FileSystem
-  @spec has_utf8_encoding?(path :: String.t()) :: boolean
-  def has_utf8_encoding?(path) do
+  @spec utf8_encoding?(path :: String.t()) :: boolean
+  def utf8_encoding?(path) do
     case File.read(path) do
       {:ok, content} ->
         String.valid?(content)

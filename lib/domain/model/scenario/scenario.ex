@@ -18,13 +18,13 @@ defmodule DistributedPerformanceAnalyzer.Domain.Model.Scenario do
     )
 
     field(:depends, String.t() | :lists,
-      constructor: &Scenario.is_dependencies_valid/1,
+      constructor: &Scenario.dependencies_valid?/1,
       default: nil,
       enforce: false
     )
   end
 
-  def is_dependencies_valid(depends) do
+  def dependencies_valid?(depends) do
     case depends do
       depends when is_binary(depends) or is_nil(depends) ->
         {:ok, depends}

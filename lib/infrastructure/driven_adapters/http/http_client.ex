@@ -25,12 +25,13 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     start_time = DataTypeUtils.start_time()
     %{host: host, port: port, scheme: scheme} = DataTypeUtils.parse_url(url)
 
-    with {:ok, connection} <-
-           Mint.HTTP.connect(scheme, host, port, mint_opts(scheme, ssl, timeout)) do
-      {:ok,
-       connection |> Map.merge(%{time: DataTypeUtils.duration_time(start_time), reused: false})}
-    else
-      error -> error
+    case Mint.HTTP.connect(scheme, host, port, mint_opts(scheme, ssl, timeout)) do
+      {:ok, connection} ->
+        {:ok,
+         connection |> Map.merge(%{time: DataTypeUtils.duration_time(start_time), reused: false})}
+
+      error ->
+        error
     end
   end
 
@@ -99,7 +100,7 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
       message: body,
       elapsed: DataTypeUtils.duration_time(start_time),
       timestamp: DataTypeUtils.timestamp(),
-      connection_time: unless(reused, do: time, else: 0),
+      connection_time: if(reused, do: 0, else: time),
       content_type: DataTypeUtils.extract_header!(headers, @content_type),
       received_bytes:
         DataTypeUtils.extract_header!(headers, @content_length) |> DataTypeUtils.parse_to_int()
@@ -124,5 +125,5 @@ defmodule DistributedPerformanceAnalyzer.Infrastructure.Adapters.Http.HttpClient
     do: Multipart.new() |> Multipart.add_file(file_path)
 
   defp update_connection_state(%{reused: reused} = connection),
-    do: unless(reused, do: Map.put(connection, :reused, true), else: connection)
+    do: if(reused, do: connection, else: Map.put(connection, :reused, true))
 end

@@ -27,11 +27,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase do
   def handle_continue(:open_connection, %{config: config} = state) do
     request = config.request
 
-    with {:ok, connection} <- get_connection(request) do
-      Logger.debug("Connection opened to #{request.url} in #{connection.time}ms")
-      loop()
-      {:noreply, %{state | connection: connection}}
-    else
+    case get_connection(request) do
+      {:ok, connection} ->
+        Logger.debug("Connection opened to #{request.url} in #{connection.time}ms")
+        loop()
+        {:noreply, %{state | connection: connection}}
+
       {:error, reason} ->
         Logger.error("Connection failed to #{request.url} due to #{inspect(reason)}")
         {:stop, reason, nil}

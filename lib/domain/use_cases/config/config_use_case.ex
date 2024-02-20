@@ -17,7 +17,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Config.ConfigUseCase do
 
   def init(conf) do
     :ets.new(__MODULE__, [:named_table])
-    conf |> Enum.map(&:ets.insert(__MODULE__, &1))
+    conf |> Enum.each(&:ets.insert(__MODULE__, &1))
     {:ok, nil}
   end
 

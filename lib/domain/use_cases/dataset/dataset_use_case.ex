@@ -22,7 +22,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
 
   @impl true
   def init(datasets) when is_list(datasets) do
-    datasets |> Enum.map(&persists_dataset(&1))
+    datasets |> Enum.each(&persists_dataset(&1))
     {:ok, nil}
   end
 
@@ -32,15 +32,16 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     :ets.new(table_name, [:named_table])
 
     if is_binary(path) do
-      with {:ok, dataset} <- parse_file(path, separator) do
-        dataset
-        |> Enum.with_index(1)
-        |> Enum.each(&insert_into_table(table_name, &1))
+      case parse_file(path, separator) do
+        {:ok, dataset} ->
+          dataset
+          |> Enum.with_index(1)
+          |> Enum.each(&insert_into_table(table_name, &1))
 
-        :ets.insert(table_name, {:length, length(dataset)})
+          :ets.insert(table_name, {:length, length(dataset)})
 
-        {:ok, %{table_name: table_name, index: 0}}
-      else
+          {:ok, %{table_name: table_name, index: 0}}
+
         {:error, message} ->
           Logger.error(message)
           {:stop, :dataset_error}
@@ -59,8 +60,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     Logger.info("Reading dataset file: #{path}")
 
     with {:ok, _path} <- file_exists?(path),
-         {:ok, _path} <- has_valid_extension?(path),
-         {:ok, _path} <- is_utf8_encoded?(path) do
+         {:ok, _path} <- valid_extension?(path),
+         {:ok, _path} <- utf8_encoded?(path) do
       @dataset_parser.parse_csv(path, separator)
     else
       {:error, reason} -> Logger.error("Error reading dataset file: #{inspect(reason)}")
@@ -74,15 +75,15 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Dataset.DatasetUseCase d
     end
   end
 
-  defp has_valid_extension?(path) do
-    case @file_system.has_valid_extension?(path, @valid_extensions) do
+  defp valid_extension?(path) do
+    case @file_system.valid_extension?(path, @valid_extensions) do
       true -> {:ok, path}
       _ -> {:error, "Dataset file #{path} does not have a valid extension"}
     end
   end
 
-  defp is_utf8_encoded?(path) do
-    case @file_system.has_utf8_encoding?(path) do
+  defp utf8_encoded?(path) do
+    case @file_system.utf8_encoding?(path) do
       true -> {:ok, path}
       _ -> {:error, "Dataset file #{path} is not UTF-8 encoded"}
     end

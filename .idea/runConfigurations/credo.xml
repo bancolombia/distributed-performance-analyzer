@@ -3,6 +3,7 @@
     <module name="distributed-performance-analyzer" />
     <mix>
       <argument>credo</argument>
+      <argument>--all</argument>
       <argument>--sonarqube-base-folder</argument>
       <argument>./</argument>
       <argument>--sonarqube-file</argument>
