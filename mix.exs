@@ -6,7 +6,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       app: :distributed_performance_analyzer,
       version: "0.1.0",
       elixir: "~> 1.16",
-      start_permanent: false,
+      start_permanent: true,
       test_coverage: [
         tool: ExCoveralls,
         summary: [threshold: 90]
@@ -42,6 +42,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
   def application do
     [
       extra_applications: [:logger, :opentelemetry_exporter, :opentelemetry],
+      included_applications: [:mnesia],
       mod: {DistributedPerformanceAnalyzer.Application, [Mix.env()]}
     ]
   end
@@ -51,7 +52,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
     [
       {:sobelow, "~> 0.13", only: :dev},
       {:credo_sonarqube, "~> 0.1"},
-      {:finch, "~> 0.17"},
+      {:finch, "~> 0.1"},
       {:opentelemetry_plug,
        git: "https://github.com/juancgalvis/opentelemetry_plug.git", tag: "master"},
       {:opentelemetry_api, "~> 1.2"},
