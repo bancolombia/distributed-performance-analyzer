@@ -40,8 +40,17 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
 
   # Run "mix help compile.app" to learn about applications.
   def application do
+    extra_applications =
+      case Mix.env() do
+        :dev ->
+          [:logger, :opentelemetry_exporter, :opentelemetry, :eex, :wx, :observer, :runtime_tools]
+
+        _ ->
+          [:logger, :opentelemetry_exporter, :opentelemetry]
+      end
+
     [
-      extra_applications: [:logger, :opentelemetry_exporter, :opentelemetry],
+      extra_applications: extra_applications,
       included_applications: [:mnesia],
       mod: {DistributedPerformanceAnalyzer.Application, [Mix.env()]}
     ]
