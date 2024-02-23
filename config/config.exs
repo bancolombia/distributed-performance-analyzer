@@ -26,13 +26,14 @@ if Mix.env() == :dev do
           {:mix_task, :test, ["--color", "--cover"]},
           {:mix_task, :credo,
            [
+             "--all",
              "--sonarqube-base-folder",
              "./",
              "--sonarqube-file",
              "credo_sonarqube.json",
              "--mute-exit-status"
            ]},
-          {:mix_task, :sobelow}
+          {:mix_task, :sobelow, ["--config"]}
         ]
       ]
     ]
