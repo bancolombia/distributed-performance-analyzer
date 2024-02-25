@@ -1,12 +1,9 @@
 defmodule DistributedPerformanceAnalyzer.Application do
-  alias DistributedPerformanceAnalyzer.Config.{AppConfig, AppRegistry}
+  alias DistributedPerformanceAnalyzer.Config.{AppConfig}
   alias DistributedPerformanceAnalyzer.Utils.CertificatesAdmin
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
-    ConnectionPoolUseCase,
     Execution.ExecutionUseCase,
-    MetricsCollectorUseCase,
-    MetricsAnalyzerUseCase,
     Config.ConfigUseCase,
     Dataset.DatasetUseCase
   }
@@ -17,6 +14,7 @@ defmodule DistributedPerformanceAnalyzer.Application do
   @default_runtime_config "config/performance.exs"
 
   def start(_type, [env]) do
+    #    :observer.start()
     load_config(env)
     CertificatesAdmin.setup()
 
@@ -25,7 +23,9 @@ defmodule DistributedPerformanceAnalyzer.Application do
 
     # CustomTelemetry.custom_telemetry_events()
     opts = [strategy: :one_for_one, name: DistributedPerformanceAnalyzer.Supervisor]
-    Supervisor.start_link(children, opts)
+    pid = Supervisor.start_link(children, opts)
+    #    Process.sleep(100_000)
+    pid
   end
 
   def all_env_children() do
@@ -38,22 +38,8 @@ defmodule DistributedPerformanceAnalyzer.Application do
   def env_children(:test, _distributed), do: []
 
   def env_children(_other_env, distributed) do
-    children = [
-      DatasetUseCase,
-      ConnectionPoolUseCase,
-      {DynamicSupervisor,
-       name: DPA.ConnectionSupervisor,
-       strategy: :one_for_one,
-       max_restarts: 10_000,
-       max_seconds: 1},
-      AppRegistry
-    ]
-
-    master_children = [
-      MetricsAnalyzerUseCase,
-      MetricsCollectorUseCase,
-      ExecutionUseCase
-    ]
+    children = [DatasetUseCase]
+    master_children = [ExecutionUseCase]
 
     if distributed == :none || distributed == :master do
       children ++ master_children
