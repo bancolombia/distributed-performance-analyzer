@@ -5,7 +5,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
   alias DistributedPerformanceAnalyzer.Domain.Model.{Config.Step, Config.Strategy, Scenario, User}
   alias DistributedPerformanceAnalyzer.Domain.UseCase.User.UserUseCase
 
-  use GenServer
+  use GenServer, restart: :temporary
   require Logger
 
   def start_link(%Step{scenario: scenario, number: step_number} = step) do
@@ -23,6 +23,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
         Logger.error(inspect(reason))
         {:stop, "Error starting step #{step_number} for scenario #{scenario.name}"}
     end
+  end
+
+  @impl true
+  def terminate(reason, state) do
+    Logger.debug("Terminating step #{inspect(state)} due to #{inspect(reason)}")
+    :ok
   end
 
   defp start_step(_, 0), do: {:error, :invalid_step_number}
@@ -67,7 +73,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
 
   defp get_pool_config(scenario_name, concurrency),
     do: [
-      name: {:local, String.to_atom("#{scenario_name}_worker")},
+      name: {:local, String.to_atom("#{scenario_name}_#{concurrency}_worker")},
       worker_module: UserUseCase,
       size: concurrency,
       max_overflow: 0
