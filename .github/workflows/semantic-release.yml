@@ -1,0 +1,61 @@
+name: Semantic-Release
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    environment: SEMANTIC_RELEASE_ENV
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      GITHUB_API_URL: ${{ vars.GH_API_URL }}
+      PUBLISH_ARTIFACT: ${{ vars.PUBLISH_ARTIFACT }}
+      ELIXIR_VERSION: ${{ vars.ELIXIR_VERSION }}
+      OTP_VERSION: ${{ vars.OTP_VERSION }}
+      SKIP_GIT_HOOKS: 'true'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+    
+    - name: Set up Elixir ${{ env.ELIXIR_VERSION }} and Otp ${{ env.OTP_VERSION }}
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: ${{ env.ELIXIR_VERSION }}
+        otp-version: ${{ env.OTP_VERSION }}
+    
+    - name: Setup semantic-release
+      run: npm install -g semantic-release @semantic-release/changelog @semantic-release/github -D
+    
+    - name: Call semantic-release
+      run: npx -p @semantic-release/changelog semantic-release
+
+    - name: Set variables From git tag command
+      if: ${{ ( env.PUBLISH_ARTIFACT == 'true' ) }}
+      run: |
+        echo "$VER"
+        echo "RELEASE_VERSION=$(git tag | sort --version-sort | tail -n1 | tr -d 'v')" >> $GITHUB_ENV
+
+    - name: Install Mix dependencies
+      if: ${{ ( env.PUBLISH_ARTIFACT == 'true' ) }}
+      run: mix do local.hex --force, local.rebar --force && mix do deps.clean --unused, deps.get, deps.compile && mix deps.compile
+
+    - name: Publish to HEX
+      if: ${{ ( env.PUBLISH_ARTIFACT == 'true' ) }}
+      run: mix hex.publish --replace --yes
