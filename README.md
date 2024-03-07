@@ -6,6 +6,8 @@
 [![Forks][forks-shield]][forks-url]
 [![Stars][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+[![semantic-release: angular][semantic-release-url-badge]][semantic-release-url]
+
 
 [![Quality Gate Status][sonarcloud-quality-gate-shield]][sonarcloud-url]
 [![Maintainability Rating][sonarcloud-maintainability-shield]][sonarcloud-url]
@@ -165,6 +167,8 @@ vs Mean Latency.
 ![Example 2 - Latency](assets/dresults_example2.png)
 
 
+[semantic-release-url-badge]: https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release
+[semantic-release-url]: https://github.com/semantic-release/semantic-release
 [scorecards-shield]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml/badge.svg
 [scorecards-url]: https://github.com/bancolombia/distributed-performance-analyzer/actions/workflows/scorecards-analysis.yml
 [docker-shield]: https://img.shields.io/docker/pulls/bancolombia/distributed-performance-analyzer
