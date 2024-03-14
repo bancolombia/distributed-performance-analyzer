@@ -45,7 +45,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
       [
         :poolboy.child_spec(
           :worker,
-          get_pool_config(scenario.name, concurrency),
+          get_pool_config(scenario.name, step_number, concurrency),
           user_config
         )
       ]
@@ -60,9 +60,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
          %Strategy{initial: initial, increment: increment, constant_load: constant_load},
          step_number
        ) do
-    if constant_load,
-      do: initial || increment,
-      else: initial + increment * (step_number - 1)
+    if constant_load do
+      if initial == 0, do: increment, else: initial
+    else
+      initial + increment * step_number
+    end
   end
 
   defp get_user_config(%Scenario{} = step) do
@@ -70,9 +72,9 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
     user
   end
 
-  defp get_pool_config(scenario_name, concurrency),
+  defp get_pool_config(scenario_name, step_number, concurrency),
     do: [
-      name: {:local, String.to_atom("#{scenario_name}_#{concurrency}_worker")},
+      name: {:local, String.to_atom("#{scenario_name}_#{step_number}_worker")},
       worker_module: UserUseCase,
       size: concurrency,
       max_overflow: 0
