@@ -57,13 +57,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
   end
 
   defp get_concurrency(
-         %Strategy{initial: initial, increment: increment},
+         %Strategy{initial: initial, increment: increment, constant_load: constant_load},
          step_number
        ) do
-    case initial do
-      0 -> increment * step_number
-      _ -> initial + increment * (step_number - 1)
-    end
+    if constant_load,
+      do: initial || increment,
+      else: initial + increment * (step_number - 1)
   end
 
   defp get_user_config(%Scenario{} = step) do
@@ -84,11 +83,6 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.Step.StepUseCase do
 
   defp get_process_name(scenario_name, step_number),
     do: String.to_atom("#{scenario_name}_scenario_step_#{step_number}")
-
-  #  TODO: remove
-  def get_concurrency(%Step{number: number, scenario: scenario}) do
-    scenario.strategy.increment * number
-  end
 
   def get_name(%Step{number: number, scenario: scenario}) do
     "#{scenario.name} - step: #{number}"
