@@ -10,7 +10,8 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
   alias DistributedPerformanceAnalyzer.Domain.Model.ExecutionModel
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
-    PartialResultUseCase
+    PartialResultUseCase,
+    Reports.ReportUseCase
   }
 
   alias DistributedPerformanceAnalyzer.Utils.Statistics
@@ -67,6 +68,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.MetricsCollectorUseCase 
       partial = new_state[step]
 
       PartialResultUseCase.print_status(partial)
+      ReportUseCase.flush_step(partial)
 
       {:reply, :ok, {step_duration, new_state}}
     else
