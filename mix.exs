@@ -85,8 +85,31 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       name: "distributed_performance_analyzer",
       # The organization the package belongs to. The package will be published to the organization repository, defaults = i"hexpm" repository.
       organization: "bancolombia",
-      files: ["assets", "config", "hooks", "lib", "rel", "test", "Dockerfile", "LICENSE", "SECURITY.md", "README.md", "coveralls.json", "mix.lock", "mix.exs", "sonar-project.properties", ".formatter.exs", ".credo.exs", ".gitignore", ".dockerignore"],
-      maintainers: ["Brayan Batista Zúniga", "Alejandro Jose Tortolero Machado", "Juan David Giraldo Marin"],
+      files: [
+        "assets",
+        "config",
+        "hooks",
+        "lib",
+        "rel",
+        "test",
+        "Dockerfile",
+        "LICENSE",
+        "SECURITY.md",
+        "README.md",
+        "coveralls.json",
+        "mix.lock",
+        "mix.exs",
+        "sonar-project.properties",
+        ".formatter.exs",
+        ".credo.exs",
+        ".gitignore",
+        ".dockerignore"
+      ],
+      maintainers: [
+        "Brayan Batista Zúniga",
+        "Alejandro Jose Tortolero Machado",
+        "Juan David Giraldo Marin"
+      ],
       licenses: ["MIT License"],
       links: %{"GitHub" => "https://github.com/bancolombia/distributed-performance-analyzer.git"}
     ]
