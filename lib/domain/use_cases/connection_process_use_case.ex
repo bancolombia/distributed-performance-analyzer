@@ -45,7 +45,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   end
 
   @impl true
-  def handle_call({:request, _, _, _, _}, _, state = %ConnectionProcess{conn: nil}) do
+  def handle_call({:request, _, _, _, _, _}, _, state = %ConnectionProcess{conn: nil}) do
     send(self(), :late_init)
     Process.sleep(200)
     {:reply, {:nil_conn, "Invalid connection state: nil"}, state}
