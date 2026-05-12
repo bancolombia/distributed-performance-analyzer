@@ -18,7 +18,10 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
 
   def start_link(_) do
     Logger.debug("Starting executor server...")
-    GenServer.start_link(__MODULE__, %{actual_step: -1, steps: 0, resume_step: 1}, name: __MODULE__)
+
+    GenServer.start_link(__MODULE__, %{actual_step: -1, steps: 0, resume_step: 1},
+      name: __MODULE__
+    )
   end
 
   def launch_execution() do
