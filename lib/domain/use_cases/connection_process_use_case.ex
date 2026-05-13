@@ -37,11 +37,11 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
 
   @compile {:inline, options: 1}
   defp options(:https) do
-    [transport_opts: [verify: :verify_none, timeout: 60000]]
+    [transport_opts: [verify: :verify_none, timeout: 60_000]]
   end
 
   defp options(:http) do
-    [transport_opts: [timeout: 60000]]
+    [transport_opts: [timeout: 60_000]]
   end
 
   @impl true
