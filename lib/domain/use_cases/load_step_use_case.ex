@@ -3,12 +3,19 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
   Load step use case
   """
 
+  require Logger
+
   alias DistributedPerformanceAnalyzer.Domain.Model.{LoadProcess, Step}
 
   alias DistributedPerformanceAnalyzer.Domain.UseCase.{
     ConnectionPoolUseCase,
     LoadGeneratorUseCase
   }
+
+  alias DistributedPerformanceAnalyzer.Utils.DpaEvent
+
+  @max_actor_retries 3
+  @retry_delay_ms 500
 
   def start_step(step_model = %Step{}) do
     # TODO: Agregar timeout y manejar errores remotos
@@ -66,9 +73,40 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.LoadStepUseCase do
     )
   end
 
-  defp start_load(launch_config, dataset, concurrency) do
-    {:ok, pid} = LoadGeneratorUseCase.start(launch_config, dataset, concurrency)
-    Process.monitor(pid)
+  defp start_load(launch_config, dataset, concurrency, attempt \\ 1) do
+    case LoadGeneratorUseCase.start(launch_config, dataset, concurrency) do
+      {:ok, pid} ->
+        Process.monitor(pid)
+
+      {:error, reason} when attempt <= @max_actor_retries ->
+        Logger.warning(
+          "Actor failed to start (attempt #{attempt}/#{@max_actor_retries}): #{inspect(reason)}"
+        )
+
+        DpaEvent.emit(%{
+          type: "actor_retry",
+          attempt: attempt,
+          max_retries: @max_actor_retries,
+          reason: inspect(reason)
+        })
+
+        Process.sleep(@retry_delay_ms * attempt)
+        start_load(launch_config, dataset, concurrency, attempt + 1)
+
+      {:error, reason} ->
+        Logger.error(
+          "Actor permanently failed after #{@max_actor_retries} attempts: #{inspect(reason)}"
+        )
+
+        DpaEvent.emit(%{
+          type: "actor_failed",
+          reason: inspect(reason),
+          attempts: @max_actor_retries
+        })
+
+        {_pid, ref} = spawn_monitor(fn -> :ok end)
+        ref
+    end
   end
 
   defp wait_for(ref, timeout) do

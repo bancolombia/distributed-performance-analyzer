@@ -11,6 +11,8 @@ defmodule DistributedPerformanceAnalyzer.Application do
     Dataset.DatasetUseCase
   }
 
+  alias DistributedPerformanceAnalyzer.Infrastructure.EntryPoints.{LogBuffer, HttpServer}
+
   use Application
   require Logger
 
@@ -88,7 +90,8 @@ defmodule DistributedPerformanceAnalyzer.Application do
        strategy: :one_for_one,
        max_restarts: 10_000,
        max_seconds: 1},
-      AppRegistry
+      AppRegistry,
+      LogBuffer
     ]
 
     master_children = [
@@ -100,6 +103,13 @@ defmodule DistributedPerformanceAnalyzer.Application do
     children =
       if distributed == :none || distributed == :master do
         children ++ master_children
+      else
+        children
+      end
+
+    children =
+      if Application.get_env(:distributed_performance_analyzer, :enable_server, false) do
+        children ++ [HttpServer]
       else
         children
       end

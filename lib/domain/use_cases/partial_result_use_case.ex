@@ -4,6 +4,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
   """
   alias DistributedPerformanceAnalyzer.Domain.Model.PartialResult
   alias DistributedPerformanceAnalyzer.Utils.{Statistics, DataTypeUtils}
+  alias DistributedPerformanceAnalyzer.Utils.DpaEvent
 
   require Logger
 
@@ -116,27 +117,24 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.PartialResultUseCase do
       "Concurrency -> users: #{concurrency} - tps: #{throughput} | Latency -> min: #{min}ms - avg: #{avg}ms - max: #{max}ms - p90: #{p90}ms | Requests -> 2xx: #{status_200} - 4xx: #{status_400} - 5xx: #{status_500} | others_errors: #{nil_conn_errors + invocation_errors + protocol_errors + conn_errors} | total_errors: #{errors} - total_request: #{total}"
     )
 
-    IO.puts(
-      "DPA_EVENT " <>
-        Jason.encode!(%{
-          type: "step_complete",
-          concurrency: concurrency,
-          throughput: throughput,
-          min_latency: min,
-          avg_latency: avg,
-          max_latency: max,
-          p90_latency: p90,
-          success_count: status_200,
-          bad_request_count: status_400,
-          server_error_count: status_500,
-          nil_conn_errors: nil_conn_errors,
-          invocation_errors: invocation_errors,
-          protocol_errors: protocol_errors,
-          conn_errors: conn_errors,
-          error_count: errors,
-          total_count: total
-        })
-    )
+    DpaEvent.emit(%{
+      type: "step_complete",
+      concurrency: concurrency,
+      throughput: throughput,
+      min_latency: min,
+      avg_latency: avg,
+      max_latency: max,
+      p90_latency: p90,
+      success_count: status_200,
+      bad_request_count: status_400,
+      server_error_count: status_500,
+      nil_conn_errors: nil_conn_errors,
+      invocation_errors: invocation_errors,
+      protocol_errors: protocol_errors,
+      conn_errors: conn_errors,
+      error_count: errors,
+      total_count: total
+    })
   end
 
   def calculate(result_list, opts) do

@@ -4,6 +4,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   """
   alias DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionProcessUseCase
   alias DistributedPerformanceAnalyzer.Config.AppRegistry
+  alias DistributedPerformanceAnalyzer.Utils.DpaEvent
 
   use GenServer
   require Logger
@@ -39,16 +40,33 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   @impl true
   def handle_call({:ensure_capacity, capacity}, _from, {scheme, host, port, pool, total_cap}) do
     actual = Enum.count(pool)
-    to_create = capacity - actual
 
     if capacity > actual do
+      to_create = capacity - actual
       actual_from = total_cap + 1
       capacity_to = total_cap + 1 + to_create
 
-      created =
+      results =
         Enum.map(actual_from..capacity_to, fn id -> create_connection(scheme, host, port, id) end)
 
-      {:reply, {:ok, to_create}, {scheme, host, port, created ++ pool, total_cap + to_create + 1}}
+      {successes, failures} = Enum.split_with(results, &match?({:ok, _}, &1))
+
+      if failures != [] do
+        Logger.warning(
+          "Failed to create #{length(failures)} connections out of #{length(results)} requested"
+        )
+
+        DpaEvent.emit(%{
+          type: "connection_pool_error",
+          failed_count: length(failures),
+          total_requested: length(results)
+        })
+      end
+
+      names = Enum.map(successes, fn {:ok, name} -> name end)
+
+      {:reply, {:ok, length(names)},
+       {scheme, host, port, names ++ pool, total_cap + to_create + 1}}
     else
       {:reply, {:ok, 0}, {scheme, host, port, pool, total_cap}}
     end
@@ -72,12 +90,12 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ConnectionPoolUseCase do
   defp create_connection(scheme, host, port, id) do
     name = AppRegistry.via_tuple(id)
 
-    {:ok, _pid} =
-      DynamicSupervisor.start_child(
-        DPA.ConnectionSupervisor,
-        {ConnectionProcessUseCase, {scheme, host, port, name}}
-      )
-
-    name
+    case DynamicSupervisor.start_child(
+           DPA.ConnectionSupervisor,
+           {ConnectionProcessUseCase, {scheme, host, port, name}}
+         ) do
+      {:ok, _pid} -> {:ok, name}
+      {:error, reason} -> {:error, reason}
+    end
   end
 end
