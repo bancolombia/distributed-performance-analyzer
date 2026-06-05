@@ -56,7 +56,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:opentelemetry_plug, git: "https://github.com/opentelemetry-beam/opentelemetry_plug.git", tag: "master"},
       {:opentelemetry_api, "~> 1.2"},
       {:opentelemetry_exporter, "~> 1.6"},
-      {:telemetry, "~> 0.4 or ~> 1.0"},
+      {:telemetry, "~> 0.4 or ~> 1.0", override: true},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics_prometheus, "~> 1.0"},
       {:castore, "~> 1.0"},
