@@ -11,6 +11,7 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   }
 
   alias DistributedPerformanceAnalyzer.Config.ConfigHolder
+  alias DistributedPerformanceAnalyzer.Utils.DpaEvent
   use GenServer
   require Logger
 
@@ -41,25 +42,20 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
             "Resuming from step #{completed + 1}."
         )
 
-        IO.puts(
-          "DPA_EVENT " <>
-            Jason.encode!(%{
-              type: "resume_detected",
-              completed_steps: completed,
-              resuming_from: completed + 1,
-              total_steps: total_steps
-            })
-        )
+        DpaEvent.emit(%{
+          type: "resume_detected",
+          completed_steps: completed,
+          resuming_from: completed + 1,
+          total_steps: total_steps
+        })
 
         Application.put_env(:distributed_performance_analyzer, :dpa_resume_step, completed)
         completed + 1
       else
+        DpaEvent.rotate_log()
         ReportUseCase.init_report_files()
 
-        IO.puts(
-          "DPA_EVENT " <>
-            Jason.encode!(%{type: "execution_start", total_steps: total_steps})
-        )
+        DpaEvent.emit(%{type: "execution_start", total_steps: total_steps})
 
         Application.put_env(:distributed_performance_analyzer, :dpa_resume_step, 0)
         1
@@ -102,9 +98,31 @@ defmodule DistributedPerformanceAnalyzer.Domain.UseCase.ExecutionUseCase do
   defp start_step({:ok, step_conf}) do
     IO.puts("Initiating #{step_conf.name}, with #{step_conf.concurrency} actors")
 
-    Task.start_link(fn ->
-      LoadStepUseCase.start_step(step_conf)
-      GenServer.cast(__MODULE__, :continue_execution)
-    end)
+    {:ok, pid} =
+      Task.start(fn ->
+        LoadStepUseCase.start_step(step_conf)
+        GenServer.cast(__MODULE__, :continue_execution)
+      end)
+
+    Process.monitor(pid)
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, _pid, :normal}, state) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:DOWN, _ref, :process, _pid, reason}, state) do
+    Logger.error("Step task crashed: #{inspect(reason)}")
+
+    DpaEvent.emit(%{
+      type: "step_task_crashed",
+      reason: inspect(reason),
+      actual_step: state.actual_step
+    })
+
+    GenServer.cast(self(), :continue_execution)
+    {:noreply, state}
   end
 end

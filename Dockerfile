@@ -21,5 +21,6 @@ RUN mix release
 FROM base
 ENV MIX_ENV=performance
 COPY --from=builder $WORKDIR/_build/prod ./
+EXPOSE 8083
 VOLUME config
 ENTRYPOINT rel/$APP_NAME/bin/$APP_NAME start
