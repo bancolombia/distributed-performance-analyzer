@@ -54,7 +54,7 @@ defmodule DistributedPerformanceAnalyzer.MixProject do
       {:credo_sonarqube, "~> 0.1"},
       {:finch, "~> 0.13"},
       {:opentelemetry_plug, git: "https://github.com/opentelemetry-beam/opentelemetry_plug.git", tag: "master"},
-      {:opentelemetry_api, "~> 1.2"},
+      {:opentelemetry_api, "~> 1.2", override: true},
       {:opentelemetry_exporter, "~> 1.6"},
       {:telemetry, "~> 0.4 or ~> 1.0", override: true},
       {:telemetry_poller, "~> 1.0"},
