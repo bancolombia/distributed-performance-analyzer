@@ -2,8 +2,54 @@
   "repositoryUrl": "https://github.com/bancolombia/distributed-performance-analyzer.git",
   "branches": ["main"],
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "eslint",
+        "releaseRules": [
+          { "tag": "breaking", "release": "major" },
+          { "tag": "feat", "release": "minor" },
+          { "tag": "chore", "release": "minor" },
+          { "tag": "refactor", "release": "minor" },
+          { "tag": "update", "release": "minor" },
+          { "tag": "upgrade", "release": "minor" },
+          { "tag": "docs", "release": "patch" },
+          { "tag": "ci", "release": "patch" },
+          { "tag": "fix", "release": "patch" },
+          { "tag": "test", "release": "patch" },
+          { "tag": "perf", "release": "patch" },
+          { "scope": "no-release", "release": false }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator", {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+              { "type": "breaking", "section": "Major version release", "hidden": false },
+              { "type": "BREAKING", "section": "Major version release", "hidden": false },
+              { "type": "BREAKING CHANGE", "section": "Major version release", "hidden": false },
+              { "type": "BREAKING CHANGES", "section": "Major version release", "hidden": false },
+              { "type": "feat", "section": "Features", "hidden": false },
+              { "type": "fix", "section": "Bug Fixes", "hidden": false },
+              { "type": "hotfix", "section": "Bug Fixes", "hidden": false },
+              { "type": "update", "section": "Updates", "hidden": false },
+              { "type": "upgrade", "section": "Upgrades", "hidden": false },
+              { "type": "docs", "section": "Documentation", "hidden": false },
+              { "type": "chore", "section": "Chores", "hidden": false },
+              { "type": "build", "section": "CI/CD Changes", "hidden": false },
+              { "type": "ci", "section": "CI/CD Changes", "hidden": false },
+              { "type": "test", "section": "Tests", "hidden": false },
+              { "type": "refactor", "section": "Refactoring", "hidden": false },
+              { "type": "perf", "section": "Performance Improvements", "hidden": false }
+          ]
+        },
+        "writerOpts": {
+          "commitsSort": ["subject", "scope"]
+        }
+      }
+    ],
     "@semantic-release/github"
   ]
 }
